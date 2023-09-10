@@ -25,6 +25,7 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User userId;
+    @Column(columnDefinition = "text")
     private String comment;
     private Date createdAt;
     private Date updatedAt;

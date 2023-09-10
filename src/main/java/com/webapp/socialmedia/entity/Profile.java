@@ -13,11 +13,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "_prrofile")
+@Table(name = "_profile")
 public class Profile {
     @Id
     @OneToOne
-    @JoinColumn(referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User userId;
     private String bio;
     private String avatar;

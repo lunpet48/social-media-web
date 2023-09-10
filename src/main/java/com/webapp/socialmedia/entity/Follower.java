@@ -20,11 +20,11 @@ import java.util.UUID;
 public class Follower {
     @Id
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "follower_id")
     private User followerUserId;
     @Id
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "followed_id")
     private User followedUserId;
     private Date followedAt;
 

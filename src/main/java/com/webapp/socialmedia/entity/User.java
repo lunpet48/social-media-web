@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.UUID;
 
 @Data
@@ -22,6 +23,7 @@ public class User {
     private String username;
     private String password;
     private String email;
+    private Role role;
     private String phone;
     private Boolean isDeleted;
     private Date createdAt;
