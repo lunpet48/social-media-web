@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -18,14 +17,15 @@ import java.util.UUID;
 @Table(name = "_user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    private String username;
+    @UuidGenerator
+    private String id;
+//    private String username;
     private String password;
     private String email;
-    private Role role;
-    private String phone;
-    private Boolean isDeleted;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+//    private String phone;
+    private Boolean isDeleted = false;
     private Date createdAt;
     private Date updatedAt;
 

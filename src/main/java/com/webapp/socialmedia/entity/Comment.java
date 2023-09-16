@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
 import java.util.UUID;
@@ -17,8 +18,8 @@ import java.util.UUID;
 @Table(name = "_comment")
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @UuidGenerator
+    private String id;
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post postId;
@@ -29,7 +30,7 @@ public class Comment {
     private String comment;
     private Date createdAt;
     private Date updatedAt;
-    private UUID repliedCommentId;
+    private String repliedCommentId;
 
     @PrePersist
     void createdAt() {

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -16,12 +17,11 @@ import java.util.UUID;
 @Table(name = "_post")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @UuidGenerator
+    private String id;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User userId;
     @Column(columnDefinition = "text")
     private String caption;
-    private Long mediaId;
 }
