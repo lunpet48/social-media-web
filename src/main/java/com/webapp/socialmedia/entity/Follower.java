@@ -26,12 +26,12 @@ public class Follower {
     @ManyToOne
     @JoinColumn(name = "followed_id")
     private User followedUserId;
-    private Date followedAt;
+//    private Date followedAt;
 
-    @PrePersist
-    void followedAt() {
-        this.followedAt = new Date();
-    }
+//    @PrePersist
+//    void followedAt() {
+//        this.followedAt = new Date();
+//    }
 }
 
 @Data

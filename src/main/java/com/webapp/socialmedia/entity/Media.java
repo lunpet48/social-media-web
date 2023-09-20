@@ -19,9 +19,15 @@ public class Media {
     @Id
     @UuidGenerator
     private String id;
+
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false)
     private Post postId;
+
+    @Column(nullable = false)
     private String link;
-    private String type;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MediaType type;
 }

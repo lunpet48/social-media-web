@@ -19,14 +19,26 @@ public class User {
     @Id
     @UuidGenerator
     private String id;
-//    private String username;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role = Role.USER;
+
 //    private String phone;
-    private Boolean isDeleted = false;
+
+    private Boolean isActive = true;
+
     private Date createdAt;
+
     private Date updatedAt;
 
     @PrePersist

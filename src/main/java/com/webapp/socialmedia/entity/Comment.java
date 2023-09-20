@@ -20,16 +20,22 @@ public class Comment {
     @Id
     @UuidGenerator
     private String id;
+
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false)
     private Post postId;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User userId;
-    @Column(columnDefinition = "text")
+
+    @Column(columnDefinition = "text", nullable = false)
     private String comment;
+
     private Date createdAt;
-    private Date updatedAt;
+
+//    private Date updatedAt;
+
     private String repliedCommentId;
 
     @PrePersist
@@ -37,8 +43,8 @@ public class Comment {
         this.createdAt = new Date();
     }
 
-    @PreUpdate
-    void updatedAt() {
-        this.updatedAt = new Date();
-    }
+//    @PreUpdate
+//    void updatedAt() {
+//        this.updatedAt = new Date();
+//    }
 }

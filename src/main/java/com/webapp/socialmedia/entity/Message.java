@@ -19,14 +19,18 @@ public class Message {
     @Id
     @UuidGenerator
     private String id;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User userId;
+
     @ManyToOne
-    @JoinColumn(name = "room_id")
+    @JoinColumn(name = "room_id", nullable = false)
     private Room roomId;
 
+    @Column(nullable = false)
     private String message;
+
     private Date createdAt;
     @PrePersist
     private void createdAt() {

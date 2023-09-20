@@ -21,5 +21,6 @@ public class Profile {
     private User userId;
     private String bio;
     private String avatar;
+    @Column(nullable = false)
     private String fullName;
 }
