@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
-import java.util.UUID;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -28,9 +28,23 @@ public class Post {
     @Column(columnDefinition = "text")
     private String caption;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PostType type;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PostMode mode;
+
+    @ManyToMany
+    Set<Tag> tags;
+
     private Date createdAt;
     @PrePersist
     private void createdAt() {
         this.createdAt = new Date();
     }
 }
+
+
+
