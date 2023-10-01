@@ -1,13 +1,12 @@
 package com.webapp.socialmedia.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UuidGenerator;
+
+import java.io.Serializable;
 
 @Data
 @Builder
@@ -15,8 +14,30 @@ import org.hibernate.annotations.UuidGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "_relation_ship")
+@IdClass(RelationShipId.class)
 public class RelationShip {
     @Id
-    @UuidGenerator
-    private String id;
+    @ManyToOne
+    private User user1;
+    @Id
+    @ManyToOne
+    private User user2;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    public enum Status {
+        Pending,
+        Friend,
+        Block
+    }
+}
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class RelationShipId implements Serializable {
+    private User user1;
+    private User user2;
 }
