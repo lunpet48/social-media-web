@@ -22,7 +22,4 @@ public class Tag {
 
     @Column(nullable = false)
     private String tag;
-
-    @ManyToMany
-    Set<Post> posts;
 }

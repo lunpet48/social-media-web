@@ -12,7 +12,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_tag")
+@Table(name = "_notification")
 public class Notification {
     @Id
     @UuidGenerator
