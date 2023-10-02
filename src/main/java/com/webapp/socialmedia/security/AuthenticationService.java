@@ -3,8 +3,10 @@ package com.webapp.socialmedia.security;
 import com.webapp.socialmedia.dto.AuthenticationRequest;
 import com.webapp.socialmedia.dto.AuthenticationRespone;
 import com.webapp.socialmedia.dto.RegisterRequest;
+import com.webapp.socialmedia.entity.RefreshToken;
 import com.webapp.socialmedia.entity.Role;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.repository.RefreshTokenRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,11 +16,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -26,22 +30,25 @@ public class AuthenticationService {
     public AuthenticationRespone register(RegisterRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
+        // thiếu kiểm tra email
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
 
-        repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+        userRepository.save(user);
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = generateRefreshToken(user);
         return AuthenticationRespone.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
     public AuthenticationRespone authenticate(AuthenticationRequest request) {
-        Optional<User> userOptional = repository.findByUsername(request.getUsername());
+        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
 
         User user;
-        user = userOptional.orElseGet(() -> repository.findByEmail(request.getUsername())
+        user = userOptional.orElseGet(() -> userRepository.findByEmail(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found")));
 
         authenticationManager.authenticate(
@@ -51,10 +58,54 @@ public class AuthenticationService {
                 )
         );
 
-        var jwtToken = jwtService.generateToken(user);
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = generateRefreshToken(user);
         return AuthenticationRespone.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
+    }
+
+    public AuthenticationRespone renewToken(String refreshToken) throws Exception {
+        RefreshToken oldRT = refreshTokenRepository.findById(refreshToken).orElseThrow(() -> new Exception("Invalid Token"));
+        if (oldRT.getIsUsed()){
+            /*
+            ########## revoke all tokens
+            */
+            // Thêm đoạn code thu hồi token ở đây
+            throw new Exception("Token is used");
+        }
+
+        if(oldRT.getIsRevoked()){
+            throw new Exception("Token is revoked");
+        }
+        oldRT.setIsUsed(true);
+
+        User user = userRepository.findById(oldRT.getUser().getId()).orElseThrow(()->new UsernameNotFoundException("User Not Found"));
+
+        String jwtToken = jwtService.generateToken(user);
+
+        RefreshToken newRT = new RefreshToken();
+        String id = UUID.randomUUID().toString();
+        newRT.setId(id);
+        newRT.setFamilyId(oldRT.getFamilyId());
+        newRT.setUser(user);
+        refreshTokenRepository.save(oldRT);
+        refreshTokenRepository.save(newRT);
+
+        return AuthenticationRespone.builder()
+                .accessToken(jwtToken)
+                .refreshToken(id)
+                .build();
+    }
+    private String generateRefreshToken(User user) {
+        RefreshToken refreshToken = new RefreshToken();
+        String id = UUID.randomUUID().toString();
+        refreshToken.setId(id);
+        refreshToken.setFamilyId(id);
+        refreshToken.setUser(user);
+        refreshTokenRepository.save(refreshToken);
+        return id;
     }
 
 }
