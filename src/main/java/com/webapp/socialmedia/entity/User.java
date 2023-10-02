@@ -38,10 +38,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role = Role.USER;
 
-    private Integer friendCount = 0;
-
-//    private String phone;
-
     private Boolean isActive = true;
 
     private Date createdAt;
