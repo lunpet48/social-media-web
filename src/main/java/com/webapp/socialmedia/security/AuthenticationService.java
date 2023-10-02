@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,10 +70,12 @@ public class AuthenticationService {
     public AuthenticationRespone renewToken(String refreshToken) throws Exception {
         RefreshToken oldRT = refreshTokenRepository.findById(refreshToken).orElseThrow(() -> new Exception("Invalid Token"));
         if (oldRT.getIsUsed()){
-            /*
-            ########## revoke all tokens
-            */
-            // Thêm đoạn code thu hồi token ở đây
+            List<RefreshToken> refreshTokens = refreshTokenRepository.findAllByFamilyId(oldRT.getFamilyId());
+            for (RefreshToken token : refreshTokens) {
+                token.setIsRevoked(true);
+            }
+            refreshTokenRepository.saveAll(refreshTokens);
+
             throw new Exception("Token is used");
         }
 
