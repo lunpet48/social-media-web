@@ -34,17 +34,11 @@ public class Comment {
 
     private Date createdAt;
 
-//    private Date updatedAt;
-
-    private String repliedCommentId;
+    @ManyToOne
+    private Comment repliedCommentId;
 
     @PrePersist
     void createdAt() {
         this.createdAt = new Date();
     }
-
-//    @PreUpdate
-//    void updatedAt() {
-//        this.updatedAt = new Date();
-//    }
 }

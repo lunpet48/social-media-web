@@ -38,7 +38,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role = Role.USER;
 
-    private Boolean isActive = true;
+    private Boolean isLocked = false;
+
+    private Date lockTo;
 
     private Date createdAt;
 

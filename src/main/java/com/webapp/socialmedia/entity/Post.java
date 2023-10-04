@@ -39,6 +39,8 @@ public class Post {
     @ManyToMany
     Set<Tag> tags;
 
+    private Boolean isDeleted = false;
+
     private Date createdAt;
     @PrePersist
     private void createdAt() {

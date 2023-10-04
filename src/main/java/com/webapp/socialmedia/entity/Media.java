@@ -24,4 +24,6 @@ public class Media {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MediaType type;
+
+    private Boolean isDeleted = false;
 }
