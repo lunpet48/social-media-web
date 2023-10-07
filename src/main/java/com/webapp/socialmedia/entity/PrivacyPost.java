@@ -24,6 +24,9 @@ public class PrivacyPost {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @Column(name = "view_permission")
+    private Boolean viewPermission;
 }
 @Data
 @AllArgsConstructor
