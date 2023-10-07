@@ -28,9 +28,9 @@ public class RelationShip {
     private Status status;
 
     public enum Status {
-        Pending,
-        Friend,
-        Block
+        PENDING,
+        FRIEND,
+        BLOCK
     }
 }
 
