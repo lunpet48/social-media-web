@@ -14,7 +14,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_room")
+@Table(name = "db_room")
 public class Room {
     @Id
     @UuidGenerator

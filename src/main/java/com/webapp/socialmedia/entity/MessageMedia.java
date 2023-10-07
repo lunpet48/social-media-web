@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_message_media")
+@Table(name = "db_message_media")
 public class MessageMedia {
     @Id
     @OneToOne
     @JoinColumn(name = "media_id", referencedColumnName = "id")
-    private Media mediaId;
+    private Media media;
 
     @ManyToOne
     @JoinColumn(name = "message_id", nullable = false)
-    private Message messageId;
+    private Message message;
 
 }

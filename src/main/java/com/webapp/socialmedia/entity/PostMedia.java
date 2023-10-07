@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_post_media")
+@Table(name = "db_post_media")
 public class PostMedia {
     @Id
     @OneToOne
     @JoinColumn(name = "media_id", referencedColumnName = "id")
-    private Media mediaId;
+    private Media media;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
-    private Post postId;
+    private Post post;
 }

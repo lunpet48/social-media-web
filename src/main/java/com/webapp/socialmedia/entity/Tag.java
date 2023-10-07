@@ -7,14 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.util.Set;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_tag")
+@Table(name = "db_tag")
 public class Tag {
     @Id
     @UuidGenerator

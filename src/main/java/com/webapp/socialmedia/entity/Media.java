@@ -12,7 +12,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_media")
+@Table(name = "db_media")
 public class Media {
     @Id
     @UuidGenerator

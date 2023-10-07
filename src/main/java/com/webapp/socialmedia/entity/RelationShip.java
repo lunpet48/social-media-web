@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_relationship")
+@Table(name = "db_relationship")
 @IdClass(RelationShipId.class)
 public class RelationShip {
     @Id

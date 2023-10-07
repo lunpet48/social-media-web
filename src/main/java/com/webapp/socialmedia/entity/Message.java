@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_message")
+@Table(name = "db_message")
 public class Message {
     @Id
     @UuidGenerator
@@ -22,11 +22,11 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
-    private Room roomId;
+    private Room room;
 
     @Column(nullable = false)
     private String message;

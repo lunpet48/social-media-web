@@ -8,14 +8,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_comment")
+@Table(name = "db_comment")
 public class Comment {
     @Id
     @UuidGenerator
@@ -23,11 +22,15 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
-    private Post postId;
+    private Post post;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
+
+    @OneToOne
+    @JoinColumn(name = "media_id")
+    private Media media;
 
     @Column(columnDefinition = "text", nullable = false)
     private String comment;
@@ -35,7 +38,7 @@ public class Comment {
     private Date createdAt;
 
     @ManyToOne
-    private Comment repliedCommentId;
+    private Comment repliedComment;
 
     @PrePersist
     void createdAt() {

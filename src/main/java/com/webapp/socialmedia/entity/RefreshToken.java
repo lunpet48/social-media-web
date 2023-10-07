@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_refresh_token")
+@Table(name = "db_refresh_token")
 public class RefreshToken {
     @Id
     private String id;

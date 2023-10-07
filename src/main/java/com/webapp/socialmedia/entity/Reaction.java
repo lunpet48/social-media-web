@@ -6,29 +6,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "_reaction")
+@Table(name = "db_reaction")
 @IdClass(ReactionId.class)
 public class Reaction {
     @Id
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User userId;
+    private User user;
     @Id
     @ManyToOne
     @JoinColumn(name = "post_id")
-    private Post postId;
+    private Post post;
 }
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 class ReactionId implements Serializable{
-    private User userId;
-    private Post postId;
+    private User user;
+    private Post post;
 }

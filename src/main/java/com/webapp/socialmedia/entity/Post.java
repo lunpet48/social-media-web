@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "_post")
+@Table(name = "db_post")
 public class Post {
     @Id
     @UuidGenerator
@@ -23,7 +23,7 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
 
     @Column(columnDefinition = "text")
     private String caption;
