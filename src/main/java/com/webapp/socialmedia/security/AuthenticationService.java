@@ -1,7 +1,7 @@
 package com.webapp.socialmedia.security;
 
 import com.webapp.socialmedia.dto.AuthenticationRequest;
-import com.webapp.socialmedia.dto.AuthenticationRespone;
+import com.webapp.socialmedia.dto.AuthenticationResponse;
 import com.webapp.socialmedia.dto.RegisterRequest;
 import com.webapp.socialmedia.entity.RefreshToken;
 import com.webapp.socialmedia.entity.Role;
@@ -28,7 +28,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationRespone register(RegisterRequest request) {
+    public AuthenticationResponse register(RegisterRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
         // thiếu kiểm tra email
@@ -39,13 +39,13 @@ public class AuthenticationService {
         userRepository.save(user);
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = generateRefreshToken(user);
-        return AuthenticationRespone.builder()
+        return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
-    public AuthenticationRespone authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
 
         User user;
@@ -61,13 +61,13 @@ public class AuthenticationService {
 
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = generateRefreshToken(user);
-        return AuthenticationRespone.builder()
+        return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
-    public AuthenticationRespone renewToken(String refreshToken) throws Exception {
+    public AuthenticationResponse renewToken(String refreshToken) throws Exception {
         RefreshToken oldRT = refreshTokenRepository.findById(refreshToken).orElseThrow(() -> new Exception("Invalid Token"));
         if (oldRT.getIsUsed()){
             List<RefreshToken> refreshTokens = refreshTokenRepository.findAllByFamilyId(oldRT.getFamilyId());
@@ -96,7 +96,7 @@ public class AuthenticationService {
         refreshTokenRepository.save(oldRT);
         refreshTokenRepository.save(newRT);
 
-        return AuthenticationRespone.builder()
+        return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(id)
                 .build();

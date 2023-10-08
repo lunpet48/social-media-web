@@ -1,7 +1,7 @@
 package com.webapp.socialmedia.controller;
 
 import com.webapp.socialmedia.dto.AuthenticationRequest;
-import com.webapp.socialmedia.dto.AuthenticationRespone;
+import com.webapp.socialmedia.dto.AuthenticationResponse;
 import com.webapp.socialmedia.dto.RegisterRequest;
 import com.webapp.socialmedia.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ public class AuthController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationRespone> register(@RequestBody RegisterRequest request){
-        AuthenticationRespone response = service.register(request);
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request){
+        AuthenticationResponse response = service.register(request);
         ResponseCookie springCookie = ResponseCookie.from("refresh-token", response.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
@@ -33,8 +33,8 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationRespone> authenticate(@RequestBody AuthenticationRequest request){
-        AuthenticationRespone response = service.authenticate(request);
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
+        AuthenticationResponse response = service.authenticate(request);
         ResponseCookie springCookie = ResponseCookie.from("refresh-token", response.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
@@ -49,9 +49,9 @@ public class AuthController {
     }
 
     @PostMapping("/renew-token")
-    public ResponseEntity<AuthenticationRespone> renewToken(@CookieValue(name = "refresh-token") String refreshToken) throws Exception {
+    public ResponseEntity<AuthenticationResponse> renewToken(@CookieValue(name = "refresh-token") String refreshToken) throws Exception {
 
-        AuthenticationRespone response = service.renewToken(refreshToken);
+        AuthenticationResponse response = service.renewToken(refreshToken);
 
         ResponseCookie springCookie = ResponseCookie.from("refresh-token", response.getRefreshToken())
                 .httpOnly(true)
