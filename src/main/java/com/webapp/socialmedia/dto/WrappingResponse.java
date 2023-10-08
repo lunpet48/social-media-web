@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface WrappingResponse {
     public HttpStatus status() default HttpStatus.OK;
+
+    public boolean success() default true;
 }

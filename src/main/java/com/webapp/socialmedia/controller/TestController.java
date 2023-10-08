@@ -6,6 +6,7 @@ import com.webapp.socialmedia.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,5 +24,11 @@ public class TestController {
         //ResponseEntity<Object> o = new ResponseEntity<>(new AuthenticationRespone("1111", "222") , HttpStatus.OK);
         //return new AuthenticationRespone("1111", "2222");
         return result;
+    }
+
+    @WrappingResponse
+    @GetMapping("/{username}")
+    public Object findUser(@PathVariable String username) {
+        return null;//userService.findByUsername(username);
     }
 }
