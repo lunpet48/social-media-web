@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.dto;
 
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

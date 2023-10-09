@@ -1,4 +1,4 @@
-package com.webapp.socialmedia.dto;
+package com.webapp.socialmedia.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.entity;
 
+import com.webapp.socialmedia.enums.RelationshipStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +15,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @Table(name = "db_relationship")
-@IdClass(RelationShipId.class)
-public class RelationShip {
+@IdClass(RelationshipId.class)
+public class Relationship {
     @Id
     @ManyToOne
     private User user1;
@@ -25,19 +26,14 @@ public class RelationShip {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private RelationshipStatus status;
 
-    public enum Status {
-        PENDING,
-        FRIEND,
-        BLOCK
-    }
 }
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-class RelationShipId implements Serializable {
+class RelationshipId implements Serializable {
     private User user1;
     private User user2;
 }

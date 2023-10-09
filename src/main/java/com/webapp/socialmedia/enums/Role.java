@@ -1,4 +1,4 @@
-package com.webapp.socialmedia.entity;
+package com.webapp.socialmedia.enums;
 
 public enum Role {
     USER,
