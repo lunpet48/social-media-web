@@ -1,10 +1,10 @@
 package com.webapp.socialmedia.security;
 
-import com.webapp.socialmedia.dto.AuthenticationRequest;
-import com.webapp.socialmedia.dto.AuthenticationResponse;
-import com.webapp.socialmedia.dto.RegisterRequest;
+import com.webapp.socialmedia.dto.requests.AuthenticationRequest;
+import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
+import com.webapp.socialmedia.dto.requests.RegisterRequest;
 import com.webapp.socialmedia.entity.RefreshToken;
-import com.webapp.socialmedia.entity.Role;
+import com.webapp.socialmedia.enums.Role;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.repository.RefreshTokenRepository;
 import com.webapp.socialmedia.repository.UserRepository;

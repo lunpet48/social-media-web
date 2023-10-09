@@ -1,8 +1,8 @@
 package com.webapp.socialmedia.controller;
 
-import com.webapp.socialmedia.dto.AuthenticationRequest;
-import com.webapp.socialmedia.dto.AuthenticationResponse;
-import com.webapp.socialmedia.dto.RegisterRequest;
+import com.webapp.socialmedia.dto.requests.AuthenticationRequest;
+import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
+import com.webapp.socialmedia.dto.requests.RegisterRequest;
 import com.webapp.socialmedia.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

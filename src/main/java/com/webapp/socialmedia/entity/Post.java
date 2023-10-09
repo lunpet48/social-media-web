@@ -1,5 +1,7 @@
 package com.webapp.socialmedia.entity;
 
+import com.webapp.socialmedia.enums.PostMode;
+import com.webapp.socialmedia.enums.PostType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
