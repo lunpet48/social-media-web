@@ -26,7 +26,7 @@ public class User implements UserDetails {
     @UuidGenerator
     private String id;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String username;
 
     @Column(nullable = false)

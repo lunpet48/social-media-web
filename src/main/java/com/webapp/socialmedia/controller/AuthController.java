@@ -3,7 +3,8 @@ package com.webapp.socialmedia.controller;
 import com.webapp.socialmedia.dto.requests.AuthenticationRequest;
 import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
 import com.webapp.socialmedia.dto.requests.RegisterRequest;
-import com.webapp.socialmedia.security.AuthenticationService;
+import com.webapp.socialmedia.service.AuthenticationService;
+import com.webapp.socialmedia.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -14,11 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthenticationService service;
+    private final AuthenticationService authenticationService;
+    private final OtpService otpService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request){
-        AuthenticationResponse response = service.register(request);
+        AuthenticationResponse response = authenticationService.register(request);
         ResponseCookie springCookie = ResponseCookie.from("refresh-token", response.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
@@ -34,7 +36,7 @@ public class AuthController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-        AuthenticationResponse response = service.authenticate(request);
+        AuthenticationResponse response = authenticationService.authenticate(request);
         ResponseCookie springCookie = ResponseCookie.from("refresh-token", response.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
@@ -51,7 +53,7 @@ public class AuthController {
     @PostMapping("/renew-token")
     public ResponseEntity<AuthenticationResponse> renewToken(@CookieValue(name = "refresh-token") String refreshToken) throws Exception {
 
-        AuthenticationResponse response = service.renewToken(refreshToken);
+        AuthenticationResponse response = authenticationService.renewToken(refreshToken);
 
         ResponseCookie springCookie = ResponseCookie.from("refresh-token", response.getRefreshToken())
                 .httpOnly(true)
@@ -66,5 +68,13 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, springCookie.toString())
                 .body(response);
     }
+    @GetMapping("/register/otp")
+    public void sendOtpRegister(String email){
+        otpService.sendOtpRegister(email);
+    }
 
+    @GetMapping("/forgot-pasword/otp")
+    public void sendOtpForgotPassword(String email){
+        otpService.sendOtpForgotPassword(email);
+    }
 }

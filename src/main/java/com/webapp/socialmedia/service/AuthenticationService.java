@@ -1,4 +1,4 @@
-package com.webapp.socialmedia.security;
+package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.AuthenticationRequest;
 import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
@@ -6,8 +6,12 @@ import com.webapp.socialmedia.dto.requests.RegisterRequest;
 import com.webapp.socialmedia.entity.RefreshToken;
 import com.webapp.socialmedia.enums.Role;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.exceptions.InvalidOTPException;
+import com.webapp.socialmedia.exceptions.UserExistException;
+import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.RefreshTokenRepository;
 import com.webapp.socialmedia.repository.UserRepository;
+import com.webapp.socialmedia.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,14 +28,25 @@ import java.util.UUID;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final PasswordEncoder passwordEncoder;
+
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    private final UserMapper userMapper;
+    private final OtpService otpService;
+
     public AuthenticationResponse register(RegisterRequest request) {
+        if(userRepository.findByUsername(request.getUsername()).isPresent())
+            throw new UserExistException("Username đã tồn tại");
+        else if(userRepository.findByEmail(request.getEmail()).isPresent())
+            throw new UserExistException(("Email đã tồn tại"));
+
+        if(otpService.getOtp(OtpService.REGISTER_KEY + request.getEmail()) != request.getOtpCode())
+            throw new InvalidOTPException();
+
         User user = new User();
         user.setUsername(request.getUsername());
-        // thiếu kiểm tra email
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
@@ -48,8 +63,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
 
-        User user;
-        user = userOptional.orElseGet(() -> userRepository.findByEmail(request.getUsername())
+        User user = userOptional.orElseGet(() -> userRepository.findByEmail(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found")));
 
         authenticationManager.authenticate(
@@ -64,6 +78,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .user(userMapper.userToUserResponse(user))
                 .build();
     }
 
@@ -99,6 +114,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(id)
+                .user(userMapper.userToUserResponse(user))
                 .build();
     }
     private String generateRefreshToken(User user) {

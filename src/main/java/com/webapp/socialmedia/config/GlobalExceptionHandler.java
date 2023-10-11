@@ -2,15 +2,30 @@ package com.webapp.socialmedia.config;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @WrappingResponse(status = HttpStatus.BAD_REQUEST, success = false)
+    public Object handleBadCredentialsException(BadCredentialsException e) {
+        return "Mật khẩu không chính xác";
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
-    @WrappingResponse(status = HttpStatus.NOT_FOUND, success = false)
-    public Object handleUnwantedException(UsernameNotFoundException e) {
+    @WrappingResponse(status = HttpStatus.BAD_REQUEST, success = false)
+    public Object UsernameNotFoundException(UsernameNotFoundException e) {
         return e.getMessage();
     }
+
+    @ExceptionHandler(Exception.class)
+    @WrappingResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, success = false)
+    public Object handleUnwantedException(Exception e) {
+        return e;
+    }
+
 }
