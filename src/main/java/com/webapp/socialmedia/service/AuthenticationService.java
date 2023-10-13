@@ -33,7 +33,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    private final UserMapper userMapper;
     private final OtpService otpService;
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -80,7 +79,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .user(userMapper.userToUserResponse(user))
+                .user(UserMapper.INSTANCE.userToUserResponse(user))
                 .build();
     }
 
@@ -116,7 +115,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(id)
-                .user(userMapper.userToUserResponse(user))
+                .user(UserMapper.INSTANCE.userToUserResponse(user))
                 .build();
     }
     private String generateRefreshToken(User user) {
