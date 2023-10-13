@@ -3,10 +3,9 @@ package com.webapp.socialmedia.mapper.impl;
 import com.webapp.socialmedia.dto.responses.UserResponse;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.mapper.UserMapper;
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
-@Mapper
+@Component
 public class UserMapperImpl implements UserMapper {
     @Override
     public UserResponse userToUserResponse(User user) {

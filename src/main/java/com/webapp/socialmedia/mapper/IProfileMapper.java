@@ -4,8 +4,8 @@ import com.webapp.socialmedia.dto.requests.ProfileRequest;
 import com.webapp.socialmedia.dto.responses.ProfileResponse;
 import com.webapp.socialmedia.entity.Profile;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
+@Mapper
 public interface IProfileMapper {
     Profile ProfileRequestToProfile(ProfileRequest profileRequest);
 

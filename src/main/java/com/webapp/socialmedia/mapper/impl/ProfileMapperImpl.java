@@ -8,14 +8,12 @@ import com.webapp.socialmedia.mapper.IProfileMapper;
 import com.webapp.socialmedia.repository.ProfileRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.Mapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Mapper
+@Component
 public class ProfileMapperImpl implements IProfileMapper {
-    private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
 
     @Override

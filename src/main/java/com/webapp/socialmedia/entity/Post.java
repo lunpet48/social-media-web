@@ -38,12 +38,13 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private PostMode mode;
 
-    @ManyToMany
-    Set<Tag> tags;
-
+    @Column(nullable = false)
     private Boolean isDeleted = false;
 
     private Date createdAt;
+
+    @ManyToMany
+    Set<Tag> tags;
     @PrePersist
     private void createdAt() {
         this.createdAt = new Date();

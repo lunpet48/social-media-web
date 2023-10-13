@@ -22,7 +22,9 @@ public class RefreshToken {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @Builder.Default
     private Boolean isUsed = false;
+    @Builder.Default
     private Boolean isRevoked = false;
     private Date expireDate;
 
