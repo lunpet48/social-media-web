@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.config;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
+import com.webapp.socialmedia.exceptions.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +20,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     @WrappingResponse(status = HttpStatus.BAD_REQUEST, success = false)
     public Object UsernameNotFoundException(UsernameNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @WrappingResponse(status = HttpStatus.BAD_REQUEST, success = false)
+    public Object BadRequestException(BadRequestException e) {
         return e.getMessage();
     }
 

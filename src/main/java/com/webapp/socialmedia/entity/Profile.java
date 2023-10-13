@@ -14,8 +14,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "db_profile")
 public class Profile {
     @Id
+    @Column(name = "user_id")
+    private String id;
+
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @MapsId
+    @JoinColumn(name = "user_id")
     private User user;
     private String bio;
     private String avatar;

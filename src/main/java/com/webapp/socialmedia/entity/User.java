@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.webapp.socialmedia.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,8 +38,10 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Role role = Role.USER;
 
+    @Builder.Default
     private Boolean isLocked = false;
 
     private Date lockTo;
@@ -46,6 +49,11 @@ public class User implements UserDetails {
     private Date createdAt;
 
     private Date updatedAt;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private Profile profile;
 
     @PrePersist
     private void createdAt() {

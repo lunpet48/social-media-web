@@ -1,6 +1,6 @@
 package com.webapp.socialmedia.dto.responses;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.webapp.socialmedia.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String accessToken;
-    @JsonIgnore
-    private String refreshToken;
-    private UserResponse user;
+public class ProfileResponse {
+    private String userId;
+    private String bio;
+    private String avatar;
+    private String fullName;
 }

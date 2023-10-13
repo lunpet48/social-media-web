@@ -45,11 +45,13 @@ public class AuthenticationService {
         if(otpService.getOtp(OtpService.REGISTER_KEY + request.getEmail()) != request.getOtpCode())
             throw new InvalidOTPException();
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER);
+        User user = User
+                .builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
+                .build();
 
         userRepository.save(user);
         String jwtToken = jwtService.generateToken(user);
