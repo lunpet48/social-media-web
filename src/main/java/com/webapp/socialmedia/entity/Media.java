@@ -26,6 +26,6 @@ public class Media {
     @Enumerated(EnumType.STRING)
     private MediaType type;
 
-    @Column(nullable = false)
+    @Builder.Default
     private Boolean isDeleted = false;
 }

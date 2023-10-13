@@ -38,7 +38,7 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private PostMode mode;
 
-    @Column(nullable = false)
+    @Builder.Default
     private Boolean isDeleted = false;
 
     private Date createdAt;
