@@ -1,14 +1,16 @@
 package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.AuthenticationRequest;
-import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
 import com.webapp.socialmedia.dto.requests.RegisterRequest;
+import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
+import com.webapp.socialmedia.entity.Profile;
 import com.webapp.socialmedia.entity.RefreshToken;
-import com.webapp.socialmedia.enums.Role;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.enums.Role;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
 import com.webapp.socialmedia.exceptions.UserExistException;
 import com.webapp.socialmedia.mapper.UserMapper;
+import com.webapp.socialmedia.repository.ProfileRepository;
 import com.webapp.socialmedia.repository.RefreshTokenRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.security.JwtService;
@@ -27,6 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final JwtService jwtService;
@@ -52,12 +55,19 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
 
+        Profile profile = new Profile();
+        profile.setFullName(request.getFullName());
+        profile.setUser(user);
+        user.setProfile(profile);
+
+        profileRepository.save(profile);
         userRepository.save(user);
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = generateRefreshToken(user);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .user(UserMapper.INSTANCE.userToUserResponse(user))
                 .build();
     }
 

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Profile {
     @Id
     @Column(name = "user_id")
-    private String id;
+    private String userId;
 
     @OneToOne
     @MapsId
