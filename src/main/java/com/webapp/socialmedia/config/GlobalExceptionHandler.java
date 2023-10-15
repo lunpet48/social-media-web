@@ -2,6 +2,8 @@ package com.webapp.socialmedia.config;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
 import com.webapp.socialmedia.exceptions.BadRequestException;
+import com.webapp.socialmedia.exceptions.PostCannotUploadException;
+import com.webapp.socialmedia.exceptions.PostNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,7 +34,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @WrappingResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, success = false)
     public Object handleUnwantedException(Exception e) {
-        return e;
+        return e.getMessage();
     }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    @WrappingResponse(status = HttpStatus.NOT_FOUND, success = false)
+    public Object handlePostNotFoundException(PostNotFoundException e) {return e.getMessage();}
+
+    @ExceptionHandler(PostCannotUploadException.class)
+    @WrappingResponse(status = HttpStatus.BAD_REQUEST, success = false)
+    public Object handlePostCannotUploadException(PostCannotUploadException e) {return e.getMessage();}
 
 }

@@ -14,9 +14,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "db_post_media")
 public class PostMedia {
     @Id
-    @OneToOne
-    @JoinColumn(name = "media_id", referencedColumnName = "id")
-    private Media media;
+    private String mediaId;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)

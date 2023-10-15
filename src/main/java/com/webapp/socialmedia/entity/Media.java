@@ -16,7 +16,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Table(name = "db_media")
 public class Media {
     @Id
-    @UuidGenerator
     private String id;
 
     @Column(nullable = false)

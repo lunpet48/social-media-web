@@ -15,9 +15,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Table(name = "db_tag")
 public class Tag {
     @Id
-    @UuidGenerator
     private String id;
 
-    @Column(nullable = false)
-    private String tag;
 }
