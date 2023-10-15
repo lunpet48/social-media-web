@@ -7,8 +7,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface IProfileMapper {
-    IProfileMapper INSTANCE = Mappers.getMapper( IProfileMapper.class );
+public interface ProfileMapper {
+    ProfileMapper INSTANCE = Mappers.getMapper( ProfileMapper.class );
+
     Profile ProfileRequestToProfile(ProfileRequest profileRequest);
 
     ProfileResponse ProfileToProfileResponse(Profile profile);

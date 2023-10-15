@@ -7,33 +7,30 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "db_relationship")
-@IdClass(RelationshipId.class)
+//@IdClass(RelationshipId.class)
 public class Relationship {
-    @Id
+    @EmbeddedId
+    RelationshipId id;
+
     @ManyToOne
+    @MapsId("user1Id")
+    @JoinColumn(name = "user1_id")
     private User user1;
-    @Id
+
     @ManyToOne
+    @MapsId("user2Id")
+    @JoinColumn(name = "user2_id")
     private User user2;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RelationshipStatus status;
-
 }
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-class RelationshipId implements Serializable {
-    private User user1;
-    private User user2;
-}
+

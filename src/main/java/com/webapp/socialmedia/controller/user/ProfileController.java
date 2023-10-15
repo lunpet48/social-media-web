@@ -2,26 +2,28 @@ package com.webapp.socialmedia.controller.user;
 
 import com.webapp.socialmedia.dto.requests.ProfileRequest;
 import com.webapp.socialmedia.dto.responses.ProfileResponse;
+import com.webapp.socialmedia.dto.responses.UserResponse;
 import com.webapp.socialmedia.service.IProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/profile")
 @RequiredArgsConstructor
 public class ProfileController {
-//    private final IProfileService profileService;
-//    @PostMapping
-//    public ResponseEntity<?> createProfile(ProfileRequest profileRequest){
-//        ProfileResponse profileResponse = profileService.create(profileRequest);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(profileResponse);
-//    }
+    private final IProfileService profileService;
 
-//    public ResponseEntity<?> updateProfile(){//patch
-//        return ResponseEntity.ok("");
-//    }
+    @GetMapping
+    public ResponseEntity<?> getProfile(String id){
+        UserResponse userResponse = profileService.get(id);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PutMapping
+    public ResponseEntity<?> updateProfile(@RequestBody ProfileRequest profileRequest){
+        ProfileResponse profileResponse = profileService.update(profileRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(profileResponse);
+    }
 }
