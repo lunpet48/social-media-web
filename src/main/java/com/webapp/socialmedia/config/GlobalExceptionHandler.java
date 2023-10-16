@@ -31,10 +31,10 @@ public class GlobalExceptionHandler {
         return e.getMessage();
     }
 
-    @ExceptionHandler(Exception.class)
-    @WrappingResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, success = false)
+//    @ExceptionHandler(Exception.class)
+//    @WrappingResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, success = false)
     public Object handleUnwantedException(Exception e) {
-        return e.getMessage();
+        return e;
     }
 
     @ExceptionHandler(PostNotFoundException.class)

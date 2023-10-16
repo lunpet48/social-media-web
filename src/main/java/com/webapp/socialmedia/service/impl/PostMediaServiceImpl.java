@@ -21,7 +21,7 @@ public class PostMediaServiceImpl implements PostMediaService {
     public List<PostMedia> uploadFiles(List<Media> mediaList, Post post) {
         List<PostMedia> postMedia = new ArrayList<>();
         mediaList.forEach(media -> {
-            postMedia.add(postMediaRepository.save(PostMedia.builder().mediaId(media.getId()).post(post).build()));
+            postMedia.add(postMediaRepository.saveAndFlush(PostMedia.builder().mediaId(media.getId()).media(media).post(post).build()));
         });
         return postMedia;
     }
@@ -30,30 +30,18 @@ public class PostMediaServiceImpl implements PostMediaService {
     public Pair<List<String>, List<PostMedia>> updateFiles(List<PostMedia> files, List<Media> mediaList, Post post) {
         List<PostMedia> oldPostMedia = postMediaRepository.findByPostId(post.getId());
         List<String> deleteFile = new ArrayList<>();
-//        oldPostMedia.forEach(old -> {
-//            files.forEach(file -> {
-//                if(!file.getMediaId().equals(old.getMediaId())){
-//                    deleteFile.add(old.getMediaId());
-//                    postMediaRepository.deleteById(old.getMediaId());
-//                }
-//            });
-//            /*if (!file.contains(old)) {
-//                deleteFile.add(old.getMediaId());
-//                postMediaRepository.deleteById(old.getMediaId());
-//            }*/
-//        });
-        boolean flag = false;
-        for(int i = 0; i < oldPostMedia.size(); i++) {
+        boolean flag;
+        for (PostMedia postMedia : oldPostMedia) {
             flag = false;
-            for(int j = 0; j < files.size(); j++) {
-                if(oldPostMedia.get(i).getMediaId().equals(files.get(j).getMediaId())) {
+            for (PostMedia file : files) {
+                if (postMedia.getMediaId().equals(file.getMediaId())) {
                     flag = true;
                     break;
                 }
             }
-            if(!flag) {
-                deleteFile.add(oldPostMedia.get(i).getMediaId());
-                postMediaRepository.deleteById(oldPostMedia.get(i).getMediaId());
+            if (!flag) {
+                deleteFile.add(postMedia.getMediaId());
+                postMediaRepository.deleteOnlyPostMedia(postMedia.getMediaId());
             }
         }
         return new Pair<>(deleteFile, this.uploadFiles(mediaList, post));

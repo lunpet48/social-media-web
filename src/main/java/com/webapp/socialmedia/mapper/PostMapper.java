@@ -65,7 +65,7 @@ public interface PostMapper {
     static List<PostMedia> toPostMedia(List<String> files) {
         List<PostMedia> result = new ArrayList<>();
         files.forEach(file -> {
-            result.add(PostMedia.builder().mediaId(file).post(null).build());
+            result.add(PostMedia.builder().mediaId(file).media(null).post(null).build());
         });
         return result;
     }

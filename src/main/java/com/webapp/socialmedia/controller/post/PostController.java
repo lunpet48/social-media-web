@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.controller.post;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.webapp.socialmedia.dto.WrappingResponse;
 import com.webapp.socialmedia.dto.requests.PostRequest;
 import com.webapp.socialmedia.dto.responses.PostResponse;
@@ -9,6 +10,7 @@ import com.webapp.socialmedia.entity.PostMedia;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
+import com.webapp.socialmedia.exceptions.UserNotAuthoritativeException;
 import com.webapp.socialmedia.mapper.PostMapper;
 import com.webapp.socialmedia.service.MediaService;
 import com.webapp.socialmedia.service.PostMediaService;
@@ -17,10 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -29,8 +28,8 @@ import java.util.stream.Stream;
 @RestController
 @RequiredArgsConstructor
 public class PostController {
-    private final PostService postService;
     private final PostMapper postMapper;
+    private final PostService postService;
     private final MediaService mediaService;
     private final PostMediaService postMediaService;
 
@@ -45,17 +44,35 @@ public class PostController {
 
     @PutMapping(value = "/post")
     @WrappingResponse(status = HttpStatus.OK)
-    public Object updatePost(@RequestPart PostResponse postResponse, @RequestPart(required = false) MultipartFile[] filesToUpdate) throws PostNotFoundException, PostCannotUploadException {
+    public Object updatePost(@RequestPart PostResponse postResponse, @RequestPart(required = false) MultipartFile[] filesToUpdate) throws PostCannotUploadException, PostNotFoundException {
+        //Lấy current user
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!postResponse.getUserId().equals(user.getId())) throw new RuntimeException("Người dùng không có quyền");
-
         Pair<Post, List<PostMedia>> request = postMapper.toPostAndListPostMedia(postResponse);
-        if (request.b.isEmpty() && filesToUpdate == null) throw new PostCannotUploadException("Không thể đăng/chỉnh sửa bài viết nếu thiếu hình ảnh hoặc video!!!");
-        Post updatedPost = postService.updatePost(request.a);
+        //Kiểm tra và cập nhật
+        Post updatedPost = postService.updatePost(request.a, request.b, filesToUpdate, user.getId());
         List<Media> mediaList = mediaService.uploadFiles(filesToUpdate, updatedPost);
         Pair<List<String>, List<PostMedia>> files = postMediaService.updateFiles(request.b, mediaList, updatedPost);
         mediaService.deleteFiles(files.a);
 
         return postMapper.toResponse(updatedPost, Stream.concat(request.b.stream(), files.b.stream()).toList());
     }
+
+    @DeleteMapping("/post/{postId}")
+    @WrappingResponse(status = HttpStatus.OK)
+    public Object deletePost(@PathVariable String postId) throws PostNotFoundException, UserNotAuthoritativeException {
+//        String u = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        postService.deletePost(postId, user.getId());
+        return null;
+    }
+
+    @GetMapping("/post/{postId}")
+    @WrappingResponse(status = HttpStatus.ACCEPTED)
+    public Object getPost(@PathVariable String postId) throws PostNotFoundException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return postService.getPost(postId, user.getId());
+    }
+
+//    @GetMapping("/{userId}/post")
+//    public Object getPost(userId)
 }
