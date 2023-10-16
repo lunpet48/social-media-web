@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RelationshipRequest {
     private String userId;
-    private String userTargetId;
+    private String userRelatedId;
 }

@@ -13,8 +13,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Embeddable
 public class RelationshipId implements Serializable {
-    @Column(name = "user1_id")
-    private String user1Id;
-    @Column(name = "user2_id")
-    private String user2Id;
+    @Column(name = "user_id")
+    private String userId;
+    @Column(name = "related_user_id")
+    private String relatedUserId;
 }
