@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RelationshipResponse {
     private String userId;
-    private String userTargetId;
+    private String userRelatedId;
     private RelationshipStatus status;
 
 }

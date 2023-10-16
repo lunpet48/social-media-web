@@ -19,14 +19,14 @@ public class Relationship {
     RelationshipId id;
 
     @ManyToOne
-    @MapsId("user1Id")
-    @JoinColumn(name = "user1_id")
-    private User user1;
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
-    @MapsId("user2Id")
-    @JoinColumn(name = "user2_id")
-    private User user2;
+    @MapsId("relatedUserId")
+    @JoinColumn(name = "related_user_id")
+    private User relatedUser;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
