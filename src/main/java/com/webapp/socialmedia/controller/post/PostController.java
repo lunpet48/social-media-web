@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Stream;
 
-@RestController
+@RestController(value = "/api/v1")
 @RequiredArgsConstructor
 public class PostController {
     private final PostMapper postMapper;
@@ -70,9 +70,11 @@ public class PostController {
     @WrappingResponse(status = HttpStatus.ACCEPTED)
     public Object getPost(@PathVariable String postId) throws PostNotFoundException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return postService.getPost(postId, user.getId());
+        Post post = postService.getPost(postId, user.getId());
+        List<PostMedia> postMediaList = postMediaService.getFilesByPostId(postId);
+        return postMapper.toResponse(post, postMediaList);
     }
-
+//    Lấy tất cả bài viết theo mã người dùng
 //    @GetMapping("/{userId}/post")
 //    public Object getPost(userId)
 }

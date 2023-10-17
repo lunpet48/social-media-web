@@ -46,4 +46,9 @@ public class PostMediaServiceImpl implements PostMediaService {
         }
         return new Pair<>(deleteFile, this.uploadFiles(mediaList, post));
     }
+
+    @Override
+    public List<PostMedia> getFilesByPostId(String postId) {
+        return postMediaRepository.findByPostId(postId);
+    }
 }

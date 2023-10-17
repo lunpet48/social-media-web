@@ -11,4 +11,6 @@ public interface PostMediaService {
     List<PostMedia> uploadFiles(List<Media> mediaList, Post post);
 
     Pair<List<String>, List<PostMedia>> updateFiles(List<PostMedia> files, List<Media> mediaList, Post post);
+
+    List<PostMedia> getFilesByPostId(String postId);
 }

@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -91,8 +92,8 @@ public class PostServiceImpl implements PostService {
             return post;
         }
         if(mode.equals(PostMode.FRIEND)){
-            Relationship relationship = relationshipRepository.findByUser1IdAndUser2Id(post.getUser().getId(), userId).orElseThrow(() -> new PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn"));
-            if(relationship.getStatus().equals(RelationshipStatus.FRIEND))
+            Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserIdAndStatus(post.getUser().getId(), userId, RelationshipStatus.FRIEND);
+            if(relationship.isPresent())
                 return post;
         }
         throw new  PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn");
