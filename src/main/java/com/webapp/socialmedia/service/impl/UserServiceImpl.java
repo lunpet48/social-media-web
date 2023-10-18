@@ -4,17 +4,17 @@ import com.webapp.socialmedia.dto.requests.ChangePasswordRequest;
 import com.webapp.socialmedia.dto.requests.ResetPasswordRequest;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
+import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.IUserService;
 import com.webapp.socialmedia.service.OtpService;
+import com.webapp.socialmedia.validattion.serviceValidation.UserValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,19 +23,13 @@ public class UserServiceImpl implements IUserService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
-
-    @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public <S extends User> S save(S entity) {
-        return userRepository.save(entity);
-    }
+    private final UserValidationService userValidationService;
 
     @Override
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
+        if(!userValidationService.isUserMatchToken(changePasswordRequest.getUserId()))
+            throw new UserNotMatchTokenException();
+
         User user = userRepository.findById(changePasswordRequest.getUserId())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 

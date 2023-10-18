@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface RelationshipRepository extends JpaRepository<Relationship, RelationshipId> {
     Optional<Relationship> findByIdAndStatus(RelationshipId id, RelationshipStatus status);
+    Optional<Relationship> findByUserIdAndRelatedUserId(String userId, String relatedId);
     Optional<Relationship> findByUserIdAndRelatedUserIdAndStatus(String userId, String relatedId , RelationshipStatus status);
-
     List<Relationship> findByUserIdAndStatus(String userId,RelationshipStatus status);
 
     List<Relationship> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status);

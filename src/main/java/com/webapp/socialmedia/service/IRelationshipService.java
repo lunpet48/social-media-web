@@ -20,4 +20,8 @@ public interface IRelationshipService {
     List<RelationshipResponse> findByUserIdAndStatus(String userId, RelationshipStatus status);
 
     List<RelationshipResponse> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status);
+
+    RelationshipResponse blockUser(RelationshipRequest relationshipRequest);
+
+    void unblockUser(RelationshipRequest relationshipRequest);
 }
