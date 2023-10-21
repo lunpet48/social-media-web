@@ -6,30 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "db_reaction")
-@IdClass(ReactionId.class)
 public class Reaction {
-    @Id
+    @EmbeddedId
+    ReactionId id;
+
     @ManyToOne
+    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
-    @Id
+
     @ManyToOne
+    @MapsId("postId")
     @JoinColumn(name = "post_id")
     private Post post;
 }
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-class ReactionId implements Serializable{
-    private User user;
-    private Post post;
-}
