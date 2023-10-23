@@ -2,6 +2,7 @@ package com.webapp.socialmedia.controller.user;
 
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.service.IRelationshipService;
@@ -22,7 +23,7 @@ public class RelationshipController {
     @PostMapping("friend-request")
     public ResponseEntity<?> sendFriendRequest(@RequestBody RelationshipRequest relationshipRequest){
         RelationshipResponse relationshipResponse = relationshipService.sendFriendRequest(relationshipRequest);
-        return ResponseEntity.ok(relationshipResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponse));
     }
     @DeleteMapping("friend-request")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -32,7 +33,7 @@ public class RelationshipController {
     @PostMapping("received-friend-requests")
     public ResponseEntity<?> acceptFriendRequest(@RequestBody RelationshipRequest relationshipRequest){
         RelationshipResponse relationshipResponse = relationshipService.acceptFriendRequest(relationshipRequest);
-        return ResponseEntity.ok(relationshipResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponse));
     }
     @DeleteMapping("received-friend-requests")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -50,20 +51,20 @@ public class RelationshipController {
     public ResponseEntity<?> getAllOutgoingRequest(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<RelationshipResponse> relationshipResponses = relationshipService.findByUserIdAndStatus(user.getId(), RelationshipStatus.PENDING);
-        return ResponseEntity.ok(relationshipResponses);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
     }
 
     @GetMapping("incoming-requests")
     public ResponseEntity<?> getAllIncomingRequest(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<RelationshipResponse> relationshipResponses = relationshipService.findByRelatedUserIdAndStatus(user.getId(), RelationshipStatus.PENDING);
-        return ResponseEntity.ok(relationshipResponses);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
     }
 
     @GetMapping("friends")
     public ResponseEntity<?> getAllFriend(@RequestParam String userId){
         List<RelationshipResponse> relationshipResponses = relationshipService.findByUserIdAndStatus(userId, RelationshipStatus.FRIEND);
-        return ResponseEntity.ok(relationshipResponses);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
     }
 
     @GetMapping("blocklist")
@@ -71,13 +72,13 @@ public class RelationshipController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<RelationshipResponse> relationshipResponses = relationshipService
                 .findByUserIdAndStatus(user.getId(), RelationshipStatus.BLOCK);
-        return ResponseEntity.ok(relationshipResponses);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
     }
 
     @PostMapping("blocklist")
     public ResponseEntity<?> blockUser(@RequestBody RelationshipRequest relationshipRequest){
         RelationshipResponse relationshipResponse = relationshipService.blockUser(relationshipRequest);
-        return ResponseEntity.ok(relationshipResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponse));
     }
 
     @DeleteMapping("blocklist")

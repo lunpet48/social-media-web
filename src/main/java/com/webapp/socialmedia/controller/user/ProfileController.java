@@ -2,6 +2,7 @@ package com.webapp.socialmedia.controller.user;
 
 import com.webapp.socialmedia.dto.requests.ProfileRequest;
 import com.webapp.socialmedia.dto.responses.ProfileResponse;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.dto.responses.UserResponse;
 import com.webapp.socialmedia.service.IProfileService;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +19,12 @@ public class ProfileController {
     @GetMapping
     public ResponseEntity<?> getProfile(String id){
         UserResponse userResponse = profileService.get(id);
-        return ResponseEntity.ok(userResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(userResponse));
     }
 
     @PutMapping
     public ResponseEntity<?> updateProfile(@RequestBody ProfileRequest profileRequest){
         ProfileResponse profileResponse = profileService.update(profileRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(profileResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO().success(profileResponse));
     }
 }

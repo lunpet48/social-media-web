@@ -2,6 +2,7 @@ package com.webapp.socialmedia.controller.user;
 
 import com.webapp.socialmedia.dto.requests.CommentRequest;
 import com.webapp.socialmedia.dto.responses.CommentResponse;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class CommentController {
     @PostMapping("comment")
     public ResponseEntity<?> commentPost(@RequestBody CommentRequest commentRequest){
         CommentResponse commentResponse = commentService.createComment(commentRequest);
-        return ResponseEntity.ok(commentResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(commentResponse));
     }
 
     @DeleteMapping("comment")
@@ -30,6 +31,6 @@ public class CommentController {
     @GetMapping("posts/{postId}/comments")
     public ResponseEntity<?> getCommentOfPost(@PathVariable String postId){
         List<CommentResponse> commentResponses = commentService.getComment(postId);
-        return ResponseEntity.ok(commentResponses);
+        return ResponseEntity.ok(new ResponseDTO().success(commentResponses));
     }
 }

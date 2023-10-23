@@ -1,15 +1,15 @@
-#spring:
-#  datasource:
-#    url: jdbc:mysql://mysql-37152553-khoihuynh8686-0fc0.aivencloud.com:14223/social_media?createDatabaseIfNotExist=true
-#    username: avnadmin
-#    password: AVNS_I3wM0Zygn0j41RQhF8j
-#    driver-class-name: com.mysql.cj.jdbc.Driver
 spring:
   datasource:
-    username: root
-    password: 123456
+    url: jdbc:mysql://mysql-37152553-khoihuynh8686-0fc0.aivencloud.com:14223/social_media?createDatabaseIfNotExist=true
+    username: avnadmin
+    password: AVNS_I3wM0Zygn0j41RQhF8j
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/social_media
+#spring:
+#  datasource:
+#    username: root
+#    password: 123456
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/social_media
   jpa:
     show-sql: true
     properties:

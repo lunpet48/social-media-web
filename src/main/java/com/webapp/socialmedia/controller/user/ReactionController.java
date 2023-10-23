@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.controller.user;
 
 import com.webapp.socialmedia.dto.responses.ReactionResponse;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.service.ReactionService;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +18,13 @@ public class ReactionController {
     public ResponseEntity<?> likePost(@PathVariable String postId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         ReactionResponse reactionResponse = reactionService.likePost(postId, user);
-        return ResponseEntity.ok(reactionResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(reactionResponse));
     }
 
     @DeleteMapping("{postId}/like")
     public ResponseEntity<?> dislikePost(@PathVariable String postId){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         ReactionResponse reactionResponse = reactionService.dislikePost(postId, user);
-        return ResponseEntity.ok(reactionResponse);
+        return ResponseEntity.ok(new ResponseDTO().success(reactionResponse));
     }
 }
