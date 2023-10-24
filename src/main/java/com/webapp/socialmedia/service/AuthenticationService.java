@@ -7,6 +7,7 @@ import com.webapp.socialmedia.entity.Profile;
 import com.webapp.socialmedia.entity.RefreshToken;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.Role;
+import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
 import com.webapp.socialmedia.exceptions.UserExistException;
 import com.webapp.socialmedia.mapper.UserMapper;
@@ -14,6 +15,9 @@ import com.webapp.socialmedia.repository.ProfileRepository;
 import com.webapp.socialmedia.repository.RefreshTokenRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.security.JwtService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -38,13 +43,23 @@ public class AuthenticationService {
 
     private final OtpService otpService;
 
+    private final Validator validator;
+
     public AuthenticationResponse register(RegisterRequest request) {
+        //validate with validator
+        Set<ConstraintViolation<RegisterRequest>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
+        // check email, username unique
         if(userRepository.findByUsername(request.getUsername()).isPresent())
             throw new UserExistException("Username đã tồn tại");
         else if(userRepository.findByEmail(request.getEmail()).isPresent())
             throw new UserExistException(("Email đã tồn tại"));
 
-        if(otpService.getOtp(OtpService.REGISTER_KEY + request.getEmail()) != request.getOtpCode())
+        if(request.getOtpCode() == 0 ||
+                request.getOtpCode() != otpService.getOtp(OtpService.REGISTER_KEY + request.getEmail()))
             throw new InvalidOTPException();
 
         User user = User
@@ -72,10 +87,16 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        //validate with validator
+        Set<ConstraintViolation<AuthenticationRequest>> violations = validator.validate(request);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
         Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
 
         User user = userOptional.orElseGet(() -> userRepository.findByEmail(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found")));
+                .orElseThrow(() -> new BadRequestException("Tài khoản hoặc mật khẩu không chính xác")));
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
