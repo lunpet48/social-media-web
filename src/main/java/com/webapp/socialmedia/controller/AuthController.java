@@ -12,6 +12,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -69,13 +71,13 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, springCookie.toString())
                 .body(new ResponseDTO().success(response));
     }
-    @GetMapping("/register/otp")
-    public void sendOtpRegister(String email){
-        otpService.sendOtpRegister(email);
+    @PostMapping("/register/otp")
+    public void sendOtpRegister(@RequestBody Map<String, String> email){
+        otpService.sendOtpRegister(email.get("email"));
     }
 
-    @GetMapping("/forgot-pasword/otp")
-    public void sendOtpForgotPassword(String email){
+    @PostMapping("/forgot-pasword/otp")
+    public void sendOtpForgotPassword(@RequestBody String email){
         otpService.sendOtpForgotPassword(email);
     }
 }
