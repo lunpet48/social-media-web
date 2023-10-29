@@ -8,6 +8,7 @@ import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotAuthoritativeException;
+import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.repository.PostRepository;
 import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.repository.TagRepository;
@@ -97,5 +98,23 @@ public class PostServiceImpl implements PostService {
                 return post;
         }
         throw new  PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn");
+    }
+
+    @Override
+    public List<Post> getListPostByUserIdAndIsDeleted(String userId) {
+        User userRelated = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (userRelated.getId().equals(userId))
+            return postRepository.findByUser_IdAndIsDeletedOrderByCreatedAtAsc(userId, Boolean.FALSE);
+        Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(userId, userRelated.getId());
+
+        if(relationship.isPresent()){
+            if(relationship.get().getStatus().equals(RelationshipStatus.FRIEND))
+                return postRepository.findPostsWithFriends(userId);
+            else if(relationship.get().getStatus().equals(RelationshipStatus.BLOCK))
+                throw new UserNotFoundException();
+        }
+
+        return postRepository.findPostWithPublic(userId);
     }
 }

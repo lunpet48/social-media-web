@@ -18,4 +18,6 @@ public interface PostService {
     void deletePost(String postId, String userId) throws PostNotFoundException, UserNotAuthoritativeException;
 
     Post getPost(String postId, String userId) throws PostNotFoundException;
+
+    List<Post> getListPostByUserIdAndIsDeleted(String userId);
 }

@@ -1,9 +1,9 @@
 package com.webapp.socialmedia.controller.post;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.webapp.socialmedia.dto.WrappingResponse;
 import com.webapp.socialmedia.dto.requests.PostRequest;
 import com.webapp.socialmedia.dto.responses.PostResponse;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.PostMedia;
@@ -18,14 +18,17 @@ import com.webapp.socialmedia.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-@RestController(value = "/api/v1")
+@RestController
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class PostController {
     private final PostMapper postMapper;
@@ -74,7 +77,15 @@ public class PostController {
         List<PostMedia> postMediaList = postMediaService.getFilesByPostId(postId);
         return postMapper.toResponse(post, postMediaList);
     }
-//    Lấy tất cả bài viết theo mã người dùng
-//    @GetMapping("/{userId}/post")
-//    public Object getPost(userId)
+
+    //    Lấy tất cả bài viết theo mã người dùng
+    @GetMapping("/post-with-userid")
+    public ResponseEntity<ResponseDTO> getPostByUserId(@RequestParam String userId) {
+        List<PostResponse> resultResponses = new ArrayList<>();
+        List<Post> resultEntity = postService.getListPostByUserIdAndIsDeleted(userId);
+        resultEntity.forEach(entity -> {
+            resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
+        });
+        return ResponseEntity.ok(ResponseDTO.builder().data(resultResponses).error(false).message("").build());
+    }
 }
