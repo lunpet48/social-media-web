@@ -3,16 +3,15 @@ package com.webapp.socialmedia.entity;
 import com.webapp.socialmedia.enums.PostMode;
 import com.webapp.socialmedia.enums.PostType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
-@Data
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -43,8 +42,9 @@ public class Post {
 
     private Date createdAt;
 
-    @ManyToMany
-    Set<Tag> tags;
+    @OneToMany(mappedBy = "post")
+    List<PostTag> postTags;
+
     @PrePersist
     private void createdAt() {
         this.createdAt = new Date();

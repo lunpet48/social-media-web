@@ -1,13 +1,11 @@
 package com.webapp.socialmedia.dto.responses;
 
-import com.webapp.socialmedia.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
@@ -19,6 +17,6 @@ public class PostResponse {
     private String postType;
     private String postMode;
     private String caption;
-    private Set<String> tagList;
+    private List<String> tagList;
     private List<String> files;
 }
