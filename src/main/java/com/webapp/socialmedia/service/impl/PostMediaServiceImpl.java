@@ -34,7 +34,7 @@ public class PostMediaServiceImpl implements PostMediaService {
         for (PostMedia postMedia : oldPostMedia) {
             flag = false;
             for (PostMedia file : files) {
-                if (postMedia.getMediaId().equals(file.getMediaId())) {
+                if (postMedia.getMedia().getLink().equals(file.getMedia().getLink())) {
                     flag = true;
                     break;
                 }

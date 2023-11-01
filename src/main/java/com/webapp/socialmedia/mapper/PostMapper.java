@@ -35,7 +35,7 @@ public abstract class PostMapper {
         });
 
         media.forEach(m -> {
-            response.getFiles().add(m.getMediaId());
+            response.getFiles().add(m.getMedia().getLink());
         });
 
         return response;
@@ -80,7 +80,7 @@ public abstract class PostMapper {
 
         List<PostMedia> postMediaList = new ArrayList<>();
         postResponse.getFiles().forEach(file -> {
-            postMediaList.add(PostMedia.builder().mediaId(file).media(null).post(null).build());
+            postMediaList.add(PostMedia.builder().media(Media.builder().link(file).build()).post(null).build());
         });
 
         postResponse.getTagList().forEach(tag -> {
