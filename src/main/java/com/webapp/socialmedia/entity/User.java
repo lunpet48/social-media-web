@@ -55,6 +55,9 @@ public class User implements UserDetails {
     @PrimaryKeyJoinColumn
     private Profile profile;
 
+    @OneToMany(mappedBy = "user")
+    List<Post> posts;
+
     @PrePersist
     private void createdAt() {
         this.createdAt = this.updatedAt = new Date();

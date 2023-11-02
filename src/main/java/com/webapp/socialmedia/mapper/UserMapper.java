@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.mapper;
 
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.dto.responses.UserResponse;
 import com.webapp.socialmedia.entity.User;
 import org.mapstruct.Mapper;
@@ -11,4 +12,9 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper( UserMapper.class );
     @Mapping(target = "profile", expression = "java(ProfileMapper.INSTANCE.ProfileToProfileResponse(user.getProfile()))")
     UserResponse userToUserResponse(User user);
+    @Mapping(target = "postCount", expression = "java(user.getPosts().size())")
+    @Mapping(target = "bio", source = "user.profile.bio")
+    @Mapping(target = "avatar", source = "user.profile.avatar")
+    @Mapping(target = "fullName", source = "user.profile.fullName")
+    UserProfileResponse userToUserProfileResponse(User user);
 }
