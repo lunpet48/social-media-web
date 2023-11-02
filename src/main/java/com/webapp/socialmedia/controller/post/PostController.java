@@ -79,8 +79,8 @@ public class PostController {
     }
 
     //    Lấy tất cả bài viết theo mã người dùng
-    @GetMapping("/post-with-userid")
-    public ResponseEntity<ResponseDTO> getPostByUserId(@RequestParam String userId) {
+    @GetMapping("/{userId}/posts")
+    public ResponseEntity<ResponseDTO> getPostByUserId(@PathVariable String userId) {
         List<PostResponse> resultResponses = new ArrayList<>();
         List<Post> resultEntity = postService.getListPostByUserIdAndIsDeleted(userId);
         resultEntity.forEach(entity -> {
