@@ -6,6 +6,7 @@ import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Profile;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.RelationshipStatus;
+import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
 import com.webapp.socialmedia.mapper.ProfileMapper;
 import com.webapp.socialmedia.mapper.UserMapper;
@@ -31,8 +32,10 @@ public class ProfileServiceImpl implements IProfileService {
     public ProfileResponse update(ProfileRequest profileRequest) {
         if(!userValidationService.isUserMatchToken(profileRequest.getUserId()))
             throw new UserNotMatchTokenException();
+        Profile profile = profileRepository.findById(profileRequest.getUserId())
+                .orElseThrow(UserNotFoundException::new);
 
-        Profile profile = ProfileMapper.INSTANCE.ProfileRequestToProfile(profileRequest);
+        profile.setFullName(profileRequest.getFullName());
         profileRepository.save(profile);
         return ProfileMapper.INSTANCE.ProfileToProfileResponse(profile);
     }
