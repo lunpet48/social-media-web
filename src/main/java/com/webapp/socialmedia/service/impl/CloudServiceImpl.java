@@ -1,13 +1,11 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.enums.MediaType;
 import com.webapp.socialmedia.enums.PostType;
 import com.webapp.socialmedia.service.CloudService;
-import com.webapp.socialmedia.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +23,16 @@ public class CloudServiceImpl implements CloudService {
                 ObjectUtils.asMap("public_id", UUID.randomUUID().toString(),
                         "resource_type", "auto",
                         "folder", userId + "/" +postType.name()));
+
+        return Media.builder().id(u.get("asset_id").toString()).link(u.get("secure_url").toString()).type(MediaType.valueOf(u.get("resource_type").toString().toUpperCase())).build();
+    }
+
+    @Override
+    public Media uploadFile(MultipartFile multipartFile) throws IOException {
+        var u =  cloudinary.uploader().upload(multipartFile.getBytes(),
+                ObjectUtils.asMap("public_id", UUID.randomUUID().toString(),
+                        "resource_type", "auto",
+                        "folder", ""));
 
         return Media.builder().id(u.get("asset_id").toString()).link(u.get("secure_url").toString()).type(MediaType.valueOf(u.get("resource_type").toString().toUpperCase())).build();
     }
