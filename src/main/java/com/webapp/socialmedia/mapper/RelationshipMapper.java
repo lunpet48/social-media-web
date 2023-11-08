@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface RelationshipMapper {
     RelationshipMapper INSTANCE = Mappers.getMapper( RelationshipMapper.class );
 
-    @Mapping(target = "userId", expression = "java(relationship.getUser().getId())")
-    @Mapping(target = "userRelatedId", expression = "java(relationship.getRelatedUser().getId())")
+    @Mapping(target = "user", expression = "java(UserMapper.INSTANCE.userToUserProfileResponse(relationship.getUser()))")
+    @Mapping(target = "userRelated", expression = "java(UserMapper.INSTANCE.userToUserProfileResponse(relationship.getRelatedUser()))")
     RelationshipResponse RelationshipToRelationshipResponse(Relationship relationship);
 }

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RelationshipResponse {
-    private String userId;
-    private String userRelatedId;
+    private UserProfileResponse user;
+    private UserProfileResponse userRelated;
     private RelationshipStatus status;
 
 }

@@ -2,9 +2,11 @@ package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.ChangePasswordRequest;
 import com.webapp.socialmedia.dto.requests.ResetPasswordRequest;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
 import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
+import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.IUserService;
 import com.webapp.socialmedia.service.OtpService;
@@ -15,6 +17,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +61,19 @@ public class UserServiceImpl implements IUserService {
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
 
         userRepository.save(user);
+    }
+
+    @Override
+    public List<UserProfileResponse> getRecommendUsers(String id) {
+        // sửa lại logic lấy user liên quan
+
+        List<User> users = userRepository.getRecommendUsers(id);
+        List<UserProfileResponse> userProfileResponses = new ArrayList<>();
+        users.forEach(user -> {
+            UserProfileResponse userProfileResponse = UserMapper.INSTANCE.userToUserProfileResponse(user);
+            userProfileResponses.add(userProfileResponse);
+        });
+        return userProfileResponses;
     }
 
 }
