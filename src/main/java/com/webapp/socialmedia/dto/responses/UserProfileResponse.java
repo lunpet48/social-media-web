@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.dto.responses;
 
+import com.webapp.socialmedia.enums.RelationshipProfile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,4 +27,6 @@ public class UserProfileResponse {
     private Integer postCount;
 
     private Integer friendCount;
+
+    private RelationshipProfile relationship;
 }
