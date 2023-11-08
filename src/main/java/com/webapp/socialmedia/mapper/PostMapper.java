@@ -28,6 +28,7 @@ public abstract class PostMapper {
                 .caption(post.getCaption())
                 .tagList(new ArrayList<>())
                 .files(new ArrayList<>())
+                .createdAt(post.getCreatedAt())
                 .build();
 
         post.getPostTags().forEach(postTag -> {

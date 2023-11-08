@@ -20,4 +20,6 @@ public interface PostService {
     Post getPost(String postId, String userId) throws PostNotFoundException;
 
     List<Post> getListPostByUserIdAndIsDeleted(String userId);
+
+    List<Post> getHomepage();
 }

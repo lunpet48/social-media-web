@@ -70,7 +70,7 @@ public class PostController {
     }
 
     @GetMapping("/post/{postId}")
-    @WrappingResponse(status = HttpStatus.ACCEPTED)
+    @WrappingResponse(status = HttpStatus.OK)
     public Object getPost(@PathVariable String postId) throws PostNotFoundException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postService.getPost(postId, user.getId());
@@ -83,6 +83,17 @@ public class PostController {
     public ResponseEntity<ResponseDTO> getPostByUserId(@PathVariable String userId) {
         List<PostResponse> resultResponses = new ArrayList<>();
         List<Post> resultEntity = postService.getListPostByUserIdAndIsDeleted(userId);
+        resultEntity.forEach(entity -> {
+            resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
+        });
+        return ResponseEntity.ok(ResponseDTO.builder().data(resultResponses).error(false).message("").build());
+    }
+
+    //Lấy các bài đăng của bạn bè trong 1 tháng gần nhất
+    @GetMapping("/home")
+    public ResponseEntity<ResponseDTO> getHomepage() {
+        List<Post> resultEntity = postService.getHomepage();
+        List<PostResponse> resultResponses = new ArrayList<>();
         resultEntity.forEach(entity -> {
             resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
         });

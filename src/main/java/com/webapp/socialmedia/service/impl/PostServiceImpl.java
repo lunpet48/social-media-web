@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +37,14 @@ public class PostServiceImpl implements PostService {
     public Post createPost(PostRequest postRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Tag> tagResult = new ArrayList<>();
-        postRequest.getTagList().forEach(tag -> {
-            Optional<Tag> temp = tagRepository.findById(tag.toLowerCase());
-            if (temp.isEmpty())
-                tagResult.add(tagRepository.save(Tag.builder().id(tag.toLowerCase()).build()));
-            else
-                tagResult.add(temp.get());
-        });
+        if (postRequest.getTagList() != null)
+            postRequest.getTagList().forEach(tag -> {
+                Optional<Tag> temp = tagRepository.findById(tag.toLowerCase());
+                if (temp.isEmpty())
+                    tagResult.add(tagRepository.save(Tag.builder().id(tag.toLowerCase()).build()));
+                else
+                    tagResult.add(temp.get());
+            });
 
         List<PostTag> postTag = new ArrayList<>();
 
@@ -157,5 +159,20 @@ public class PostServiceImpl implements PostService {
         }
 
         return postRepository.findPostWithPublic(userId);
+    }
+
+    @Override
+    public List<Post> getHomepage() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Post> result = new ArrayList<>();
+        relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND).forEach(
+                relationship -> {
+                    result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 30));
+                }
+        );
+
+        result.sort(Comparator.comparing(Post::getCreatedAt));
+
+        return result;
     }
 }

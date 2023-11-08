@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -19,4 +20,5 @@ public class PostResponse {
     private String caption;
     private List<String> tagList;
     private List<String> files;
+    private Date createdAt;
 }
