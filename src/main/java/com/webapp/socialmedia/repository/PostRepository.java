@@ -12,10 +12,10 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     List<Post> findByUser_IdAndIsDeletedOrderByCreatedAtAsc(String userId, Boolean isDeleted);
 
-    @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false order by created_at", nativeQuery = true)
+    @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false order by created_at DESC", nativeQuery = true)
     List<Post> findPostsWithFriends(String userId);
 
-    @Query(value = "select * from db_post where user_id = ?1 and mode = 'PUBLIC' and is_deleted = false order by created_at", nativeQuery = true)
+    @Query(value = "select * from db_post where user_id = ?1 and mode = 'PUBLIC' and is_deleted = false order by created_at DESC", nativeQuery = true)
     List<Post> findPostWithPublic(String userId);
 
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false and datediff(now(), created_at) <= ?2", nativeQuery = true)

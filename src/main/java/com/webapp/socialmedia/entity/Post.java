@@ -45,6 +45,9 @@ public class Post {
     @OneToMany(mappedBy = "post")
     List<PostTag> postTags;
 
+    @OneToMany(mappedBy = "post")
+    List<Reaction> reactionList;
+
     @PrePersist
     private void createdAt() {
         this.createdAt = new Date();

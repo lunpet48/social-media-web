@@ -28,6 +28,7 @@ public abstract class PostMapper {
                 .caption(post.getCaption())
                 .tagList(new ArrayList<>())
                 .files(new ArrayList<>())
+                .reactions(post.getReactionList().stream().map(x -> { return x.getUser().getId();}).toList())
                 .createdAt(post.getCreatedAt())
                 .build();
 

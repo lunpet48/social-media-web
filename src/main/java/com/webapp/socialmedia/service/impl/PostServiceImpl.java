@@ -171,7 +171,7 @@ public class PostServiceImpl implements PostService {
                 }
         );
 
-        result.sort(Comparator.comparing(Post::getCreatedAt));
+        result.sort(Comparator.comparing(Post::getCreatedAt).reversed());
 
         return result;
     }
