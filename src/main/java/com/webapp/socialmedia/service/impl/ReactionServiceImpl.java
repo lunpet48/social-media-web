@@ -67,4 +67,18 @@ public class ReactionServiceImpl implements ReactionService {
                 .liked(false)
                 .build();
     }
+
+    @Override
+    public ReactionResponse getReaction(String postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() ->new BadRequestException("Post Not Found"));
+
+        boolean isLiked = reactionRepository.findByPostIdAndUserId(post.getId(), user.getId()).isPresent();
+
+        return ReactionResponse.builder()
+                .userId(user.getId())
+                .postId(post.getId())
+                .liked(isLiked)
+                .build();
+    }
 }

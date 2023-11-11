@@ -7,4 +7,6 @@ public interface ReactionService {
     ReactionResponse likePost(String postId, User user);
 
     ReactionResponse dislikePost(String postId, User user);
+
+    ReactionResponse getReaction(String postId, User user);
 }

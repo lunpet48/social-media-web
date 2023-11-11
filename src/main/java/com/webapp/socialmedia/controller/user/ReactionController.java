@@ -27,4 +27,11 @@ public class ReactionController {
         ReactionResponse reactionResponse = reactionService.dislikePost(postId, user);
         return ResponseEntity.ok(new ResponseDTO().success(reactionResponse));
     }
+
+    @GetMapping("{postId}/like")
+    public ResponseEntity<?> getReaction(@PathVariable String postId){
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ReactionResponse reactionResponse = reactionService.getReaction(postId, user);
+        return ResponseEntity.ok(new ResponseDTO().success(reactionResponse));
+    }
 }
