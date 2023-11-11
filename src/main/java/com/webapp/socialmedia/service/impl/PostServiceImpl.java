@@ -148,7 +148,7 @@ public class PostServiceImpl implements PostService {
         User userRelated = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (userRelated.getId().equals(userId))
-            return postRepository.findByUser_IdAndIsDeletedOrderByCreatedAtAsc(userId, Boolean.FALSE);
+            return postRepository.findByUser_IdAndIsDeletedOrderByCreatedAtDesc(userId, Boolean.FALSE);
         Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(userId, userRelated.getId());
 
         if (relationship.isPresent()) {
@@ -167,7 +167,7 @@ public class PostServiceImpl implements PostService {
         List<Post> result = new ArrayList<>();
         relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND).forEach(
                 relationship -> {
-                    result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 30));
+                    result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 100));
                 }
         );
 
