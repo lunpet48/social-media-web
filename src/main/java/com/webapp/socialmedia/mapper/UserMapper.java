@@ -16,5 +16,8 @@ public interface UserMapper {
     @Mapping(target = "bio", source = "user.profile.bio")
     @Mapping(target = "avatar", source = "user.profile.avatar")
     @Mapping(target = "fullName", source = "user.profile.fullName")
+    @Mapping(target = "gender", source = "user.profile.gender")
+    @Mapping(target = "address", source = "user.profile.address")
+    @Mapping(target = "dateOfBirth", source = "user.profile.dateOfBirth")
     UserProfileResponse userToUserProfileResponse(User user);
 }

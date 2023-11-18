@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.dto.responses;
 
+import com.webapp.socialmedia.enums.Gender;
 import com.webapp.socialmedia.enums.RelationshipProfile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,12 @@ public class UserProfileResponse {
     private String avatar;
 
     private String fullName;
+
+    private Gender gender;
+
+    private String address;
+
+    private java.sql.Date dateOfBirth;
 
     private Integer postCount;
 

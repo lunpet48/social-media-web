@@ -48,6 +48,9 @@ public class ProfileServiceImpl implements IProfileService {
                 .orElseThrow(UserNotFoundException::new);
 
         profile.setFullName(profileRequest.getFullName());
+        profile.setGender(profileRequest.getGender());
+        profile.setAddress(profileRequest.getAddress());
+        profile.setDateOfBirth(profileRequest.getDateOfBirth());
         profileRepository.save(profile);
         return ProfileMapper.INSTANCE.ProfileToProfileResponse(profile);
     }
@@ -58,7 +61,6 @@ public class ProfileServiceImpl implements IProfileService {
                 .orElseGet(() -> userRepository.findByUsername(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found")));
         UserProfileResponse userProfileResponse = UserMapper.INSTANCE.userToUserProfileResponse(user);
-//        userProfileResponse.setFriendCount(relationshipService.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND).size());
         userProfileResponse.setFriendCount(relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND).size());
         User currendUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(user.getId().equals(currendUser.getId())){
