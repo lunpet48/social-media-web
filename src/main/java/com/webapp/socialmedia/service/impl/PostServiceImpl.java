@@ -51,7 +51,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.saveAndFlush(Post.builder().user(user)
                 .mode(PostMode.valueOf(postRequest.getPostMode()))
                 .type(PostType.valueOf(postRequest.getPostType()))
-                .caption(postRequest.getCaption())
+                .caption(postRequest.getCaption().isEmpty() ? "" : postRequest.getCaption())
                 .build());
         tagResult.forEach(tag -> {
             postTag.add(postTagRepository.saveAndFlush(PostTag.builder().id(new PostTagId(post.getId(), tag.getId())).tag(tag).post(post).build()));
