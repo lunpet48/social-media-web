@@ -20,4 +20,8 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false and datediff(now(), created_at) <= ?2", nativeQuery = true)
     List<Post> findPostsWithFriendsAndDay(String userId, int day);
+
+    @Query("SELECT p FROM Post p " +
+            "WHERE p.caption LIKE %:keyword%")
+    List<Post> searchPost(String keyword);
 }

@@ -19,4 +19,10 @@ public interface UserRepository extends JpaRepository<User, String> {
             "AND u.id NOT IN (SELECT DISTINCT r.user.id FROM Relationship r WHERE r.relatedUser.id = :userId) " +
             "AND u.id NOT IN (SELECT DISTINCT r.relatedUser.id FROM Relationship r WHERE r.user.id = :userId)")
     List<User> getRecommendUsers(String userId);
+
+    @Query("SELECT u FROM User u " +
+            "WHERE u.username LIKE %:keyword% " +
+            "AND u.role = 'USER' " +
+            "OR u.id IN (SELECT p.userId FROM Profile p WHERE p.fullName LIKE %:keyword%)")
+    List<User> searchUser(String keyword);
 }
