@@ -22,29 +22,34 @@ public class RelationshipController {
 
     @PostMapping("friend-request")
     public ResponseEntity<?> sendFriendRequest(@RequestBody RelationshipRequest relationshipRequest){
-        RelationshipResponse relationshipResponse = relationshipService.sendFriendRequest(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        RelationshipResponse relationshipResponse = relationshipService.sendFriendRequest(relationshipRequest, user.getId());
         return ResponseEntity.ok(new ResponseDTO().success(relationshipResponse));
     }
     @DeleteMapping("friend-request")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelFriendRequest(@RequestBody RelationshipRequest relationshipRequest){
-        relationshipService.cancelFriendRequest(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        relationshipService.cancelFriendRequest(relationshipRequest, user.getId());
     }
     @PostMapping("received-friend-requests")
     public ResponseEntity<?> acceptFriendRequest(@RequestBody RelationshipRequest relationshipRequest){
-        RelationshipResponse relationshipResponse = relationshipService.acceptFriendRequest(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        RelationshipResponse relationshipResponse = relationshipService.acceptFriendRequest(relationshipRequest, user.getId());
         return ResponseEntity.ok(new ResponseDTO().success(relationshipResponse));
     }
     @DeleteMapping("received-friend-requests")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void denyFriendRequest(@RequestBody RelationshipRequest relationshipRequest){
-        relationshipService.denyFriendRequest(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        relationshipService.denyFriendRequest(relationshipRequest,user.getId());
     }
 
     @DeleteMapping("friends")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFriend(@RequestBody RelationshipRequest relationshipRequest){
-        relationshipService.deleteFriend(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        relationshipService.deleteFriend(relationshipRequest, user.getId());
     }
 
     @GetMapping("outgoing-requests")
@@ -77,13 +82,15 @@ public class RelationshipController {
 
     @PostMapping("blocklist")
     public ResponseEntity<?> blockUser(@RequestBody RelationshipRequest relationshipRequest){
-        RelationshipResponse relationshipResponse = relationshipService.blockUser(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        RelationshipResponse relationshipResponse = relationshipService.blockUser(relationshipRequest, user.getId());
         return ResponseEntity.ok(new ResponseDTO().success(relationshipResponse));
     }
 
     @DeleteMapping("blocklist")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unblockUser(@RequestBody RelationshipRequest relationshipRequest){
-        relationshipService.unblockUser(relationshipRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        relationshipService.unblockUser(relationshipRequest, user.getId());
     }
 }

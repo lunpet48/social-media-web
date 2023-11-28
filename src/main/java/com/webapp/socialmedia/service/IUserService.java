@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IUserService {
 
-    void changePassword(ChangePasswordRequest changePasswordRequest);
+    void changePassword(ChangePasswordRequest changePasswordRequest, String userId);
 
     void resetPassword(ResetPasswordRequest resetPasswordRequest);
 

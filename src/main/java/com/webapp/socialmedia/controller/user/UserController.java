@@ -21,7 +21,8 @@ public class UserController {
     private final IUserService userService;
     @PostMapping("/changePassword")
     public void changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
-        userService.changePassword(changePasswordRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userService.changePassword(changePasswordRequest, user.getId());
     }
     @PostMapping("/resetPassword")
     public void resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){

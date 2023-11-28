@@ -4,47 +4,42 @@ import com.webapp.socialmedia.dto.requests.ChangePasswordRequest;
 import com.webapp.socialmedia.dto.requests.ResetPasswordRequest;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
-import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
 import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.IUserService;
 import com.webapp.socialmedia.service.OtpService;
-import com.webapp.socialmedia.validattion.serviceValidation.UserValidationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
-    private final UserValidationService userValidationService;
 
     @Override
-    public void changePassword(ChangePasswordRequest changePasswordRequest) {
-        if(!userValidationService.isUserMatchToken(changePasswordRequest.getUserId()))
-            throw new UserNotMatchTokenException();
+    public void changePassword(ChangePasswordRequest changePasswordRequest, String userId) {
 
-        User user = userRepository.findById(changePasswordRequest.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+        Optional<User> userOptional = userRepository.findById(userId);
+        if(userOptional.isEmpty())
+        {
+            throw new UsernameNotFoundException("User Not Found");
+        }
+        User user = userOptional.get();
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
-                        changePasswordRequest.getOldPassword()
-                )
-        );
 
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(),
+                user.getPassword()))
+            throw new BadRequestException("Mật khẩu cũ không chính xác");
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
 
         userRepository.save(user);
