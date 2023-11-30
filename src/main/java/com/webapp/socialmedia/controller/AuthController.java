@@ -7,11 +7,13 @@ import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.service.AuthenticationService;
 import com.webapp.socialmedia.service.OtpService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -20,6 +22,8 @@ import java.util.Map;
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final OtpService otpService;
+    @Value("${app.config.refresh-token-age}")
+    private String refreshTokenAge;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request){
@@ -28,7 +32,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(60*60*24*7)
+                .maxAge(Duration.parse(refreshTokenAge).toMillis())
 //                .domain("example.com")
                 .build();
         return ResponseEntity

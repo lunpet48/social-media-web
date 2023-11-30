@@ -19,16 +19,15 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.time.Duration;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +43,9 @@ public class AuthenticationService {
     private final OtpService otpService;
 
     private final Validator validator;
+
+    @Value("${app.config.refresh-token-age}")
+    private String refreshTokenAge;
 
     public AuthenticationResponse register(RegisterRequest request) {
         //validate with validator
@@ -135,11 +137,13 @@ public class AuthenticationService {
 
         String jwtToken = jwtService.generateToken(user);
 
-        RefreshToken newRT = new RefreshToken();
         String id = UUID.randomUUID().toString();
-        newRT.setId(id);
-        newRT.setFamilyId(oldRT.getFamilyId());
-        newRT.setUser(user);
+        RefreshToken newRT = RefreshToken.builder()
+                .id(id)
+                .familyId(oldRT.getFamilyId())
+                .user(user)
+                .expireDate(new Date((new Date()).getTime() + Duration.parse(refreshTokenAge).toMillis() ))
+                .build();
         refreshTokenRepository.save(oldRT);
         refreshTokenRepository.save(newRT);
 
@@ -150,11 +154,14 @@ public class AuthenticationService {
                 .build();
     }
     private String generateRefreshToken(User user) {
-        RefreshToken refreshToken = new RefreshToken();
+
         String id = UUID.randomUUID().toString();
-        refreshToken.setId(id);
-        refreshToken.setFamilyId(id);
-        refreshToken.setUser(user);
+        RefreshToken refreshToken = RefreshToken.builder()
+                .id(id)
+                .familyId(id)
+                .user(user)
+                .expireDate(new Date((new Date()).getTime() + Duration.parse(refreshTokenAge).toMillis() ))
+                .build();
         refreshTokenRepository.save(refreshToken);
         return id;
     }

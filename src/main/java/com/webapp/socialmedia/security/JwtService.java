@@ -5,10 +5,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,8 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+    @Value("${app.config.access-token-age}")
+    private String accessTokenAge;
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
@@ -33,7 +37,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 100*60*1000))
+                .setExpiration(new Date(System.currentTimeMillis()+ Duration.parse(accessTokenAge).toMillis()))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
