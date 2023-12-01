@@ -4,10 +4,12 @@ import com.webapp.socialmedia.dto.requests.ProfileRequest;
 import com.webapp.socialmedia.dto.responses.ProfileResponse;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
+import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.service.IProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,19 +27,22 @@ public class ProfileController {
 
     @PutMapping
     public ResponseEntity<?> updateProfile(@RequestBody ProfileRequest profileRequest){
-        ProfileResponse profileResponse = profileService.update(profileRequest);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ProfileResponse profileResponse = profileService.update(profileRequest, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO().success(profileResponse));
     }
 
-    @PutMapping("avatar/{userId}")
-    public ResponseEntity<?> updateAvatar(@RequestParam("file") MultipartFile multipartFile, @PathVariable String userId){
-        ProfileResponse profileResponse = profileService.updateAvatar(userId, multipartFile);
+    @PutMapping("avatar")
+    public ResponseEntity<?> updateAvatar(@RequestParam("file") MultipartFile multipartFile){
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ProfileResponse profileResponse = profileService.updateAvatar(user.getId(), multipartFile);
         return ResponseEntity.ok(new ResponseDTO().success(profileResponse));
     }
 
-    @PutMapping("background/{userId}")
-    public ResponseEntity<?> updateBackground(@RequestParam("file") MultipartFile multipartFile, @PathVariable String userId){
-        ProfileResponse profileResponse = profileService.updateBackground(userId, multipartFile);
+    @PutMapping("background")
+    public ResponseEntity<?> updateBackground(@RequestParam("file") MultipartFile multipartFile){
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ProfileResponse profileResponse = profileService.updateBackground(user.getId(), multipartFile);
         return ResponseEntity.ok(new ResponseDTO().success(profileResponse));
     }
 }
