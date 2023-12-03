@@ -61,7 +61,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentResponse> getComment(String postId) {
-        List<Comment> comments = commentRepository.findAllByPostId(postId);
+        List<Comment> comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId);
         List<CommentResponse> commentResponses = new ArrayList<>();
         comments.forEach(comment -> {
             CommentResponse commentResponse = CommentMapper.INSTANCE.toResponse(comment);

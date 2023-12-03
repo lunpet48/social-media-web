@@ -42,6 +42,8 @@ public class Post {
 
     private Date createdAt;
 
+    private Date updatedAt;
+
     @OneToMany(mappedBy = "post")
     List<PostTag> postTags;
 
@@ -50,7 +52,9 @@ public class Post {
 
     @PrePersist
     private void createdAt() {
-        this.createdAt = new Date();
+        var date = new Date();
+        this.createdAt = date;
+        this.updatedAt = date;
     }
 }
 

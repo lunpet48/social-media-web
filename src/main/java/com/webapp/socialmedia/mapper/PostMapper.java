@@ -30,6 +30,7 @@ public abstract class PostMapper {
                 .files(new ArrayList<>())
                 .reactions(post.getReactionList() == null || post.getReactionList().isEmpty() ? new ArrayList<>() : post.getReactionList().stream().map(x -> { return x.getUser().getId();}).toList())
                 .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
                 .build();
 
         post.getPostTags().forEach(postTag -> {
@@ -84,14 +85,17 @@ public abstract class PostMapper {
         postResponse.getFiles().forEach(file -> {
             postMediaList.add(PostMedia.builder().media(Media.builder().link(file).build()).post(null).build());
         });
-
-        postResponse.getTagList().forEach(tag -> {
-            PostTagId postTagId = new PostTagId();
-            postTagId.setTagId(tag.trim());
-            postTagId.setPostId(post.getId());
-            PostTag temp = PostTag.builder().id(postTagId).build();
-            post.getPostTags().add(temp);
-        });
+        if (postResponse.getTagList() != null) {
+            postResponse.getTagList().forEach(tag -> {
+                PostTagId postTagId = new PostTagId();
+                postTagId.setTagId(tag.trim());
+                postTagId.setPostId(post.getId());
+                PostTag temp = PostTag.builder().id(postTagId).build();
+                post.getPostTags().add(temp);
+            });
+        } else {
+            postResponse.setTagList(new ArrayList<>());
+        }
 
         return new Pair<>(post, postMediaList);
     }

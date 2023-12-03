@@ -23,4 +23,5 @@ public class PostResponse {
     private List<String> files;
     private List<String> reactions;
     private Date createdAt;
+    private Date updatedAt;
 }
