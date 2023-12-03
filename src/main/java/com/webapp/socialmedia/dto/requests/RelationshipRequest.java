@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RelationshipRequest {
-    private String userId;
-    private String userRelatedId;
+    private String targetId;
 }

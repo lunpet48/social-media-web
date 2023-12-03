@@ -6,7 +6,7 @@ import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IProfileService {
-    ProfileResponse update(ProfileRequest profileRequest);
+    ProfileResponse update(ProfileRequest profileRequest, String userId);
 
     UserProfileResponse get(String userId);
 

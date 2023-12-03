@@ -7,21 +7,21 @@ import com.webapp.socialmedia.enums.RelationshipStatus;
 import java.util.List;
 
 public interface IRelationshipService {
-    RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest);
+    RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest, String userId);
 
-    void cancelFriendRequest(RelationshipRequest relationshipRequest);
+    void cancelFriendRequest(RelationshipRequest relationshipRequest, String userId);
 
-    RelationshipResponse acceptFriendRequest(RelationshipRequest relationshipRequest);
+    RelationshipResponse acceptFriendRequest(RelationshipRequest relationshipRequest, String userId);
 
-    void denyFriendRequest(RelationshipRequest relationshipRequest);
+    void denyFriendRequest(RelationshipRequest relationshipRequest, String userId);
 
-    void deleteFriend(RelationshipRequest relationshipRequest);
+    void deleteFriend(RelationshipRequest relationshipRequest, String userId);
 
     List<RelationshipResponse> findByUserIdAndStatus(String userId, RelationshipStatus status);
 
     List<RelationshipResponse> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status);
 
-    RelationshipResponse blockUser(RelationshipRequest relationshipRequest);
+    RelationshipResponse blockUser(RelationshipRequest relationshipRequest, String userId);
 
-    void unblockUser(RelationshipRequest relationshipRequest);
+    void unblockUser(RelationshipRequest relationshipRequest, String userId);
 }

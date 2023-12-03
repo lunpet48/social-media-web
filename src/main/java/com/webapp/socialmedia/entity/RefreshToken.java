@@ -27,11 +27,4 @@ public class RefreshToken {
     @Builder.Default
     private Boolean isRevoked = false;
     private Date expireDate;
-
-    @PrePersist
-    private void createdAt() {
-        Date dt = new Date();
-        this.expireDate = new Date(dt.getTime() + (1000 * 60 * 60 * 24*7));
-    }
-
 }

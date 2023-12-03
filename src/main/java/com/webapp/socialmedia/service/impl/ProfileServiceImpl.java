@@ -11,7 +11,6 @@ import com.webapp.socialmedia.enums.RelationshipProfile;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.EmptyFileException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
-import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
 import com.webapp.socialmedia.mapper.ProfileMapper;
 import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.ProfileRepository;
@@ -19,7 +18,6 @@ import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.CloudService;
 import com.webapp.socialmedia.service.IProfileService;
-import com.webapp.socialmedia.validattion.serviceValidation.UserValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,16 +33,14 @@ public class ProfileServiceImpl implements IProfileService {
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
-    private final UserValidationService userValidationService;
-//    private final IRelationshipService relationshipService;
+    //    private final IRelationshipService relationshipService;
     private final RelationshipRepository relationshipRepository;
     private final CloudService cloudService;
 
     @Override
-    public ProfileResponse update(ProfileRequest profileRequest) {
-        if(!userValidationService.isUserMatchToken(profileRequest.getUserId()))
-            throw new UserNotMatchTokenException();
-        Profile profile = profileRepository.findById(profileRequest.getUserId())
+    public ProfileResponse update(ProfileRequest profileRequest, String userId) {
+
+        Profile profile = profileRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
         profile.setFullName(profileRequest.getFullName());
@@ -90,9 +86,6 @@ public class ProfileServiceImpl implements IProfileService {
         if(multipartFile.isEmpty())
             throw new EmptyFileException();
 
-        if(!userValidationService.isUserMatchToken(userId))
-            throw new UserNotMatchTokenException();
-
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -112,9 +105,6 @@ public class ProfileServiceImpl implements IProfileService {
     public ProfileResponse updateBackground(String userId, MultipartFile multipartFile) {
         if(multipartFile.isEmpty())
             throw new EmptyFileException();
-
-        if(!userValidationService.isUserMatchToken(userId))
-            throw new UserNotMatchTokenException();
 
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);

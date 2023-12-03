@@ -9,12 +9,10 @@ import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.RelationshipNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
-import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
 import com.webapp.socialmedia.mapper.RelationshipMapper;
 import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.IRelationshipService;
-import com.webapp.socialmedia.validattion.serviceValidation.UserValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,16 +25,12 @@ import java.util.Optional;
 public class RelationshipServiceImpl implements IRelationshipService {
     private final UserRepository userRepository;
     private final RelationshipRepository relationshipRepository;
-    private final UserValidationService userValidationService;
     @Override
-    public RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
-
+    public RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest, String userId) {
         Optional<Relationship> relationshipOptional = relationshipRepository
                 .findByUserIdAndRelatedUserId(
-                        relationshipRequest.getUserRelatedId(),
-                        relationshipRequest.getUserId()
+                        relationshipRequest.getTargetId(),
+                        userId
                 );
         if(relationshipOptional.isPresent()){
             Relationship relationshipCheck = relationshipOptional.get();
@@ -48,90 +42,97 @@ public class RelationshipServiceImpl implements IRelationshipService {
             }
         }
 
-        if(relationshipRepository.findByUserIdAndRelatedUserIdAndStatus(
-                relationshipRequest.getUserId(),
-                relationshipRequest.getUserRelatedId(),
-                RelationshipStatus.FRIEND)
-                .isPresent())
-            throw new BadRequestException("Failed");
-
-        Relationship newRelationship = parseRelationshipRequest(relationshipRequest);
+        Relationship newRelationship = parseRelationshipRequest(relationshipRequest, userId);
         newRelationship.setStatus(RelationshipStatus.PENDING);
         relationshipRepository.save(newRelationship);
         return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(newRelationship);
     }
 
     @Override
-    public void cancelFriendRequest(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
+    public void cancelFriendRequest(RelationshipRequest relationshipRequest, String userId) {
 
-        RelationshipId id = new RelationshipId();
-        id.setUserId(relationshipRequest.getUserId());
-        id.setRelatedUserId(relationshipRequest.getUserRelatedId());
+        Optional<Relationship> relationshipOptional = relationshipRepository
+                .findByUserIdAndRelatedUserIdAndStatus(
+                        userId,
+                        relationshipRequest.getTargetId(),
+                        RelationshipStatus.PENDING
+                );
 
-        Relationship relationship = relationshipRepository.findByIdAndStatus(id, RelationshipStatus.PENDING)
-                .orElseThrow(()-> new RelationshipNotFoundException("Failed"));
+        if(relationshipOptional.isEmpty())
+            throw new RelationshipNotFoundException("Không tìm thấy yêu cầu");
+
+        Relationship relationship = relationshipOptional.get();
+        relationshipRepository.delete(relationship);
+    }
+
+    @Override
+    public RelationshipResponse acceptFriendRequest(RelationshipRequest relationshipRequest, String userId) {
+
+        Optional<Relationship> relationshipOptional = relationshipRepository
+                .findByUserIdAndRelatedUserIdAndStatus(
+                        relationshipRequest.getTargetId(),
+                        userId,
+                        RelationshipStatus.PENDING
+                );
+
+        if(relationshipOptional.isEmpty())
+            throw new RelationshipNotFoundException("Không tìm thấy yêu cầu");
+
+
+        Relationship relationship = parseRelationshipRequest(relationshipRequest, userId);
+        relationship.setStatus(RelationshipStatus.FRIEND);
+
+        Relationship reverseRelationship = relationshipOptional.get();
+        reverseRelationship.setStatus(RelationshipStatus.FRIEND);
+
+        relationshipRepository.save(reverseRelationship);
+        relationshipRepository.save(relationship);
+        return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(relationship);
+    }
+
+    @Override
+    public void denyFriendRequest(RelationshipRequest relationshipRequest, String userId) {
+
+        Optional<Relationship> relationshipOptional = relationshipRepository
+                .findByUserIdAndRelatedUserIdAndStatus(
+                        relationshipRequest.getTargetId(),
+                        userId,
+                        RelationshipStatus.PENDING
+                );
+
+        if(relationshipOptional.isEmpty())
+            throw new RelationshipNotFoundException("Không tìm thấy yêu cầu");
+
+        Relationship relationship = relationshipOptional.get();
 
         relationshipRepository.delete(relationship);
     }
 
     @Override
-    public RelationshipResponse acceptFriendRequest(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
+    public void deleteFriend(RelationshipRequest relationshipRequest, String userId) {
 
-        Relationship relationship1 = relationshipRepository.findByUserIdAndRelatedUserIdAndStatus(
-                relationshipRequest.getUserRelatedId(),
-                relationshipRequest.getUserId(),
-                RelationshipStatus.PENDING)
-            .orElseThrow(()-> new RelationshipNotFoundException("Không tìm thấy yêu cầu"));
-        relationship1.setStatus(RelationshipStatus.FRIEND);
+        Optional<Relationship> relationshipOptional = relationshipRepository
+                .findByUserIdAndRelatedUserIdAndStatus(
+                        userId,
+                        relationshipRequest.getTargetId(),
+                        RelationshipStatus.FRIEND
+                );
+        if(relationshipOptional.isEmpty())
+            throw new RelationshipNotFoundException("Không tìm thấy yêu cầu");
+        Relationship relationship = relationshipOptional.get();
 
-        Relationship relationship2 = parseRelationshipRequest(relationshipRequest);
-        relationship2.setStatus(RelationshipStatus.FRIEND);
-
-        relationshipRepository.save(relationship1);
-        relationshipRepository.save(relationship2);
-        return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(relationship2);
-    }
-
-    @Override
-    public void denyFriendRequest(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
-
-        RelationshipId id = new RelationshipId();
-        id.setRelatedUserId(relationshipRequest.getUserId());
-        id.setUserId(relationshipRequest.getUserRelatedId());
-
-        Relationship relationship = relationshipRepository.findByIdAndStatus(id, RelationshipStatus.PENDING)
-                .orElseThrow(()-> new RelationshipNotFoundException("Failed"));
+        Optional<Relationship> reverseRelationshipOptional = relationshipRepository
+                .findByUserIdAndRelatedUserIdAndStatus(
+                        relationshipRequest.getTargetId(),
+                        userId,
+                        RelationshipStatus.FRIEND
+                );
+        if(reverseRelationshipOptional.isEmpty())
+            throw new RelationshipNotFoundException("Không tìm thấy yêu cầu");
+        Relationship reverseRelationship = reverseRelationshipOptional.get();
 
         relationshipRepository.delete(relationship);
-    }
-
-    @Override
-    public void deleteFriend(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
-
-        RelationshipId id1 = new RelationshipId();
-        id1.setUserId(relationshipRequest.getUserId());
-        id1.setRelatedUserId(relationshipRequest.getUserRelatedId());
-
-        Relationship relationship1 = relationshipRepository.findByIdAndStatus(id1, RelationshipStatus.FRIEND)
-                .orElseThrow(()-> new RelationshipNotFoundException("Failed"));
-
-        RelationshipId id2 = new RelationshipId();
-        id2.setRelatedUserId(relationshipRequest.getUserId());
-        id2.setUserId(relationshipRequest.getUserRelatedId());
-
-        Relationship relationship2 = relationshipRepository.findByIdAndStatus(id2, RelationshipStatus.FRIEND)
-                .orElseThrow(()-> new RelationshipNotFoundException("Failed"));
-
-        relationshipRepository.delete(relationship1);
-        relationshipRepository.delete(relationship2);
+        relationshipRepository.delete(reverseRelationship);
     }
 
     @Override
@@ -157,37 +158,31 @@ public class RelationshipServiceImpl implements IRelationshipService {
     }
 
     @Override
-    public RelationshipResponse blockUser(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
-
+    public RelationshipResponse blockUser(RelationshipRequest relationshipRequest, String userId) {
         try {
-            deleteFriend(relationshipRequest);
+            deleteFriend(relationshipRequest, userId);
         }
         catch (Exception ignored){}
 
-        Relationship newRelationship = parseRelationshipRequest(relationshipRequest);
+        Relationship newRelationship = parseRelationshipRequest(relationshipRequest, userId);
         newRelationship.setStatus(RelationshipStatus.BLOCK);
         relationshipRepository.save(newRelationship);
         return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(newRelationship);
     }
 
     @Override
-    public void unblockUser(RelationshipRequest relationshipRequest) {
-        if(!userValidationService.isUserMatchToken(relationshipRequest.getUserId()))
-            throw new UserNotMatchTokenException();
+    public void unblockUser(RelationshipRequest relationshipRequest, String userId) {
         Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserIdAndStatus(
-                relationshipRequest.getUserId(),
-                relationshipRequest.getUserRelatedId(),
+                userId,
+                relationshipRequest.getTargetId(),
                 RelationshipStatus.BLOCK
-        ).orElseThrow(()-> new RelationshipNotFoundException("Không tìm thấy"));
-
+        ).orElseThrow(()-> new RelationshipNotFoundException("Không tìm thấy yêu cầu"));
         relationshipRepository.delete(relationship);
     }
 
-    private Relationship parseRelationshipRequest(RelationshipRequest relationshipRequest){
-        User user1 = userRepository.findById(relationshipRequest.getUserId()).orElseThrow(UserNotFoundException::new);
-        User user2 = userRepository.findById(relationshipRequest.getUserRelatedId()).orElseThrow(UserNotFoundException::new);
+    private Relationship parseRelationshipRequest(RelationshipRequest relationshipRequest, String userId){
+        User user1 = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user2 = userRepository.findById(relationshipRequest.getTargetId()).orElseThrow(UserNotFoundException::new);
         RelationshipId id = new RelationshipId();
         id.setUserId(user1.getId());
         id.setRelatedUserId(user2.getId());
