@@ -13,4 +13,6 @@ public interface IUserService {
     void resetPassword(ResetPasswordRequest resetPasswordRequest);
 
     List<UserProfileResponse> getRecommendUsers(String id);
+
+    void sendEmailForRegister(String email);
 }

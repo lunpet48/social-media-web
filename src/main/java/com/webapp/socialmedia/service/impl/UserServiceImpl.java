@@ -71,4 +71,14 @@ public class UserServiceImpl implements IUserService {
         return userProfileResponses;
     }
 
+
+    @Override
+    public void sendEmailForRegister(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if(userOptional.isPresent())
+            throw new BadRequestException("Email đã tồn tại");
+
+        otpService.sendOtpRegister(email);
+    }
 }

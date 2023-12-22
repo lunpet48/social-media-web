@@ -5,6 +5,7 @@ import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
 import com.webapp.socialmedia.dto.requests.RegisterRequest;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.service.AuthenticationService;
+import com.webapp.socialmedia.service.IUserService;
 import com.webapp.socialmedia.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
+    private final IUserService userService;
     private final OtpService otpService;
     @Value("${app.config.refresh-token-age}")
     private String refreshTokenAge;
@@ -77,7 +79,7 @@ public class AuthController {
     }
     @PostMapping("/register/otp")
     public void sendOtpRegister(@RequestBody Map<String, String> email){
-        otpService.sendOtpRegister(email.get("email"));
+        userService.sendEmailForRegister(email.get("email"));
     }
 
     @PostMapping("/forgot-pasword/otp")

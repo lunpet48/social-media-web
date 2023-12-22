@@ -9,6 +9,7 @@ import com.webapp.socialmedia.entity.Relationship;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.RelationshipProfile;
 import com.webapp.socialmedia.enums.RelationshipStatus;
+import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.EmptyFileException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.mapper.ProfileMapper;
@@ -18,6 +19,7 @@ import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.CloudService;
 import com.webapp.socialmedia.service.IProfileService;
+import com.webapp.socialmedia.utils.ImageValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -86,6 +88,9 @@ public class ProfileServiceImpl implements IProfileService {
         if(multipartFile.isEmpty())
             throw new EmptyFileException();
 
+        if (!ImageValidator.isImage(multipartFile)) {
+            throw new BadRequestException("ảnh đại diện phải là hình ảnh");
+        }
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -105,6 +110,10 @@ public class ProfileServiceImpl implements IProfileService {
     public ProfileResponse updateBackground(String userId, MultipartFile multipartFile) {
         if(multipartFile.isEmpty())
             throw new EmptyFileException();
+
+        if (!ImageValidator.isImage(multipartFile)) {
+            throw new BadRequestException("ảnh background phải là hình ảnh");
+        }
 
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
