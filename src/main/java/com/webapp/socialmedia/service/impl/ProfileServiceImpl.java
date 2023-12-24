@@ -20,14 +20,19 @@ import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.CloudService;
 import com.webapp.socialmedia.service.IProfileService;
 import com.webapp.socialmedia.utils.ImageValidator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +44,15 @@ public class ProfileServiceImpl implements IProfileService {
     private final RelationshipRepository relationshipRepository;
     private final CloudService cloudService;
 
+    private final Validator validator;
     @Override
-    public ProfileResponse update(ProfileRequest profileRequest, String userId) {
+    public ProfileResponse update(@Validated  ProfileRequest profileRequest, String userId) {
+
+        //validate with validator
+        Set<ConstraintViolation<ProfileRequest>> violations = validator.validate(profileRequest);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);

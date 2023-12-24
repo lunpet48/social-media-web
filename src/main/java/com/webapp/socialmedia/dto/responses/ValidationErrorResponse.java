@@ -10,7 +10,7 @@ public class ValidationErrorResponse extends ResponseDTO {
     private List<Violation> errors = new ArrayList<>();
 
     public ValidationErrorResponse(String message) {
-        super(null,false,message);
+        super(null,true,message);
     }
 }
 
