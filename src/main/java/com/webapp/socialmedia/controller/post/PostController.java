@@ -8,6 +8,7 @@ import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.PostMedia;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotAuthoritativeException;
@@ -15,6 +16,7 @@ import com.webapp.socialmedia.mapper.PostMapper;
 import com.webapp.socialmedia.service.MediaService;
 import com.webapp.socialmedia.service.PostMediaService;
 import com.webapp.socialmedia.service.PostService;
+import com.webapp.socialmedia.utils.FileValidator;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,13 @@ public class PostController {
     @PostMapping(value = "/post")
     @WrappingResponse(status = HttpStatus.CREATED)
     public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files) {
+
+        for (MultipartFile file:files) {
+
+            if(!(FileValidator.isImage(file) || FileValidator.isVideo(file)))
+                throw new BadRequestException("file không hợp lệ");
+        }
+
         Post post = postService.createPost(postRequest);
         List<Media> mediaList = mediaService.uploadFiles(files, post);
         List<PostMedia> postMedia = postMediaService.uploadFiles(mediaList, post);

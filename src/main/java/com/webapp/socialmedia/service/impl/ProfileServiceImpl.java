@@ -19,7 +19,7 @@ import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.CloudService;
 import com.webapp.socialmedia.service.IProfileService;
-import com.webapp.socialmedia.utils.ImageValidator;
+import com.webapp.socialmedia.utils.FileValidator;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -100,7 +100,7 @@ public class ProfileServiceImpl implements IProfileService {
         if(multipartFile.isEmpty())
             throw new EmptyFileException();
 
-        if (!ImageValidator.isImage(multipartFile)) {
+        if (!FileValidator.isImage(multipartFile)) {
             throw new BadRequestException("ảnh đại diện phải là hình ảnh");
         }
         Profile profile = profileRepository.findById(userId)
@@ -123,7 +123,7 @@ public class ProfileServiceImpl implements IProfileService {
         if(multipartFile.isEmpty())
             throw new EmptyFileException();
 
-        if (!ImageValidator.isImage(multipartFile)) {
+        if (!FileValidator.isImage(multipartFile)) {
             throw new BadRequestException("ảnh background phải là hình ảnh");
         }
 
