@@ -40,8 +40,8 @@ public class PostController {
 
     @PostMapping(value = "/post")
     @WrappingResponse(status = HttpStatus.CREATED)
-    public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files) {
-
+    public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files) throws PostCannotUploadException {
+        if (files.length == 0) throw new PostCannotUploadException("Không thể đăng tải bài viết thiếu hình ảnh/video");
         for (MultipartFile file:files) {
 
             if(!(FileValidator.isImage(file) || FileValidator.isVideo(file)))
