@@ -4,6 +4,7 @@ import com.webapp.socialmedia.dto.WrappingResponse;
 import com.webapp.socialmedia.dto.requests.PostRequest;
 import com.webapp.socialmedia.dto.responses.PostResponse;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.PostMedia;
@@ -107,5 +108,11 @@ public class PostController {
             resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
         });
         return ResponseEntity.ok(ResponseDTO.builder().data(resultResponses).error(false).message("").build());
+    }
+
+    @GetMapping("/post/{postId}/likes")
+    public Object getLikesOfPost(@PathVariable String postId) {
+        List<UserProfileResponse> responses = postService.getLikesOfPost(postId);
+        return ResponseEntity.ok(new ResponseDTO().success(responses));
     }
 }

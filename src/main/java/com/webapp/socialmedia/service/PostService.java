@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.PostRequest;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.PostMedia;
 import com.webapp.socialmedia.exceptions.PostCannotUploadException;
@@ -22,4 +23,6 @@ public interface PostService {
     List<Post> getListPostByUserIdAndIsDeleted(String userId);
 
     List<Post> getHomepage();
+
+    List<UserProfileResponse> getLikesOfPost(String postId);
 }

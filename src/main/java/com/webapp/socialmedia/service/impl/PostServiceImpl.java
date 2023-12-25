@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.PostRequest;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.PostMode;
 import com.webapp.socialmedia.enums.PostType;
@@ -9,6 +10,7 @@ import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotAuthoritativeException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
+import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.PostRepository;
 import com.webapp.socialmedia.repository.PostTagRepository;
 import com.webapp.socialmedia.repository.RelationshipRepository;
@@ -29,6 +31,7 @@ public class PostServiceImpl implements PostService {
     private final TagRepository tagRepository;
     private final RelationshipRepository relationshipRepository;
     private final PostTagRepository postTagRepository;
+    private final UserMapper userMapper;
 
     @Override
     public Post createPost(PostRequest postRequest) {
@@ -172,5 +175,16 @@ public class PostServiceImpl implements PostService {
         result.sort(Comparator.comparing(Post::getCreatedAt).reversed());
 
         return result;
+    }
+    @Override
+    public List<UserProfileResponse> getLikesOfPost(String postId) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post post = postRepository.findByIdAndIsDeleted(postId, false).orElseThrow(PostNotFoundException::new);
+        List<UserProfileResponse> responses = new ArrayList<>();
+        for (Reaction reaction:post.getReactionList()) {
+            UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(reaction.getUser(), currentUser.getId());
+            responses.add(userProfileResponse);
+        }
+        return responses;
     }
 }
