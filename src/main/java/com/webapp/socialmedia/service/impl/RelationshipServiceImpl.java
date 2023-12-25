@@ -2,14 +2,18 @@ package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Relationship;
+import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.RelationshipNotFoundException;
 import com.webapp.socialmedia.mapper.RelationshipMapper;
+import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.service.IRelationshipService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,7 +24,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RelationshipServiceImpl implements IRelationshipService {
     private final RelationshipRepository relationshipRepository;
-    private final  RelationshipMapper relationshipMapper;
+    private final RelationshipMapper relationshipMapper;
+    private final UserMapper userMapper;
     @Override
     public RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest, String userId) {
         Optional<Relationship> relationshipOptional = relationshipRepository
@@ -127,25 +132,37 @@ public class RelationshipServiceImpl implements IRelationshipService {
     }
 
     @Override
-    public List<RelationshipResponse> findByUserIdAndStatus(String userId,RelationshipStatus status){
+    public List<UserProfileResponse> findByUserIdAndStatus(String userId,RelationshipStatus status){
         List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(userId,status);
-        List<RelationshipResponse> relationshipResponses = new ArrayList<>();
+        List<UserProfileResponse> responses = new ArrayList<>();
         for (Relationship relationship: relationships) {
-            RelationshipResponse relationshipResponse = relationshipMapper.RelationshipToRelationshipResponse(relationship);
-            relationshipResponses.add(relationshipResponse);
+            UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(relationship.getRelatedUser(), userId);
+            responses.add(userProfileResponse);
         }
-        return relationshipResponses;
+        return responses;
     }
 
     @Override
-    public List<RelationshipResponse> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status) {
-        List<Relationship> relationships = relationshipRepository.findByRelatedUserIdAndStatus(userId,status);
-        List<RelationshipResponse> relationshipResponses = new ArrayList<>();
+    public List<UserProfileResponse> getFriends(String userId){
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(userId,RelationshipStatus.FRIEND);
+        List<UserProfileResponse> responses = new ArrayList<>();
         for (Relationship relationship: relationships) {
-            RelationshipResponse relationshipResponse = relationshipMapper.RelationshipToRelationshipResponse(relationship);
-            relationshipResponses.add(relationshipResponse);
+            UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(relationship.getRelatedUser(), currentUser.getId());
+            responses.add(userProfileResponse);
         }
-        return relationshipResponses;
+        return responses;
+    }
+
+    @Override
+    public List<UserProfileResponse> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status) {
+        List<Relationship> relationships = relationshipRepository.findByRelatedUserIdAndStatus(userId,status);
+        List<UserProfileResponse> responses = new ArrayList<>();
+        for (Relationship relationship: relationships) {
+            UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(relationship.getUser(), userId);
+            responses.add(userProfileResponse);
+        }
+        return responses;
     }
 
     @Override
