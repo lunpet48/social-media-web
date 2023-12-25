@@ -3,6 +3,7 @@ package com.webapp.socialmedia.controller.user;
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.service.IRelationshipService;
@@ -55,29 +56,29 @@ public class RelationshipController {
     @GetMapping("outgoing-requests")
     public ResponseEntity<?> getAllOutgoingRequest(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<RelationshipResponse> relationshipResponses = relationshipService.findByUserIdAndStatus(user.getId(), RelationshipStatus.PENDING);
-        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
+        List<UserProfileResponse> responses = relationshipService.findByUserIdAndStatus(user.getId(), RelationshipStatus.PENDING);
+        return ResponseEntity.ok(new ResponseDTO().success(responses));
     }
 
     @GetMapping("incoming-requests")
     public ResponseEntity<?> getAllIncomingRequest(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<RelationshipResponse> relationshipResponses = relationshipService.findByRelatedUserIdAndStatus(user.getId(), RelationshipStatus.PENDING);
-        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
+        List<UserProfileResponse> responses = relationshipService.findByRelatedUserIdAndStatus(user.getId(), RelationshipStatus.PENDING);
+        return ResponseEntity.ok(new ResponseDTO().success(responses));
     }
 
     @GetMapping("friends")
     public ResponseEntity<?> getAllFriend(@RequestParam String userId){
-        List<RelationshipResponse> relationshipResponses = relationshipService.findByUserIdAndStatus(userId, RelationshipStatus.FRIEND);
-        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
+        List<UserProfileResponse> responses = relationshipService.getFriends(userId);
+        return ResponseEntity.ok(new ResponseDTO().success(responses));
     }
 
     @GetMapping("blocklist")
     public ResponseEntity<?> getBlocklist(){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<RelationshipResponse> relationshipResponses = relationshipService
+        List<UserProfileResponse> responses = relationshipService
                 .findByUserIdAndStatus(user.getId(), RelationshipStatus.BLOCK);
-        return ResponseEntity.ok(new ResponseDTO().success(relationshipResponses));
+        return ResponseEntity.ok(new ResponseDTO().success(responses));
     }
 
     @PostMapping("blocklist")

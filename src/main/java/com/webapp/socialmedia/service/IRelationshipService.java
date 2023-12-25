@@ -2,6 +2,7 @@ package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
+import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 
 import java.util.List;
@@ -17,9 +18,11 @@ public interface IRelationshipService {
 
     void deleteFriend(RelationshipRequest relationshipRequest, String userId);
 
-    List<RelationshipResponse> findByUserIdAndStatus(String userId, RelationshipStatus status);
+    List<UserProfileResponse> findByUserIdAndStatus(String userId, RelationshipStatus status);
 
-    List<RelationshipResponse> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status);
+    List<UserProfileResponse> getFriends(String userId);
+
+    List<UserProfileResponse> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status);
 
     RelationshipResponse blockUser(RelationshipRequest relationshipRequest, String userId);
 

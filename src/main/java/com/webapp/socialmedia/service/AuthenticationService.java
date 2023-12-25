@@ -44,6 +44,8 @@ public class AuthenticationService {
 
     private final Validator validator;
 
+    private final UserMapper userMapper;
+
     @Value("${app.config.refresh-token-age}")
     private String refreshTokenAge;
 
@@ -84,7 +86,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .user(UserMapper.INSTANCE.userToUserResponse(user))
+                .user(userMapper.userToUserProfileResponse(user))
                 .build();
     }
 
@@ -112,7 +114,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .user(UserMapper.INSTANCE.userToUserResponse(user))
+                .user(userMapper.userToUserProfileResponse(user))
                 .build();
     }
 
@@ -150,7 +152,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(id)
-                .user(UserMapper.INSTANCE.userToUserResponse(user))
+                .user(userMapper.userToUserProfileResponse(user))
                 .build();
     }
     private String generateRefreshToken(User user) {

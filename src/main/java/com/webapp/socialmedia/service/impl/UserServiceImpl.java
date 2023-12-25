@@ -11,6 +11,7 @@ import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.IUserService;
 import com.webapp.socialmedia.service.OtpService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
+
+    private final UserMapper userMapper;
 
     @Override
     public void changePassword(ChangePasswordRequest changePasswordRequest, String userId) {
@@ -61,11 +64,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<UserProfileResponse> getRecommendUsers(String id) {
         // sửa lại logic lấy user liên quan
-
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<User> users = userRepository.getRecommendUsers(id);
         List<UserProfileResponse> userProfileResponses = new ArrayList<>();
         users.forEach(user -> {
-            UserProfileResponse userProfileResponse = UserMapper.INSTANCE.userToUserProfileResponse(user);
+            UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(user, currentUser.getId());
             userProfileResponses.add(userProfileResponse);
         });
         return userProfileResponses;
