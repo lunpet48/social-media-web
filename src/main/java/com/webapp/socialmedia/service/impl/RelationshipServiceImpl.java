@@ -3,15 +3,11 @@ package com.webapp.socialmedia.service.impl;
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.entity.Relationship;
-import com.webapp.socialmedia.entity.RelationshipId;
-import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.RelationshipNotFoundException;
-import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.mapper.RelationshipMapper;
 import com.webapp.socialmedia.repository.RelationshipRepository;
-import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.IRelationshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,8 +19,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RelationshipServiceImpl implements IRelationshipService {
-    private final UserRepository userRepository;
     private final RelationshipRepository relationshipRepository;
+    private final  RelationshipMapper relationshipMapper;
     @Override
     public RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest, String userId) {
         Optional<Relationship> relationshipOptional = relationshipRepository
@@ -42,15 +38,13 @@ public class RelationshipServiceImpl implements IRelationshipService {
             }
         }
 
-        Relationship newRelationship = parseRelationshipRequest(relationshipRequest, userId);
-        newRelationship.setStatus(RelationshipStatus.PENDING);
+        Relationship newRelationship = relationshipMapper.ToRelationship(userId, relationshipRequest.getTargetId(), RelationshipStatus.PENDING);
         relationshipRepository.save(newRelationship);
-        return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(newRelationship);
+        return relationshipMapper.RelationshipToRelationshipResponse(newRelationship);
     }
 
     @Override
     public void cancelFriendRequest(RelationshipRequest relationshipRequest, String userId) {
-
         Optional<Relationship> relationshipOptional = relationshipRepository
                 .findByUserIdAndRelatedUserIdAndStatus(
                         userId,
@@ -67,7 +61,6 @@ public class RelationshipServiceImpl implements IRelationshipService {
 
     @Override
     public RelationshipResponse acceptFriendRequest(RelationshipRequest relationshipRequest, String userId) {
-
         Optional<Relationship> relationshipOptional = relationshipRepository
                 .findByUserIdAndRelatedUserIdAndStatus(
                         relationshipRequest.getTargetId(),
@@ -78,16 +71,14 @@ public class RelationshipServiceImpl implements IRelationshipService {
         if(relationshipOptional.isEmpty())
             throw new RelationshipNotFoundException("Không tìm thấy yêu cầu");
 
-
-        Relationship relationship = parseRelationshipRequest(relationshipRequest, userId);
-        relationship.setStatus(RelationshipStatus.FRIEND);
+        Relationship relationship = relationshipMapper.ToRelationship(userId, relationshipRequest.getTargetId(), RelationshipStatus.FRIEND);
 
         Relationship reverseRelationship = relationshipOptional.get();
         reverseRelationship.setStatus(RelationshipStatus.FRIEND);
 
         relationshipRepository.save(reverseRelationship);
         relationshipRepository.save(relationship);
-        return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(relationship);
+        return relationshipMapper.RelationshipToRelationshipResponse(relationship);
     }
 
     @Override
@@ -140,7 +131,7 @@ public class RelationshipServiceImpl implements IRelationshipService {
         List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(userId,status);
         List<RelationshipResponse> relationshipResponses = new ArrayList<>();
         for (Relationship relationship: relationships) {
-            RelationshipResponse relationshipResponse = RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(relationship);
+            RelationshipResponse relationshipResponse = relationshipMapper.RelationshipToRelationshipResponse(relationship);
             relationshipResponses.add(relationshipResponse);
         }
         return relationshipResponses;
@@ -151,7 +142,7 @@ public class RelationshipServiceImpl implements IRelationshipService {
         List<Relationship> relationships = relationshipRepository.findByRelatedUserIdAndStatus(userId,status);
         List<RelationshipResponse> relationshipResponses = new ArrayList<>();
         for (Relationship relationship: relationships) {
-            RelationshipResponse relationshipResponse = RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(relationship);
+            RelationshipResponse relationshipResponse = relationshipMapper.RelationshipToRelationshipResponse(relationship);
             relationshipResponses.add(relationshipResponse);
         }
         return relationshipResponses;
@@ -164,10 +155,10 @@ public class RelationshipServiceImpl implements IRelationshipService {
         }
         catch (Exception ignored){}
 
-        Relationship newRelationship = parseRelationshipRequest(relationshipRequest, userId);
-        newRelationship.setStatus(RelationshipStatus.BLOCK);
+        Relationship newRelationship = relationshipMapper.ToRelationship(userId, relationshipRequest.getTargetId(), RelationshipStatus.BLOCK);
+
         relationshipRepository.save(newRelationship);
-        return RelationshipMapper.INSTANCE.RelationshipToRelationshipResponse(newRelationship);
+        return relationshipMapper.RelationshipToRelationshipResponse(newRelationship);
     }
 
     @Override
@@ -178,18 +169,5 @@ public class RelationshipServiceImpl implements IRelationshipService {
                 RelationshipStatus.BLOCK
         ).orElseThrow(()-> new RelationshipNotFoundException("Không tìm thấy yêu cầu"));
         relationshipRepository.delete(relationship);
-    }
-
-    private Relationship parseRelationshipRequest(RelationshipRequest relationshipRequest, String userId){
-        User user1 = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        User user2 = userRepository.findById(relationshipRequest.getTargetId()).orElseThrow(UserNotFoundException::new);
-        RelationshipId id = new RelationshipId();
-        id.setUserId(user1.getId());
-        id.setRelatedUserId(user2.getId());
-        Relationship relationship = new Relationship();
-        relationship.setId(id);
-        relationship.setUser(user1);
-        relationship.setRelatedUser(user2);
-        return relationship;
     }
 }

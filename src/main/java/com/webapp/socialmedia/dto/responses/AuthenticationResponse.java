@@ -14,5 +14,5 @@ public class AuthenticationResponse {
     private String accessToken;
     @JsonIgnore
     private String refreshToken;
-    private UserResponse user;
+    private UserProfileResponse user;
 }
