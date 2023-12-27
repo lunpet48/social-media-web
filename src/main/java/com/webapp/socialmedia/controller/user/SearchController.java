@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.controller.user;
 
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ public class SearchController {
     private final SearchService searchService;
     @GetMapping("")
     public ResponseEntity<?> search(String keyword){
-
-        return ResponseEntity.ok(searchService.search(keyword));
+        return ResponseEntity.ok(new ResponseDTO().success(searchService.search(keyword)));
     }
 }
