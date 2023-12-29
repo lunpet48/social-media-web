@@ -53,7 +53,7 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findByEmail(resetPasswordRequest.getEmail())
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
 
-        if (resetPasswordRequest.getOtpCode() != otpService.getOtp(OtpService.FORGOT_PASSWORD_KEY + resetPasswordRequest.getEmail()))
+        if (Integer.parseInt(resetPasswordRequest.getOtpCode()) != otpService.getOtp(OtpService.FORGOT_PASSWORD_KEY + resetPasswordRequest.getEmail()))
             throw new InvalidOTPException();
 
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));

@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.controller;
 
 import com.webapp.socialmedia.dto.requests.AuthenticationRequest;
+import com.webapp.socialmedia.dto.requests.ResetPasswordRequest;
 import com.webapp.socialmedia.dto.responses.AuthenticationResponse;
 import com.webapp.socialmedia.dto.requests.RegisterRequest;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
@@ -83,7 +84,12 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-pasword/otp")
-    public void sendOtpForgotPassword(@RequestBody String email){
-        otpService.sendOtpForgotPassword(email);
+    public void sendOtpForgotPassword(@RequestBody Map<String, String> email){
+        otpService.sendOtpForgotPassword(email.get("email"));
+    }
+
+    @PostMapping("/resetPassword")
+    public void resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){
+        userService.resetPassword(resetPasswordRequest);
     }
 }

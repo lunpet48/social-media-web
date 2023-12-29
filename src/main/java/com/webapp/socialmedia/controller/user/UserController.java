@@ -1,7 +1,6 @@
 package com.webapp.socialmedia.controller.user;
 
 import com.webapp.socialmedia.dto.requests.ChangePasswordRequest;
-import com.webapp.socialmedia.dto.requests.ResetPasswordRequest;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.User;
@@ -24,10 +23,7 @@ public class UserController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         userService.changePassword(changePasswordRequest, user.getId());
     }
-    @PostMapping("/resetPassword")
-    public void resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){
-        userService.resetPassword(resetPasswordRequest);
-    }
+
 
     @GetMapping("recommend")
     public ResponseEntity<?> getRecommendUsers(){
