@@ -13,5 +13,6 @@ public interface CommentMapper {
     @Mapping(source = "comment.post.id", target = "postId")
     @Mapping(source = "comment.user.id", target = "userId")
     @Mapping(source = "comment.repliedComment.id", target = "repliedCommentId")
+    @Mapping(source = "comment.media.link", target = "mediaLink")
     CommentResponse toResponse(Comment comment);
 }

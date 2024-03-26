@@ -28,6 +28,16 @@ public class CloudServiceImpl implements CloudService {
     }
 
     @Override
+    public Media uploadFile(MultipartFile multipartFile, String userId, String path) throws IOException {
+        var u =  cloudinary.uploader().upload(multipartFile.getBytes(),
+                ObjectUtils.asMap("public_id", UUID.randomUUID().toString(),
+                        "resource_type", "auto",
+                        "folder", userId + "/" + path));
+
+        return Media.builder().id(u.get("asset_id").toString()).link(u.get("secure_url").toString()).type(MediaType.valueOf(u.get("resource_type").toString().toUpperCase())).build();
+    }
+
+    @Override
     public Media uploadFile(MultipartFile multipartFile) throws IOException {
         var u =  cloudinary.uploader().upload(multipartFile.getBytes(),
                 ObjectUtils.asMap("public_id", UUID.randomUUID().toString(),

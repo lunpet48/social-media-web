@@ -10,6 +10,8 @@ import java.util.List;
 public interface CloudService {
     Media uploadFile(MultipartFile multipartFile, String userId, PostType postType) throws IOException;
 
+    Media uploadFile(MultipartFile multipartFile, String userId, String mediaType) throws IOException;
+
     Media uploadFile(MultipartFile multipartFile) throws IOException;
 
     Object getFile(String assetId) throws Exception;

@@ -2,13 +2,16 @@ package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.entity.Post;
+import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.repository.MediaRepository;
 import com.webapp.socialmedia.service.CloudService;
 import com.webapp.socialmedia.service.MediaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,15 @@ public class MediaServiceImpl implements MediaService {
                     cloudService.uploadFiles(multipartFiles, post.getUser().getId(), post.getType()));
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public Media uploadFile(MultipartFile multipartFile, String path) throws IOException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!multipartFile.isEmpty()) {
+            return mediaRepository.save(cloudService.uploadFile(multipartFile, user.getId(), path));
+        }
+        return new Media();
     }
 
     @Override

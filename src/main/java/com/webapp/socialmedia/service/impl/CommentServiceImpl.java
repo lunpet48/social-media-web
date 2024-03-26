@@ -3,6 +3,7 @@ package com.webapp.socialmedia.service.impl;
 import com.webapp.socialmedia.dto.requests.CommentRequest;
 import com.webapp.socialmedia.dto.responses.CommentResponse;
 import com.webapp.socialmedia.entity.Comment;
+import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.exceptions.BadRequestException;
@@ -27,7 +28,7 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
 
     @Override
-    public CommentResponse createComment(CommentRequest commentRequest){
+    public CommentResponse createComment(CommentRequest commentRequest, Media media){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // kiểm tra post tồn tại
@@ -38,6 +39,8 @@ public class CommentServiceImpl implements CommentService {
                 .user(user)
                 .post(post)
                 .comment(commentRequest.getComment())
+                .media(media.getId() != null ? media : null)
+                .repliedComment(commentRepository.findById(commentRequest.getRepliedCommentId()).orElse(null))
                 .build();
         //media
 
