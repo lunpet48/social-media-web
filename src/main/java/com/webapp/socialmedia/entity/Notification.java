@@ -1,13 +1,15 @@
 package com.webapp.socialmedia.entity;
 
+import com.webapp.socialmedia.enums.NotificationStatus;
+import com.webapp.socialmedia.enums.NotificationType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-@Data
+import java.util.Date;
+
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +24,23 @@ public class Notification {
     @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
 
-    private String content;
+    @ManyToOne
+    @JoinColumn(name="actor", nullable = false)
+    private User actor;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private NotificationType notificationType;
 
     private String url;
+
+    private Date createdAt;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus status;
+
+    @PrePersist
+    private void createdAt() {
+        this.createdAt = new Date();
+    }
 }

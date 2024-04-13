@@ -2,11 +2,10 @@ package com.webapp.socialmedia.dto.responses;
 
 import com.webapp.socialmedia.enums.Gender;
 import com.webapp.socialmedia.enums.RelationshipProfile;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-@Data
+import lombok.*;
+
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

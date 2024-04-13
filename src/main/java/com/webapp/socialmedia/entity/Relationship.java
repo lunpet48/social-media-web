@@ -2,12 +2,10 @@ package com.webapp.socialmedia.entity;
 
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

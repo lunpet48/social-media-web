@@ -1,14 +1,12 @@
 package com.webapp.socialmedia.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +26,8 @@ public class PrivacyPost {
     @Column(name = "view_permission")
     private Boolean viewPermission;
 }
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 class PrivacyPostId implements Serializable {

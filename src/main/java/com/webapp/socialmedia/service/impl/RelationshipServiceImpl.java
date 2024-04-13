@@ -3,16 +3,22 @@ package com.webapp.socialmedia.service.impl;
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
+import com.webapp.socialmedia.entity.Notification;
 import com.webapp.socialmedia.entity.Relationship;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.RelationshipNotFoundException;
+import com.webapp.socialmedia.mapper.NotificationMapper;
 import com.webapp.socialmedia.mapper.RelationshipMapper;
 import com.webapp.socialmedia.mapper.UserMapper;
+import com.webapp.socialmedia.repository.NotificationRepository;
 import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.service.IRelationshipService;
+import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +32,9 @@ public class RelationshipServiceImpl implements IRelationshipService {
     private final RelationshipRepository relationshipRepository;
     private final RelationshipMapper relationshipMapper;
     private final UserMapper userMapper;
+    private final NotificationMapper notificationMapper;
+    private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
     @Override
     public RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest, String userId) {
         Optional<Relationship> relationshipOptional = relationshipRepository
@@ -44,7 +53,17 @@ public class RelationshipServiceImpl implements IRelationshipService {
         }
 
         Relationship newRelationship = relationshipMapper.ToRelationship(userId, relationshipRequest.getTargetId(), RelationshipStatus.PENDING);
-        relationshipRepository.save(newRelationship);
+
+        //Thông báo
+        Relationship temp = relationshipRepository.saveAndFlush(newRelationship);
+        Notification newNoti = Notification.builder()
+                .actor(temp.getUser())
+                .receiver(temp.getRelatedUser())
+                .notificationType(NotificationType.FRIEND_REQUEST)
+                .build();
+        notificationRepository.saveAndFlush(newNoti);
+        simpMessagingTemplate.convertAndSendToUser(newNoti.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(newNoti));
+
         return relationshipMapper.RelationshipToRelationshipResponse(newRelationship);
     }
 
@@ -83,6 +102,16 @@ public class RelationshipServiceImpl implements IRelationshipService {
 
         relationshipRepository.save(reverseRelationship);
         relationshipRepository.save(relationship);
+
+        //Thông báo
+        Notification newNoti = Notification.builder()
+                .actor(relationship.getUser())
+                .receiver(relationship.getRelatedUser())
+                .notificationType(NotificationType.FRIEND_ACCEPT)
+                .build();
+        notificationRepository.saveAndFlush(newNoti);
+        simpMessagingTemplate.convertAndSendToUser(newNoti.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(newNoti));
+
         return relationshipMapper.RelationshipToRelationshipResponse(relationship);
     }
 

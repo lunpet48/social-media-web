@@ -1,11 +1,14 @@
 package com.webapp.socialmedia.dto.responses;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public class ValidationErrorResponse extends ResponseDTO {
     private List<Violation> errors = new ArrayList<>();
 
