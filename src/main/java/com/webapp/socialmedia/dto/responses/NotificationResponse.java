@@ -14,5 +14,6 @@ public class NotificationResponse {
     private String actor;
     private String receiver;
     private NotificationType notificationType;
+    private String idType;
     private Date createdAt;
 }

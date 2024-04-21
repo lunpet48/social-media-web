@@ -32,7 +32,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    private String url;
+    private String idType;
 
     private Date createdAt;
 
@@ -42,5 +42,6 @@ public class Notification {
     @PrePersist
     private void createdAt() {
         this.createdAt = new Date();
+        this.status = NotificationStatus.UNREAD;
     }
 }

@@ -1,15 +1,17 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.responses.ReactionResponse;
-import com.webapp.socialmedia.entity.Post;
-import com.webapp.socialmedia.entity.Reaction;
-import com.webapp.socialmedia.entity.ReactionId;
-import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.entity.*;
+import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.exceptions.BadRequestException;
+import com.webapp.socialmedia.mapper.NotificationMapper;
+import com.webapp.socialmedia.repository.NotificationRepository;
 import com.webapp.socialmedia.repository.PostRepository;
 import com.webapp.socialmedia.repository.ReactionRepository;
 import com.webapp.socialmedia.service.ReactionService;
+import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +21,9 @@ import java.util.Optional;
 public class ReactionServiceImpl implements ReactionService {
     private final PostRepository postRepository;
     private final ReactionRepository reactionRepository;
+    private final NotificationMapper notificationMapper;
+    private final NotificationRepository notificationRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
     @Override
     public ReactionResponse likePost(String postId, User user){
         // thiếu kiểm tra user có quyền xem bài viết không
@@ -41,7 +46,17 @@ public class ReactionServiceImpl implements ReactionService {
                 .user(user)
                 .post(post)
                 .build();
-        reactionRepository.save(reaction);
+        //Thông báo (id type lưu id bài viết)
+        Reaction newReaction = reactionRepository.saveAndFlush(reaction);
+        Notification notification = Notification.builder()
+                .actor(newReaction.getUser())
+                .receiver(newReaction.getPost().getUser())
+                .notificationType(NotificationType.LIKE)
+                .idType(newReaction.getPost().getId())
+                .build();
+        notificationRepository.saveAndFlush(notification);
+        simpMessagingTemplate.convertAndSendToUser(notification.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(notification));
+
         return ReactionResponse.builder()
                 .userId(user.getId())
                 .postId(post.getId())
