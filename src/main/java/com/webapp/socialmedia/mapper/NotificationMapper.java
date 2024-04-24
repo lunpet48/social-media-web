@@ -10,6 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface NotificationMapper {
     NotificationMapper INSTANCE = Mappers.getMapper(NotificationMapper.class);
 
+    @Mapping(source = "notification.id", target = "id")
     @Mapping(source = "notification.receiver.id", target = "receiver")
     @Mapping(source = "notification.actor.id", target = "actor")
     @Mapping(source = "notification.notificationType", target = "notificationType")

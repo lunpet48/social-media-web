@@ -40,11 +40,11 @@ public class NotificationController {
         return ResponseEntity.ok(new ResponseDTO().success(notificationService.returnAmountOfNewNotification()));
     }
 
-//    @GetMapping("/notification")
-//    public ResponseEntity<?> getNotification(@RequestBody NotificationRequest request) {
-//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        notificationService.
-//    }
+    @GetMapping("/notification")
+    public ResponseEntity<?> getNotification(@RequestBody NotificationRequest request) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(new ResponseDTO().success(notificationService.getAnNotification(request)));
+    }
 
 //    @GetMapping("/notification")
 //    public ResponseEntity<?> readNotification()

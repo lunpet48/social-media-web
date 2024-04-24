@@ -8,13 +8,10 @@ import com.webapp.socialmedia.entity.PostMedia;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.NotificationStatus;
 import com.webapp.socialmedia.enums.NotificationType;
-import com.webapp.socialmedia.exceptions.RelationshipNotFoundException;
+import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.mapper.NotificationMapper;
 import com.webapp.socialmedia.mapper.PostMapper;
-import com.webapp.socialmedia.mapper.RelationshipMapper;
 import com.webapp.socialmedia.repository.NotificationRepository;
-import com.webapp.socialmedia.repository.PostRepository;
-import com.webapp.socialmedia.repository.RelationshipRepository;
 import com.webapp.socialmedia.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -76,6 +72,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Object getAnNotification(NotificationRequest notificationRequest) {
+        Notification temp = repository.findById(notificationRequest.getId()).orElseThrow(() -> new BadRequestException("Thông báo không tồn tại"));
+        temp.setStatus(NotificationStatus.READ);
+        repository.save(temp);
         if(notificationRequest.getNotificationType().equals(NotificationType.FRIEND_REQUEST) || notificationRequest.getNotificationType().equals(NotificationType.FRIEND_ACCEPT)) {
             //Trả về trang cá nhân của người gửi
             return profileService.get(notificationRequest.getActorId());
@@ -88,9 +87,10 @@ public class NotificationServiceImpl implements NotificationService {
         }
         else if(notificationRequest.getNotificationType().equals(NotificationType.COMMENT)) {
             //Trả về comment
-            //commentService.
+            return commentService.getCommentById(notificationRequest.getIdType());
+        } else {
+            throw new BadRequestException("Thông báo không tồn tại");
         }
-        return "";
     }
 
     @Override

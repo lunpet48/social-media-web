@@ -11,6 +11,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationResponse {
+    private String id;
     private String actor;
     private String receiver;
     private NotificationType notificationType;

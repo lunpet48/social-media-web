@@ -73,4 +73,10 @@ public class CommentServiceImpl implements CommentService {
         return commentResponses;
     }
 
+    @Override
+    public CommentResponse getCommentById(String commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BadRequestException("Comment not found"));
+        return CommentMapper.INSTANCE.toResponse(comment);
+    }
+
 }
