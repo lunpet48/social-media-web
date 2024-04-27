@@ -22,7 +22,7 @@ public interface PostService {
 
     List<Post> getListPostByUserIdAndIsDeleted(String userId);
 
-    List<Post> getHomepage();
+    List<Post> getHomepage(int pageSize, int pageNo);
 
     List<UserProfileResponse> getLikesOfPost(String postId);
 }

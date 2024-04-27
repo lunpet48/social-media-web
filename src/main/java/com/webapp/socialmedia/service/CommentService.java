@@ -11,7 +11,7 @@ public interface CommentService {
 
     void deleteComment(String commentId);
 
-    List<CommentResponse> getComment(String postId);
+    List<CommentResponse> getComment(String postId, Integer pageNo, Integer pageSize);
 
     CommentResponse getCommentById(String commentId);
 }

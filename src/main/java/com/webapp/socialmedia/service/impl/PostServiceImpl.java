@@ -163,12 +163,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> getHomepage() {
+    public List<Post> getHomepage(int pageSize, int pageNo) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Post> result = new ArrayList<>();
         relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND).forEach(
                 relationship -> {
-                    result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 100));
+                    result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 1000, pageSize, pageNo * pageSize));
                 }
         );
 

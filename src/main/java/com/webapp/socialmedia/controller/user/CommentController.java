@@ -35,8 +35,8 @@ public class CommentController {
     }
 
     @GetMapping("posts/{postId}/comments")
-    public ResponseEntity<?> getCommentOfPost(@PathVariable String postId){
-        List<CommentResponse> commentResponses = commentService.getComment(postId);
+    public ResponseEntity<?> getCommentOfPost(@PathVariable String postId, @RequestParam int pageNo, @RequestParam int pageSize){
+        List<CommentResponse> commentResponses = commentService.getComment(postId, pageNo, pageSize);
         return ResponseEntity.ok(new ResponseDTO().success(commentResponses));
     }
 }

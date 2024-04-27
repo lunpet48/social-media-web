@@ -14,6 +14,8 @@ import com.webapp.socialmedia.repository.PostRepository;
 import com.webapp.socialmedia.service.CommentService;
 import com.webapp.socialmedia.validattion.serviceValidation.UserValidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -63,8 +65,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponse> getComment(String postId) {
-        List<Comment> comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId);
+    public List<CommentResponse> getComment(String postId, Integer pageNo, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<Comment> comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId, pageable);
         List<CommentResponse> commentResponses = new ArrayList<>();
         comments.forEach(comment -> {
             CommentResponse commentResponse = CommentMapper.INSTANCE.toResponse(comment);

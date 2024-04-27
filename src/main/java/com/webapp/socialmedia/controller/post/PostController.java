@@ -101,8 +101,8 @@ public class PostController {
 
     //Lấy các bài đăng của bạn bè trong 1 tháng gần nhất
     @GetMapping("/home")
-    public ResponseEntity<ResponseDTO> getHomepage() {
-        List<Post> resultEntity = postService.getHomepage();
+    public ResponseEntity<ResponseDTO> getHomepage(@RequestParam int pageSize, @RequestParam int pageNo) {
+        List<Post> resultEntity = postService.getHomepage(pageSize, pageNo);
         List<PostResponse> resultResponses = new ArrayList<>();
         resultEntity.forEach(entity -> {
             resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
