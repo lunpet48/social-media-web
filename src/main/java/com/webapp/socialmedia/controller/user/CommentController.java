@@ -22,7 +22,7 @@ public class CommentController {
     private final CommentService commentService;
     private final MediaService mediaService;
     @PostMapping("comment")
-    public ResponseEntity<?> commentPost(@RequestPart CommentRequest commentRequest, @RequestPart MultipartFile file) throws IOException {
+    public ResponseEntity<?> commentPost(@RequestPart CommentRequest commentRequest, @RequestPart (required = false) MultipartFile file) throws IOException {
         Media media = mediaService.uploadFile(file, "COMMENT");
         CommentResponse commentResponse = commentService.createComment(commentRequest, media);
         return ResponseEntity.ok(new ResponseDTO().success(commentResponse));

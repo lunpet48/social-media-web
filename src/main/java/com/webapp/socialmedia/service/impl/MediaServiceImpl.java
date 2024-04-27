@@ -33,7 +33,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public Media uploadFile(MultipartFile multipartFile, String path) throws IOException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!multipartFile.isEmpty()) {
+        if (multipartFile != null && !multipartFile.isEmpty()) {
             return mediaRepository.save(cloudService.uploadFile(multipartFile, user.getId(), path));
         }
         return new Media();
