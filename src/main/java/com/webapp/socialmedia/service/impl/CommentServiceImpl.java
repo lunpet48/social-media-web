@@ -28,6 +28,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserValidationService userValidationService;
     private final PostRepository postRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public CommentResponse createComment(CommentRequest commentRequest, Media media){
@@ -49,7 +50,7 @@ public class CommentServiceImpl implements CommentService {
         // replied comment
 
         commentRepository.save(comment);
-        return CommentMapper.INSTANCE.toResponse(comment);
+        return commentMapper.toResponse(comment);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class CommentServiceImpl implements CommentService {
         List<Comment> comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId, pageable);
         List<CommentResponse> commentResponses = new ArrayList<>();
         comments.forEach(comment -> {
-            CommentResponse commentResponse = CommentMapper.INSTANCE.toResponse(comment);
+            CommentResponse commentResponse = commentMapper.toResponse(comment);
             commentResponses.add(commentResponse);
         });
         return commentResponses;
@@ -79,7 +80,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse getCommentById(String commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BadRequestException("Comment not found"));
-        return CommentMapper.INSTANCE.toResponse(comment);
+        return commentMapper.toResponse(comment);
     }
 
 }

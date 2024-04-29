@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PostResponse {
     private String postId;
-    private String userId;
+    private ProfileResponseV2 user;
     private String postType;
     private String postMode;
     private String caption;
