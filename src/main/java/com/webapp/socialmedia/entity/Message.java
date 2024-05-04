@@ -29,6 +29,8 @@ public class Message {
     @Column(nullable = false)
     private String message;
 
+    private String mediaLink;
+
     private Date createdAt;
     @PrePersist
     private void createdAt() {

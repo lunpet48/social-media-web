@@ -1,22 +1,34 @@
 package com.webapp.socialmedia.controller.message;
 
+import com.webapp.socialmedia.dto.requests.MessageRequest;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
+import com.webapp.socialmedia.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@Controller
+import java.io.IOException;
+
+@RestController
 @RequiredArgsConstructor
-@Slf4j
+@RequestMapping("/api/v1")
 public class MessageController {
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MessageService messageService;
 
-    @MessageMapping("/chat")
-    public void chat(@Payload Message message) {
-        log.info("Message received: {}", message);
-        simpMessagingTemplate.convertAndSendToUser(message.to(), "/topic", message);
+    @PostMapping("/chat")
+    public ResponseEntity<?> chat(@RequestPart MessageRequest message, @RequestPart(required = false) MultipartFile file) throws IOException {
+       return ResponseEntity.ok(new ResponseDTO().success(messageService.sendMessage(message, file)));
+    }
+
+    @GetMapping("/chat/{roomId}")
+    public ResponseEntity<?> loadMessageInChat(@PathVariable String roomId, @RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "10") Integer pageSize) {
+        return ResponseEntity.ok(new ResponseDTO().success(messageService.loadMessageInRoom(roomId, pageNo, pageSize)));
     }
 }
 

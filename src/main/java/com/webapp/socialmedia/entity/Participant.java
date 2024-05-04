@@ -23,12 +23,3 @@ public class Participant {
     @JoinColumn(name = "room_id")
     private Room room;
 }
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-class ParticipantId implements Serializable {
-    private User user;
-    private Room room;
-}

@@ -4,5 +4,7 @@ public enum NotificationType {
     FRIEND_REQUEST,
     FRIEND_ACCEPT,
     LIKE,
-    COMMENT
+    COMMENT,
+    MESSAGE,
+    ADDTOROOM,
 }
