@@ -1,8 +1,10 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.PostRequest;
+import com.webapp.socialmedia.dto.responses.NotificationResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.*;
+import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.enums.PostMode;
 import com.webapp.socialmedia.enums.PostType;
 import com.webapp.socialmedia.enums.RelationshipStatus;
@@ -10,31 +12,39 @@ import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotAuthoritativeException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
+import com.webapp.socialmedia.mapper.NotificationMapper;
 import com.webapp.socialmedia.mapper.UserMapper;
-import com.webapp.socialmedia.repository.PostRepository;
-import com.webapp.socialmedia.repository.PostTagRepository;
-import com.webapp.socialmedia.repository.RelationshipRepository;
-import com.webapp.socialmedia.repository.TagRepository;
+import com.webapp.socialmedia.repository.*;
 import com.webapp.socialmedia.service.PostService;
+import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
+    private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private final RelationshipRepository relationshipRepository;
     private final PostTagRepository postTagRepository;
     private final UserMapper userMapper;
+    private final NotificationMapper notificationMapper;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    Pattern patternUser = Pattern.compile("@[A-z0-9_]+");
 
     @Override
     public Post createPost(PostRequest postRequest) {
+        Matcher matcher = patternUser.matcher(postRequest.getCaption());
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Tag> tagResult = new ArrayList<>();
         if (postRequest.getTagList() != null)
@@ -59,6 +69,21 @@ public class PostServiceImpl implements PostService {
 
         post.setPostTags(postTag);
         postRepository.save(post);
+        //Thông báo
+
+        while (matcher.find()) {
+            String username = matcher.group().substring(1);
+            User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+
+            Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                    .receiver(receiver)
+                    .actor(post.getUser())
+                    .idType(post.getId())
+                    .notificationType(NotificationType.MENTION)
+                    .build());
+
+            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+        }
 
         return post;
     }
@@ -113,6 +138,22 @@ public class PostServiceImpl implements PostService {
 //            tags.add(tag);
 //        });
 //        oldPost.setTags(tags);
+
+        //Thông báo
+        Matcher matcher = patternUser.matcher(post.getCaption());
+        while (matcher.find()) {
+            String username = matcher.group().substring(1);
+            User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+
+            Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                    .receiver(receiver)
+                    .actor(oldPost.getUser())
+                    .idType(oldPost.getId())
+                    .notificationType(NotificationType.MENTION)
+                    .build());
+
+            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+        }
 
         return postRepository.save(oldPost);
     }

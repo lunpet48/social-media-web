@@ -7,4 +7,5 @@ public enum NotificationType {
     COMMENT,
     MESSAGE,
     ADDTOROOM,
+    MENTION
 }
