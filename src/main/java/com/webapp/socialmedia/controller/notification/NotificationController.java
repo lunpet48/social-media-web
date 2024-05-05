@@ -5,11 +5,15 @@ import com.webapp.socialmedia.dto.requests.Paging;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.NotificationStatus;
+import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -41,6 +45,17 @@ public class NotificationController {
     public ResponseEntity<?> getNotification(@RequestBody NotificationRequest request) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(new ResponseDTO().success(notificationService.getAnNotification(request)));
+    }
+
+    @GetMapping("/notification/{type}")
+    public ResponseEntity<?> getNotificationByType(@PathVariable String type, @RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize){
+        if(type.equals("post"))
+            return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(Arrays.asList(NotificationType.LIKE, NotificationType.COMMENT) , pageNo, pageSize)));
+        else if(type.equals("friend"))
+            return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(Arrays.asList(NotificationType.FRIEND_ACCEPT, NotificationType.FRIEND_REQUEST) , pageNo, pageSize)));
+        else {
+            return (ResponseEntity<?>) ResponseEntity.notFound();
+        }
     }
 
 //    @GetMapping("/notification")

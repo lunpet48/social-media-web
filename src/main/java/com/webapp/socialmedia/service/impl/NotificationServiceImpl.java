@@ -98,4 +98,12 @@ public class NotificationServiceImpl implements NotificationService {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return repository.findAllByReceiver_IdAndStatusOrderByCreatedAtDesc(user.getId(), NotificationStatus.UNREAD).size();
     }
+
+    @Override
+    public List<NotificationResponse> findByNotificationType(List<NotificationType> type, int pageNo, int pageSize) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        List<Notification> result = repository.findAllByReceiver_IdAndNotificationTypeInOrderByCreatedAtDesc(user.getId(), type, paging);
+        return result.stream().map(mapper::toResponse).toList();
+    }
 }
