@@ -25,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -84,5 +82,20 @@ public class MessageServiceImpl implements MessageService {
             return result.getContent().stream().map(mapper::toResponse).toList();
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<MessageResponse> loadRoomChatByUser() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<MessageResponse> response = new ArrayList<>();
+        List<Map<String, Object>> temp = messageRepositoty.loadRoomsByUserId(user.getId());
+        for (Map<String, Object> map: temp){
+            Object date = map.get("createdAt");
+            Object roomId = map.get("room_id");
+            Message x = messageRepositoty.findByRoom_IdAndCreatedAt((String) roomId, (Date) date).orElseThrow(() -> new BadRequestException("Có lỗi xảy ra"));
+            response.add(mapper.toResponse(x));
+        }
+        return response;
+        //return response.stream().map(mapper::toResponse).toList();
     }
 }

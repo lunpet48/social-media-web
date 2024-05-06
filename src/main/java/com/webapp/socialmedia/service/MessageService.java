@@ -11,4 +11,6 @@ public interface MessageService {
     MessageResponse sendMessage(MessageRequest messageRequest, MultipartFile file) throws IOException;
 
     List<MessageResponse> loadMessageInRoom(String roomId, int pageNo, int pageSize);
+
+    List<MessageResponse> loadRoomChatByUser();
 }

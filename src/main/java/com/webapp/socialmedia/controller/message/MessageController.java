@@ -30,5 +30,10 @@ public class MessageController {
     public ResponseEntity<?> loadMessageInChat(@PathVariable String roomId, @RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "10") Integer pageSize) {
         return ResponseEntity.ok(new ResponseDTO().success(messageService.loadMessageInRoom(roomId, pageNo, pageSize)));
     }
+
+    @GetMapping("/chat")
+    public ResponseEntity<?> getChat() {
+        return ResponseEntity.ok(new ResponseDTO().success(messageService.loadRoomChatByUser()));
+    }
 }
 
