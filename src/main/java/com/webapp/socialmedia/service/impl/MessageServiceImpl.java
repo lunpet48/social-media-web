@@ -3,16 +3,19 @@ package com.webapp.socialmedia.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.webapp.socialmedia.dto.requests.MessageRequest;
+import com.webapp.socialmedia.dto.requests.UserRequest;
 import com.webapp.socialmedia.dto.responses.MessageResponse;
 import com.webapp.socialmedia.entity.Message;
 import com.webapp.socialmedia.entity.Participant;
 import com.webapp.socialmedia.entity.Room;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.exceptions.BadRequestException;
+import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.mapper.MessageMapper;
 import com.webapp.socialmedia.repository.MessageRepositoty;
 import com.webapp.socialmedia.repository.ParticipantRepository;
 import com.webapp.socialmedia.repository.RoomRepository;
+import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.MessageService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +34,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
+    private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final ParticipantRepository participantRepository;
     private final MessageRepositoty messageRepositoty;
@@ -97,5 +102,38 @@ public class MessageServiceImpl implements MessageService {
         }
         return response;
         //return response.stream().map(mapper::toResponse).toList();
+    }
+
+    @Override
+    public Room addToRoomOrReturnAlreadyRoom(List<UserRequest> requests) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(requests.size() == 1) {
+            //Tìm các participant/room hiện tại của current user
+            List<Participant> x = participantRepository.findParticipantByUser_Id(user.getId());
+            //Nếu có participant == 2 && participant có user id == request thì trả về kq
+            for (Participant temp : x) {
+                List<Participant> y = participantRepository.findParticipantByRoom_Id(temp.getRoom().getId());
+                if (y.size() != 2) continue;
+                for(Participant participant : y){
+                    if(participant.getUser().getId().equals(requests.get(0).getUserId())) {
+                        return participant.getRoom();
+                    }
+                }
+            }
+
+            //Nếu không có
+            User relatedUser = userRepository.findById(requests.get(0).getUserId()).orElseThrow(UserNotFoundException::new);
+            Room room = roomRepository.saveAndFlush(Room.builder().build());
+            participantRepository.saveAndFlush(Participant.builder().room(room).user(user).build());
+            participantRepository.saveAndFlush(Participant.builder().room(room).user(relatedUser).build());
+            return room;
+        } else {
+            Room room = roomRepository.saveAndFlush(Room.builder().build());
+            for (UserRequest userRequest : requests) {
+                User userTemp = userRepository.findById(userRequest.getUserId()).orElseThrow(UserNotFoundException::new);
+                participantRepository.saveAndFlush(Participant.builder().room(room).user(userTemp).build());
+            }
+            return room;
+        }
     }
 }

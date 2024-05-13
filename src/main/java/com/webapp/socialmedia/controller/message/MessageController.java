@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.controller.message;
 
 import com.webapp.socialmedia.dto.requests.MessageRequest;
+import com.webapp.socialmedia.dto.requests.UserRequest;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +36,11 @@ public class MessageController {
     @GetMapping("/chat")
     public ResponseEntity<?> getChat() {
         return ResponseEntity.ok(new ResponseDTO().success(messageService.loadRoomChatByUser()));
+    }
+
+    @PostMapping("/chat/check")
+    public ResponseEntity<?> postChat(@RequestBody List<UserRequest> requests) {
+        return ResponseEntity.ok(new ResponseDTO().success(messageService.addToRoomOrReturnAlreadyRoom(requests)));
     }
 }
 
