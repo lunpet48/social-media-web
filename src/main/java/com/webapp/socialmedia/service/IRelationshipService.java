@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
+import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.enums.RelationshipStatus;
@@ -27,4 +28,6 @@ public interface IRelationshipService {
     RelationshipResponse blockUser(RelationshipRequest relationshipRequest, String userId);
 
     void unblockUser(RelationshipRequest relationshipRequest, String userId);
+
+    List<ProfileResponseV2> getOnlineUser();
 }

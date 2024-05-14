@@ -94,4 +94,10 @@ public class RelationshipController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         relationshipService.unblockUser(relationshipRequest, user.getId());
     }
+
+    @GetMapping("online")
+    //Trả về bạn bè đang online
+    public ResponseEntity<?> getOnlineUser() {
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipService.getOnlineUser()));
+    }
 }

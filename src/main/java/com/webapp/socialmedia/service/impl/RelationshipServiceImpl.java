@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
+import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Notification;
@@ -19,12 +20,15 @@ import com.webapp.socialmedia.service.IRelationshipService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +39,7 @@ public class RelationshipServiceImpl implements IRelationshipService {
     private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpUserRegistry simpUserRegistry;
     @Override
     public RelationshipResponse sendFriendRequest(RelationshipRequest relationshipRequest, String userId) {
         Optional<Relationship> relationshipOptional = relationshipRepository
@@ -215,5 +220,27 @@ public class RelationshipServiceImpl implements IRelationshipService {
                 RelationshipStatus.BLOCK
         ).orElseThrow(()-> new RelationshipNotFoundException("Không tìm thấy yêu cầu"));
         relationshipRepository.delete(relationship);
+    }
+
+    @Override
+    public List<ProfileResponseV2> getOnlineUser() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<ProfileResponseV2> responseV2s = new ArrayList<>();
+
+        List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND);
+        List<String> simpUsers = simpUserRegistry.getUsers().stream().map(SimpUser::getName).toList();
+
+
+        for (Relationship relationship : relationships) {
+            if(simpUsers.contains(relationship.getRelatedUser().getUsername())) {
+                responseV2s.add(ProfileResponseV2.builder()
+                                .userId(relationship.getRelatedUser().getId())
+                                .avatar(relationship.getRelatedUser().getProfile().getAvatar())
+                                .username(relationship.getRelatedUser().getUsername())
+                        .build());
+            }
+        }
+
+        return responseV2s;
     }
 }
