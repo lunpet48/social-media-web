@@ -12,7 +12,7 @@ import java.util.Date;
 public class CommentResponse {
     private String id;
     private String postId;
-    private ProfileResponseV2 user;
+    private ShortProfileResponse user;
     private String comment;
     private String mediaLink;
     private Date createdAt;

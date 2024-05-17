@@ -1,6 +1,5 @@
 package com.webapp.socialmedia.dto.responses;
 
-import com.webapp.socialmedia.entity.Reaction;
 import lombok.*;
 
 import java.util.Date;
@@ -13,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PostResponse {
     private String postId;
-    private ProfileResponseV2 user;
+    private ShortProfileResponse user;
     private String postType;
     private String postMode;
     private String caption;

@@ -1,7 +1,7 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.RelationshipRequest;
-import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
+import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Notification;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -223,9 +222,9 @@ public class RelationshipServiceImpl implements IRelationshipService {
     }
 
     @Override
-    public List<ProfileResponseV2> getOnlineUser() {
+    public List<ShortProfileResponse> getOnlineUser() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<ProfileResponseV2> responseV2s = new ArrayList<>();
+        List<ShortProfileResponse> responseV2s = new ArrayList<>();
 
         List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND);
         List<String> simpUsers = simpUserRegistry.getUsers().stream().map(SimpUser::getName).toList();
@@ -233,7 +232,7 @@ public class RelationshipServiceImpl implements IRelationshipService {
 
         for (Relationship relationship : relationships) {
             if(simpUsers.contains(relationship.getRelatedUser().getUsername())) {
-                responseV2s.add(ProfileResponseV2.builder()
+                responseV2s.add(ShortProfileResponse.builder()
                                 .userId(relationship.getRelatedUser().getId())
                                 .avatar(relationship.getRelatedUser().getProfile().getAvatar())
                                 .username(relationship.getRelatedUser().getUsername())

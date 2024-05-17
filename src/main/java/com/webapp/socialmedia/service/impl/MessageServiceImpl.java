@@ -5,8 +5,8 @@ import com.cloudinary.utils.ObjectUtils;
 import com.webapp.socialmedia.dto.requests.MessageRequest;
 import com.webapp.socialmedia.dto.requests.UserRequest;
 import com.webapp.socialmedia.dto.responses.MessageResponse;
-import com.webapp.socialmedia.dto.responses.MessageResponseV2;
-import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
+import com.webapp.socialmedia.dto.responses.ChatRoom;
+import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.Message;
 import com.webapp.socialmedia.entity.Participant;
 import com.webapp.socialmedia.entity.Room;
@@ -26,7 +26,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,7 +91,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageResponseV2> loadRoomChatByUser() {
+    public List<ChatRoom> loadRoomChatByUser() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<MessageResponse> response = new ArrayList<>();
         List<Map<String, Object>> temp = messageRepositoty.loadRoomsByUserId(user.getId());
@@ -102,20 +101,20 @@ public class MessageServiceImpl implements MessageService {
             Message x = messageRepositoty.findByRoom_IdAndCreatedAt((String) roomId, (Date) date).orElseThrow(() -> new BadRequestException("Có lỗi xảy ra"));
             response.add(mapper.toResponse(x));
         }
-        List<MessageResponseV2> responseV2s = new ArrayList<>();
+        List<ChatRoom> responseV2s = new ArrayList<>();
 
         for(MessageResponse messageResponse : response) {
-            List<ProfileResponseV2> profileResponseV2s = new ArrayList<>();
+            List<ShortProfileResponse> profileResponseV2s = new ArrayList<>();
             List<Participant> participants = participantRepository.findParticipantByRoom_Id(messageResponse.getRoomId());
             for(Participant participant : participants) {
-                ProfileResponseV2 profile = ProfileResponseV2.builder().avatar(participant.getUser().getProfile().getAvatar())
+                ShortProfileResponse profile = ShortProfileResponse.builder().avatar(participant.getUser().getProfile().getAvatar())
                         .username(participant.getUser().getUsername())
                         .userId(participant.getUser().getId())
                         .build();
 
                 profileResponseV2s.add(profile);
             }
-            responseV2s.add(MessageResponseV2.builder().users(profileResponseV2s).message(messageResponse).roomId(messageResponse.getRoomId()).build());
+            responseV2s.add(ChatRoom.builder().users(profileResponseV2s).message(messageResponse).roomId(messageResponse.getRoomId()).build());
         }
 
         return responseV2s;

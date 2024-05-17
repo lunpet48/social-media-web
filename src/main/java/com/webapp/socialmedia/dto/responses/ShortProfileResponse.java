@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProfileResponseV2 {
+public class ShortProfileResponse {
     private String userId;
     private String username;
     private String avatar;

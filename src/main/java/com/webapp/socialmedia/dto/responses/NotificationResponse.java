@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class NotificationResponse {
     private String id;
-    private ProfileResponseV2 actor;
+    private ShortProfileResponse actor;
     private String receiver;
     private NotificationType notificationType;
     private String idType;

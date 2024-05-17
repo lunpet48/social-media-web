@@ -1,11 +1,9 @@
 package com.webapp.socialmedia.mapper;
 
 import com.webapp.socialmedia.dto.responses.CommentResponse;
-import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
+import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.Comment;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public abstract class CommentMapper {
@@ -18,7 +16,7 @@ public abstract class CommentMapper {
         CommentResponse commentResponse = CommentResponse.builder()
                 .id(comment.getId())
                 .comment(comment.getComment())
-                .user(ProfileResponseV2.builder().userId(comment.getUser().getId()).username(comment.getUser().getUsername()).avatar(comment.getUser().getProfile().getAvatar()).build())
+                .user(ShortProfileResponse.builder().userId(comment.getUser().getId()).username(comment.getUser().getUsername()).avatar(comment.getUser().getProfile().getAvatar()).build())
                 .repliedCommentId(comment.getRepliedComment() == null ? null : comment.getRepliedComment().getId())
                 .createdAt(comment.getCreatedAt())
                 .mediaLink(comment.getMedia() == null ? null : comment.getMedia().getLink())

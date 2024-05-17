@@ -11,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class MessageResponse {
     private String messageId;
-    private ProfileResponseV2 sender;
+    private ShortProfileResponse sender;
     private String roomId;
     private String message;
     private String mediaLink;

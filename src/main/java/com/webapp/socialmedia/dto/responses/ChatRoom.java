@@ -9,8 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MessageResponseV2 {
+public class ChatRoom {
     private String roomId;
-    private List<ProfileResponseV2> users;
+    private List<ShortProfileResponse> users;
     private MessageResponse message;
 }

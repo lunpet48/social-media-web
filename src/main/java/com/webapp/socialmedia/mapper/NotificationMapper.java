@@ -1,11 +1,9 @@
 package com.webapp.socialmedia.mapper;
 
 import com.webapp.socialmedia.dto.responses.NotificationResponse;
-import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
+import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.Notification;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public abstract class NotificationMapper {
@@ -18,7 +16,7 @@ public abstract class NotificationMapper {
 //    @Mapping(source = "notification.createdAt", target = "createdAt")
     public NotificationResponse toResponse(Notification notification) {
         NotificationResponse response = NotificationResponse.builder()
-                .actor(ProfileResponseV2.builder().avatar(notification.getActor().getProfile().getAvatar())
+                .actor(ShortProfileResponse.builder().avatar(notification.getActor().getProfile().getAvatar())
                         .username(notification.getActor().getUsername())
                         .userId(notification.getActor().getId())
                         .build())

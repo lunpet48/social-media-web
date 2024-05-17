@@ -1,7 +1,7 @@
 package com.webapp.socialmedia.mapper;
 
 import com.webapp.socialmedia.dto.responses.PostResponse;
-import com.webapp.socialmedia.dto.responses.ProfileResponseV2;
+import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.PostMode;
 import com.webapp.socialmedia.enums.PostType;
@@ -24,7 +24,7 @@ public abstract class PostMapper {
         PostResponse response = PostResponse.builder()
                 .postType(post.getType().name())
                 .postMode(post.getMode().name())
-                .user(ProfileResponseV2.builder().userId(post.getUser().getId()).avatar(post.getUser().getProfile().getAvatar()).username(post.getUser().getUsername()).build())
+                .user(ShortProfileResponse.builder().userId(post.getUser().getId()).avatar(post.getUser().getProfile().getAvatar()).username(post.getUser().getUsername()).build())
                 .postId(post.getId())
                 .caption(post.getCaption())
                 .tagList(new ArrayList<>())
