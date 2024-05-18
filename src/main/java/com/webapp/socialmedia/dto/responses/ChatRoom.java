@@ -12,5 +12,5 @@ import java.util.List;
 public class ChatRoom {
     private String roomId;
     private List<ShortProfileResponse> users;
-    private MessageResponse message;
+    private List<MessageResponse> message;
 }

@@ -81,13 +81,21 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageResponse> loadMessageInRoom(String roomId, int pageNo, int pageSize) {
+    public ChatRoom loadMessageInRoom(String roomId, int pageNo, int pageSize) {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<Message> result = messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(roomId, paging);
         if(result.hasContent()) {
-            return result.getContent().stream().map(mapper::toResponse).toList();
+            return ChatRoom.builder()
+                    .roomId(roomId)
+                    .message(result.getContent().stream().map(mapper::toResponse).toList())
+                    .users(participantRepository.findParticipantByRoom_Id(roomId).stream().map(participant -> ShortProfileResponse.builder()
+                                .userId(participant.getUser().getId())
+                                .avatar(participant.getUser().getProfile().getAvatar())
+                                .username(participant.getUser().getUsername())
+                                .build()).toList())
+                    .build();
         }
-        return new ArrayList<>();
+        return new ChatRoom();
     }
 
     @Override
@@ -114,7 +122,7 @@ public class MessageServiceImpl implements MessageService {
 
                 profileResponseV2s.add(profile);
             }
-            responseV2s.add(ChatRoom.builder().users(profileResponseV2s).message(messageResponse).roomId(messageResponse.getRoomId()).build());
+            responseV2s.add(ChatRoom.builder().users(profileResponseV2s).message(List.of(messageResponse)).roomId(messageResponse.getRoomId()).build());
         }
 
         return responseV2s;
@@ -122,7 +130,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Room addToRoomOrReturnAlreadyRoom(List<UserRequest> requests) {
+    public ChatRoom addToRoomOrReturnAlreadyRoom(List<UserRequest> requests) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(requests.size() == 1) {
             //Tìm các participant/room hiện tại của current user
@@ -133,7 +141,14 @@ public class MessageServiceImpl implements MessageService {
                 if (y.size() != 2) continue;
                 for(Participant participant : y){
                     if(participant.getUser().getId().equals(requests.get(0).getUserId())) {
-                        return participant.getRoom();
+                        return ChatRoom.builder()
+                                .roomId(participant.getRoom().getId())
+                                .message(messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(participant.getRoom().getId(), PageRequest.of(0, 10)).stream().map(mapper::toResponse).toList())
+                                .users(y.stream().map(participant1 -> ShortProfileResponse.builder()
+                                        .avatar(participant1.getUser().getProfile().getAvatar())
+                                        .username(participant1.getUser().getUsername())
+                                        .userId(participant1.getUser().getId())
+                                        .build()).toList()).build();
                     }
                 }
             }
@@ -141,16 +156,39 @@ public class MessageServiceImpl implements MessageService {
             //Nếu không có
             User relatedUser = userRepository.findById(requests.get(0).getUserId()).orElseThrow(UserNotFoundException::new);
             Room room = roomRepository.saveAndFlush(Room.builder().build());
-            participantRepository.saveAndFlush(Participant.builder().room(room).user(user).build());
-            participantRepository.saveAndFlush(Participant.builder().room(room).user(relatedUser).build());
-            return room;
+            Participant participant1 = participantRepository.saveAndFlush(Participant.builder().room(room).user(user).build());
+            Participant participant2 = participantRepository.saveAndFlush(Participant.builder().room(room).user(relatedUser).build());
+            return ChatRoom.builder()
+                    .roomId(room.getId())
+                    .message(messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(room.getId(), PageRequest.of(0, 10)).stream().map(mapper::toResponse).toList())
+                    .users(List.of(ShortProfileResponse.builder()
+                                    .userId(participant1.getUser().getId())
+                                    .avatar(participant1.getUser().getProfile().getAvatar())
+                                    .username(participant1.getUser().getUsername())
+                            .build(),
+                            ShortProfileResponse.builder()
+                                    .username(participant2.getUser().getUsername())
+                                    .avatar(participant2.getUser().getProfile().getAvatar())
+                                    .userId(participant2.getUser().getId())
+                                    .build()))
+                    .build();
         } else {
             Room room = roomRepository.saveAndFlush(Room.builder().build());
+            List<ShortProfileResponse> listUser = new ArrayList<>();
             for (UserRequest userRequest : requests) {
                 User userTemp = userRepository.findById(userRequest.getUserId()).orElseThrow(UserNotFoundException::new);
                 participantRepository.saveAndFlush(Participant.builder().room(room).user(userTemp).build());
+                listUser.add(ShortProfileResponse.builder()
+                                .username(userTemp.getUsername())
+                                .avatar(userTemp.getProfile().getAvatar())
+                                .userId(userTemp.getId())
+                        .build());
             }
-            return room;
+            return ChatRoom.builder()
+                    .users(listUser)
+                    .message(null)
+                    .roomId(room.getId())
+                    .build();
         }
     }
 }
