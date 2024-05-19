@@ -106,8 +106,10 @@ public class MessageServiceImpl implements MessageService {
         for (Map<String, Object> map: temp){
             Object date = map.get("createdAt");
             Object roomId = map.get("room_id");
-            Message x = messageRepositoty.findByRoom_IdAndCreatedAt((String) roomId, (Date) date).orElseThrow(() -> new BadRequestException("Có lỗi xảy ra"));
-            response.add(mapper.toResponse(x));
+            Optional<Message> x = messageRepositoty.findByRoom_IdAndCreatedAt((String) roomId, (Date) date);
+            if(x.isPresent()){
+                response.add(mapper.toResponse(x.get()));
+            }
         }
         List<ChatRoom> responseV2s = new ArrayList<>();
 

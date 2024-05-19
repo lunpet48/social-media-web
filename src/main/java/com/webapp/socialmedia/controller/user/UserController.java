@@ -31,4 +31,9 @@ public class UserController {
         List<UserProfileResponse> userProfileResponses = userService.getRecommendUsers(user.getId());
         return ResponseEntity.ok(new ResponseDTO().success(userProfileResponses));
     }
+
+    @GetMapping("search")
+    public ResponseEntity<?> searchUser(String keyword){
+        return ResponseEntity.ok(new ResponseDTO().success(userService.search(keyword)));
+    }
 }

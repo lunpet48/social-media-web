@@ -15,4 +15,6 @@ public interface IUserService {
     List<UserProfileResponse> getRecommendUsers(String id);
 
     void sendEmailForRegister(String email);
+
+    List<UserProfileResponse> search(String keyword);
 }

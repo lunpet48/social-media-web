@@ -84,4 +84,18 @@ public class UserServiceImpl implements IUserService {
 
         otpService.sendOtpRegister(email);
     }
+
+    @Override
+    public List<UserProfileResponse> search(String keyword) {
+        if(keyword.trim().isEmpty())
+            return new ArrayList<>();
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<User> users = userRepository.searchUser(keyword);
+        List<UserProfileResponse> userProfileResponses = new ArrayList<>();
+        users.forEach(user -> {
+            UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(user, currentUser.getId());
+            userProfileResponses.add(userProfileResponse);
+        });
+        return userProfileResponses;
+    }
 }
