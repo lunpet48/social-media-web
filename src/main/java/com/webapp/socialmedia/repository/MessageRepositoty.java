@@ -17,5 +17,5 @@ public interface MessageRepositoty extends JpaRepository<Message, String> {
     @Query(value = "SELECT db_participant.room_id, MAX(db_message.created_at) AS createdAt FROM db_participant LEFT JOIN db_message ON db_participant.room_id = db_message.room_id WHERE db_participant.user_id = ?1 GROUP BY db_participant.room_id ORDER BY createdAt", nativeQuery = true)
     List<Map<String, Object>> loadRoomsByUserId(String userId);
 
-    Optional<Message> findByRoom_IdAndCreatedAt(String roomId, Date createdAt);
+    Optional<Message> findByRoom_IdAndCreatedAtOrderByCreatedAtDesc(String roomId, Date createdAt);
 }

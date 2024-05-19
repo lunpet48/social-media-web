@@ -106,7 +106,7 @@ public class MessageServiceImpl implements MessageService {
         for (Map<String, Object> map: temp){
             Object date = map.get("createdAt");
             Object roomId = map.get("room_id");
-            Optional<Message> x = messageRepositoty.findByRoom_IdAndCreatedAt((String) roomId, (Date) date);
+            Optional<Message> x = messageRepositoty.findByRoom_IdAndCreatedAtOrderByCreatedAtDesc((String) roomId, (Date) date);
             if(x.isPresent()){
                 response.add(mapper.toResponse(x.get()));
             }
