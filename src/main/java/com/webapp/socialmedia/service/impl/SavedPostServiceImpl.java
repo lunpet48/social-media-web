@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.responses.PostResponseV2;
+import com.webapp.socialmedia.dto.responses.SavedPostResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.PostMode;
@@ -29,7 +30,7 @@ public class SavedPostServiceImpl implements SavedPostService {
     private final PostRepository postRepository;
     private final RelationshipRepository relationshipRepository;
     @Override
-    public SavedPost savePost(String postId) {
+    public SavedPostResponse savePost(String postId) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postRepository.findByIdAndIsDeleted(postId, false).orElseThrow(PostNotFoundException::new);
 
@@ -45,7 +46,11 @@ public class SavedPostServiceImpl implements SavedPostService {
                 .id(SavedPostId.builder().postId(postId).userId(currentUser.getId()).build())
                 .build();
 
-            return savedPostRepository.saveAndFlush(savedPost);
+            savedPostRepository.saveAndFlush(savedPost);
+            return SavedPostResponse.builder()
+                    .postId(savedPost.getPost().getId())
+                    .userId(savedPost.getUser().getId())
+                    .build();
         }
 
         throw new BadRequestException("Không tìm thấy bài viết");
