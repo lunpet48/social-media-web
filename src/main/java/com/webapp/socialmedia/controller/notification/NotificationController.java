@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -53,7 +54,11 @@ public class NotificationController {
             return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(Arrays.asList(NotificationType.LIKE, NotificationType.COMMENT) , pageNo, pageSize)));
         else if(type.equals("friend"))
             return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(Arrays.asList(NotificationType.FRIEND_ACCEPT, NotificationType.FRIEND_REQUEST) , pageNo, pageSize)));
-        else {
+        else if(type.equals("comment")){
+            return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(List.of(NotificationType.COMMENT), pageNo, pageSize)));
+        } else if (type.equals("tag")) {
+            return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(List.of(NotificationType.MENTION), pageNo, pageSize)));
+        } else {
             return (ResponseEntity<?>) ResponseEntity.notFound();
         }
     }
