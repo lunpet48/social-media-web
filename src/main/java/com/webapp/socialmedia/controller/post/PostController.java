@@ -2,6 +2,7 @@ package com.webapp.socialmedia.controller.post;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
 import com.webapp.socialmedia.dto.requests.PostRequest;
+import com.webapp.socialmedia.dto.requests.SharedPostRequest;
 import com.webapp.socialmedia.dto.responses.PostResponse;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
@@ -115,4 +116,12 @@ public class PostController {
         List<UserProfileResponse> responses = postService.getLikesOfPost(postId);
         return ResponseEntity.ok(new ResponseDTO().success(responses));
     }
+
+    @PostMapping("/share-post")
+    //Chỉ trả về bài viết, bài viết được chia sẻ thì xài thêm 1 api lấy bài viết dựa trên kq trả về
+    public ResponseEntity<?> sharePost(@RequestBody PostRequest sharedPostRequest) {
+        Post post = postService.sharePost(sharedPostRequest);
+        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post)));
+    }
+
 }

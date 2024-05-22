@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.PostRequest;
+import com.webapp.socialmedia.dto.requests.SharedPostRequest;
 import com.webapp.socialmedia.dto.responses.NotificationResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.*;
@@ -8,10 +9,7 @@ import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.enums.PostMode;
 import com.webapp.socialmedia.enums.PostType;
 import com.webapp.socialmedia.enums.RelationshipStatus;
-import com.webapp.socialmedia.exceptions.PostCannotUploadException;
-import com.webapp.socialmedia.exceptions.PostNotFoundException;
-import com.webapp.socialmedia.exceptions.UserNotAuthoritativeException;
-import com.webapp.socialmedia.exceptions.UserNotFoundException;
+import com.webapp.socialmedia.exceptions.*;
 import com.webapp.socialmedia.mapper.NotificationMapper;
 import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.*;
@@ -227,5 +225,48 @@ public class PostServiceImpl implements PostService {
             responses.add(userProfileResponse);
         }
         return responses;
+    }
+
+    @Override
+    public Post sharePost(PostRequest sharedPostRequest) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post post = postRepository.findByIdAndIsDeleted(sharedPostRequest.getSharedPost(), Boolean.FALSE).orElseThrow(PostNotFoundException::new);
+
+        Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), post.getUser().getId()).orElse(Relationship.builder().build());
+
+        List<Tag> tagResult = new ArrayList<>();
+
+        if(post.getMode().equals(PostMode.PUBLIC) ||
+            post.getMode().equals(PostMode.FRIEND) && relationship.getStatus().equals(RelationshipStatus.FRIEND) ||
+            post.getUser().equals(user)) {
+
+            if (sharedPostRequest.getTagList() != null)
+                sharedPostRequest.getTagList().forEach(tag -> {
+                    Optional<Tag> temp = tagRepository.findById(tag.toLowerCase());
+                    if (temp.isEmpty())
+                        tagResult.add(tagRepository.save(Tag.builder().id(tag.toLowerCase()).build()));
+                    else
+                        tagResult.add(temp.get());
+                });
+
+            List<PostTag> postTag = new ArrayList<>();
+
+            Post sharedPost = postRepository.saveAndFlush(Post.builder().user(user)
+                    .mode(PostMode.valueOf(sharedPostRequest.getPostMode()))
+                    .type(PostType.valueOf(sharedPostRequest.getPostType()))
+                    .caption(sharedPostRequest.getCaption().isEmpty() ? "" : sharedPostRequest.getCaption())
+                    .build());
+            tagResult.forEach(tag -> {
+                postTag.add(postTagRepository.saveAndFlush(PostTag.builder().id(new PostTagId(sharedPost.getId(), tag.getId())).tag(tag).post(sharedPost).build()));
+            });
+
+            sharedPost.setPostTags(postTag);
+            sharedPost.setSharedPost(post);
+
+            return postRepository.saveAndFlush(sharedPost);
+        }
+
+        //Trả về thông báo lỗi
+        throw new BadRequestException("Không tìm thấy người dùng/bài viết");
     }
 }

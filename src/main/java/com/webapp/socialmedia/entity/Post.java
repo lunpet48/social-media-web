@@ -50,6 +50,9 @@ public class Post {
     @OneToMany(mappedBy = "post")
     List<Reaction> reactionList;
 
+    @ManyToOne
+    private Post sharedPost;
+
     @PrePersist
     private void createdAt() {
         var date = new Date();

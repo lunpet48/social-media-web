@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.PostRequest;
+import com.webapp.socialmedia.dto.requests.SharedPostRequest;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.PostMedia;
@@ -25,4 +26,6 @@ public interface PostService {
     List<Post> getHomepage(int pageSize, int pageNo);
 
     List<UserProfileResponse> getLikesOfPost(String postId);
+
+    Post sharePost(PostRequest sharedPostRequest);
 }
