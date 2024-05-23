@@ -175,6 +175,7 @@ public class MessageServiceImpl implements MessageService {
                                     .build()))
                     .build();
         } else {
+            requests.add(UserRequest.builder().userId(user.getId()).build());
             Room room = roomRepository.saveAndFlush(Room.builder().build());
             List<ShortProfileResponse> listUser = new ArrayList<>();
             for (UserRequest userRequest : requests) {
