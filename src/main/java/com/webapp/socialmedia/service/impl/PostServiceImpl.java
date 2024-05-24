@@ -1,8 +1,6 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.PostRequest;
-import com.webapp.socialmedia.dto.requests.SharedPostRequest;
-import com.webapp.socialmedia.dto.responses.NotificationResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.NotificationType;

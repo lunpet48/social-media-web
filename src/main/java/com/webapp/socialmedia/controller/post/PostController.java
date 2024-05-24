@@ -2,7 +2,6 @@ package com.webapp.socialmedia.controller.post;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
 import com.webapp.socialmedia.dto.requests.PostRequest;
-import com.webapp.socialmedia.dto.requests.SharedPostRequest;
 import com.webapp.socialmedia.dto.responses.PostResponse;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
