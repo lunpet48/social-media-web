@@ -120,7 +120,7 @@ public class PostController {
     //Chỉ trả về bài viết, bài viết được chia sẻ thì xài thêm 1 api lấy bài viết dựa trên kq trả về
     public ResponseEntity<?> sharePost(@RequestBody PostRequest sharedPostRequest) {
         Post post = postService.sharePost(sharedPostRequest);
-        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post)));
+        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMediaService.getFilesByPostId(post.getId()))));
     }
 
 }

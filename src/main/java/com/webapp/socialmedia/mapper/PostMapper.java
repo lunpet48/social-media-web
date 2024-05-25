@@ -32,6 +32,7 @@ public abstract class PostMapper {
                 .reactions(post.getReactionList() == null || post.getReactionList().isEmpty() ? new ArrayList<>() : post.getReactionList().stream().map(x -> { return x.getUser().getId();}).toList())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .sharedPostId(post.getSharedPost() == null ? null : post.getSharedPost().getId())
                 .build();
 
         post.getPostTags().forEach(postTag -> {
@@ -45,27 +46,27 @@ public abstract class PostMapper {
         return response;
     }
 
-    public PostResponse toResponse(Post post) {
-        PostResponse response = PostResponse.builder()
-                .postType(post.getType().name())
-                .postMode(post.getMode().name())
-                .user(ShortProfileResponse.builder().userId(post.getUser().getId()).avatar(post.getUser().getProfile().getAvatar()).username(post.getUser().getUsername()).build())
-                .postId(post.getId())
-                .caption(post.getCaption())
-                .tagList(new ArrayList<>())
-                .files(new ArrayList<>())
-                .reactions(post.getReactionList() == null || post.getReactionList().isEmpty() ? new ArrayList<>() : post.getReactionList().stream().map(x -> { return x.getUser().getId();}).toList())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .sharedPostId(post.getSharedPost().getId())
-                .build();
-
-        post.getPostTags().forEach(postTag -> {
-            response.getTagList().add(postTag.getTag().getId());
-        });
-
-        return response;
-    }
+//    public PostResponse toResponse(Post post) {
+//        PostResponse response = PostResponse.builder()
+//                .postType(post.getType().name())
+//                .postMode(post.getMode().name())
+//                .user(ShortProfileResponse.builder().userId(post.getUser().getId()).avatar(post.getUser().getProfile().getAvatar()).username(post.getUser().getUsername()).build())
+//                .postId(post.getId())
+//                .caption(post.getCaption())
+//                .tagList(new ArrayList<>())
+//                .files(new ArrayList<>())
+//                .reactions(post.getReactionList() == null || post.getReactionList().isEmpty() ? new ArrayList<>() : post.getReactionList().stream().map(x -> { return x.getUser().getId();}).toList())
+//                .createdAt(post.getCreatedAt())
+//                .updatedAt(post.getUpdatedAt())
+//                .sharedPostId(post.getSharedPost().getId())
+//                .build();
+//
+//        post.getPostTags().forEach(postTag -> {
+//            response.getTagList().add(postTag.getTag().getId());
+//        });
+//
+//        return response;
+//    }
 //
 //    @Named("toListTag")
 //    static List<String> toListTag(List<PostTag> tags) {

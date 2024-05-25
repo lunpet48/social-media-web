@@ -12,11 +12,19 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     List<Post> findByUser_IdAndIsDeletedOrderByCreatedAtDesc(String userId, Boolean isDeleted);
 
+    List<Post> findByAlbum_IdAndIsDeletedOrderByCreatedAtDesc(String albumId, Boolean isDeleted);
+
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false order by created_at DESC", nativeQuery = true)
     List<Post> findPostsWithFriends(String userId);
 
+    @Query(value = "select * from db_post where user_id = ?1 and album_id = ?2 and mode != 'PRIVATE' and is_deleted = false order by created_at DESC", nativeQuery = true)
+    List<Post> findPostsWithFriendsInAlbum(String userId, String albumId);
+
     @Query(value = "select * from db_post where user_id = ?1 and mode = 'PUBLIC' and is_deleted = false order by created_at DESC", nativeQuery = true)
     List<Post> findPostWithPublic(String userId);
+
+    @Query(value = "select * from db_post where user_id = ?1 and album_id = ?2 and mode = 'PUBLIC' and is_deleted = false order by created_at DESC", nativeQuery = true)
+    List<Post> findPostWithPublicInAlbum(String userId, String albumId);
 
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false and datediff(now(), created_at) <= ?2 LIMIT ?3 OFFSET ?4", nativeQuery = true)
     List<Post> findPostsWithFriendsAndDay(String userId, int day, int pageSize, int pageNo);

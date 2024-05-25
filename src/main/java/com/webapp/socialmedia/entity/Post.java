@@ -53,6 +53,10 @@ public class Post {
     @ManyToOne
     private Post sharedPost;
 
+    @ManyToOne
+    @JoinColumn(name = "album_id")
+    private Album album;
+
     @PrePersist
     private void createdAt() {
         var date = new Date();
