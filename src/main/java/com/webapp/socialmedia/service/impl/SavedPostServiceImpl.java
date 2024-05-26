@@ -34,10 +34,10 @@ public class SavedPostServiceImpl implements SavedPostService {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postRepository.findByIdAndIsDeleted(postId, false).orElseThrow(PostNotFoundException::new);
 
-        Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(currentUser.getId(), post.getUser().getId()).orElse(Relationship.builder().build());
+        Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(currentUser.getId(), post.getUser().getId()).orElse(null);
 
         if(post.getMode().equals(PostMode.PUBLIC) ||
-                post.getMode().equals(PostMode.FRIEND) && relationship.getStatus().equals(RelationshipStatus.FRIEND) ||
+                relationship != null && post.getMode().equals(PostMode.FRIEND) && relationship.getStatus().equals(RelationshipStatus.FRIEND) ||
                 post.getUser().equals(currentUser)) {
 
             SavedPost savedPost = SavedPost.builder()

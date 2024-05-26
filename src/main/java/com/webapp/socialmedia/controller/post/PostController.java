@@ -120,7 +120,17 @@ public class PostController {
     //Chỉ trả về bài viết, bài viết được chia sẻ thì xài thêm 1 api lấy bài viết dựa trên kq trả về
     public ResponseEntity<?> sharePost(@RequestBody PostRequest sharedPostRequest) {
         Post post = postService.sharePost(sharedPostRequest);
-        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMediaService.getFilesByPostId(post.getId()))));
+        //không cần tìm post media vì không có
+        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post)));
+    }
+
+    @GetMapping("/share-post/{userId}")
+    //Lấy tất cả bài viết mà 1 người đã share
+    //Với mỗi bài thì chạy thêm api GET post/{postId} để hiển thị bài viết gốc
+    public ResponseEntity<?> getMySharePost(@PathVariable String userId) {
+        List<Post> posts = postService.getAllSharedPost(userId);
+        List<PostResponse> responses = posts.stream().map(postMapper::toResponse).toList();
+        return ResponseEntity.ok(ResponseDTO.builder().data(responses).error(false).message("").build());
     }
 
 }

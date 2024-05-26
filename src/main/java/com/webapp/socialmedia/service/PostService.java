@@ -27,4 +27,6 @@ public interface PostService {
     List<UserProfileResponse> getLikesOfPost(String postId);
 
     Post sharePost(PostRequest sharedPostRequest);
+
+    List<Post> getAllSharedPost(String userId);
 }

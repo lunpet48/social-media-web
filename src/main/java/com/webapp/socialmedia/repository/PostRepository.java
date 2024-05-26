@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.repository;
 
 import com.webapp.socialmedia.entity.Post;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -28,6 +29,14 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false and datediff(now(), created_at) <= ?2 LIMIT ?3 OFFSET ?4", nativeQuery = true)
     List<Post> findPostsWithFriendsAndDay(String userId, int day, int pageSize, int pageNo);
+
+    @Query(value = "select * from db_post where user_id = ?1 and mode = 'PUBLIC' and is_deleted = false and shared_post_id is not null order by created_at DESC", nativeQuery = true)
+    List<Post> findSharedPostWithPublic(String userId);
+
+    @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false and shared_post_id is not null order by created_at DESC", nativeQuery = true)
+    List<Post> findSharedPostsWithFriends(String userId);
+
+    List<Post> findByUser_IdAndSharedPostIsNotNullAndIsDeletedOrderByCreatedAtDesc(String user_id, Boolean isDeleted);
 
 @Query("SELECT p FROM Post p " +
         "WHERE p.caption LIKE %:keyword% " +

@@ -230,12 +230,12 @@ public class PostServiceImpl implements PostService {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postRepository.findByIdAndIsDeleted(sharedPostRequest.getSharedPost(), Boolean.FALSE).orElseThrow(PostNotFoundException::new);
 
-        Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), post.getUser().getId()).orElse(Relationship.builder().build());
+        Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), post.getUser().getId()).orElse(null);
 
         List<Tag> tagResult = new ArrayList<>();
 
         if(post.getMode().equals(PostMode.PUBLIC) ||
-            post.getMode().equals(PostMode.FRIEND) && relationship.getStatus().equals(RelationshipStatus.FRIEND) ||
+            relationship != null && post.getMode().equals(PostMode.FRIEND) && relationship.getStatus().equals(RelationshipStatus.FRIEND) ||
             post.getUser().equals(user)) {
 
             if (sharedPostRequest.getTagList() != null)
@@ -266,5 +266,23 @@ public class PostServiceImpl implements PostService {
 
         //Trả về thông báo lỗi
         throw new BadRequestException("Không tìm thấy người dùng/bài viết");
+    }
+
+    @Override
+    public List<Post> getAllSharedPost(String userId) {
+        User userRelated = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (userRelated.getId().equals(userId))
+            return postRepository.findByUser_IdAndSharedPostIsNotNullAndIsDeletedOrderByCreatedAtDesc(userId, Boolean.FALSE);
+        Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(userId, userRelated.getId());
+
+        if (relationship.isPresent()) {
+            if (relationship.get().getStatus().equals(RelationshipStatus.FRIEND))
+                return postRepository.findSharedPostsWithFriends(userId);
+            else if (relationship.get().getStatus().equals(RelationshipStatus.BLOCK))
+                throw new UserNotFoundException();
+        }
+
+        return postRepository.findSharedPostWithPublic(userId);
     }
 }
