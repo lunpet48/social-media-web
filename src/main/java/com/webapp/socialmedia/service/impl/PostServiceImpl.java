@@ -14,6 +14,8 @@ import com.webapp.socialmedia.repository.*;
 import com.webapp.socialmedia.service.PostService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -201,11 +203,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<Post> getHomepage(int pageSize, int pageNo) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Post> result = new ArrayList<>();
         relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND).forEach(
                 relationship -> {
-                    result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 1000, pageSize, pageNo * pageSize));
+                    //result.addAll(postRepository.findPostsWithFriendsAndDay(relationship.getRelatedUser().getId(), 1000, pageSize, pageNo * pageSize));
+                    result.addAll(postRepository.findByUser_IdAndModeIsNotAndIsDeletedIsFalse(relationship.getRelatedUser().getId(), PostMode.PRIVATE, pageable));
                 }
         );
 

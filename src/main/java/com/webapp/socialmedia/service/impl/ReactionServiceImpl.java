@@ -11,9 +11,14 @@ import com.webapp.socialmedia.repository.ReactionRepository;
 import com.webapp.socialmedia.service.ReactionService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -95,5 +100,18 @@ public class ReactionServiceImpl implements ReactionService {
                 .postId(post.getId())
                 .liked(isLiked)
                 .build();
+    }
+
+    @Override
+    public List<Post> getLikedPosts(int pageSize, int pageNo) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Reaction> reactions = reactionRepository.findByUser_Id(user.getId(), paging);
+        List<Post> posts = new ArrayList<>();
+
+        reactions.forEach(reaction -> {
+            posts.add(reaction.getPost());
+        });
+        return posts;
     }
 }

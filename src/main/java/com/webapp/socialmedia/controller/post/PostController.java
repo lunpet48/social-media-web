@@ -9,6 +9,7 @@ import com.webapp.socialmedia.entity.Media;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.PostMedia;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.enums.PostType;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
@@ -27,8 +28,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.apache.commons.lang3.ArrayUtils.toArray;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -131,6 +135,17 @@ public class PostController {
         List<Post> posts = postService.getAllSharedPost(userId);
         List<PostResponse> responses = posts.stream().map(postMapper::toResponse).toList();
         return ResponseEntity.ok(ResponseDTO.builder().data(responses).error(false).message("").build());
+    }
+
+    @PostMapping("/reel")
+    public ResponseEntity<?> createReel(@RequestPart PostRequest postRequest, @RequestPart MultipartFile multipartFile) throws PostCannotUploadException {
+        if (multipartFile.isEmpty()) throw new PostCannotUploadException("Không thể đăng tải bài viết thiếu hình ảnh/video");
+        if (!FileValidator.isVideo(multipartFile)) throw new BadRequestException("File không hợp lệ");
+        //postRequest.setPostType(String.valueOf(PostType.REELS));
+        Post post = postService.createPost(postRequest);
+        List<Media> mediaList = mediaService.uploadFiles(toArray(multipartFile), post);
+        List<PostMedia> postMedia = postMediaService.uploadFiles(mediaList, post);
+        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMedia)));
     }
 
 }

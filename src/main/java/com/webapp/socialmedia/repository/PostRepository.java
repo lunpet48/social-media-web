@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.repository;
 
 import com.webapp.socialmedia.entity.Post;
+import com.webapp.socialmedia.enums.PostMode;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,6 +30,9 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false and datediff(now(), created_at) <= ?2 LIMIT ?3 OFFSET ?4", nativeQuery = true)
     List<Post> findPostsWithFriendsAndDay(String userId, int day, int pageSize, int pageNo);
+
+    //Trang chủ nhưng không có khoảng thời gian
+    List<Post> findByUser_IdAndModeIsNotAndIsDeletedIsFalse(String userId, PostMode postMode, Pageable pageable);
 
     @Query(value = "select * from db_post where user_id = ?1 and mode = 'PUBLIC' and is_deleted = false and shared_post_id is not null order by created_at DESC", nativeQuery = true)
     List<Post> findSharedPostWithPublic(String userId);
