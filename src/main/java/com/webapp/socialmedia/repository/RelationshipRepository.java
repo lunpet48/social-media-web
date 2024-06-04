@@ -14,5 +14,7 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Rela
     Optional<Relationship> findByUserIdAndRelatedUserIdAndStatus(String userId, String relatedId , RelationshipStatus status);
     List<Relationship> findByUserIdAndStatus(String userId,RelationshipStatus status);
 
+    List<Relationship> findByUserId(String userId);
+
     List<Relationship> findByRelatedUserIdAndStatus(String userId, RelationshipStatus status);
 }

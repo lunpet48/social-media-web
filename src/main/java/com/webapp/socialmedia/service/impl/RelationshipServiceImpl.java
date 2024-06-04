@@ -6,6 +6,7 @@ import com.webapp.socialmedia.dto.responses.RelationshipResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Notification;
 import com.webapp.socialmedia.entity.Relationship;
+import com.webapp.socialmedia.entity.RelationshipId;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.enums.RelationshipStatus;
@@ -207,7 +208,12 @@ public class RelationshipServiceImpl implements IRelationshipService {
 
         Relationship newRelationship = relationshipMapper.ToRelationship(userId, relationshipRequest.getTargetId(), RelationshipStatus.BLOCK);
 
-        relationshipRepository.save(newRelationship);
+        Relationship blockUser = relationshipRepository.saveAndFlush(newRelationship);
+        relationshipRepository.save(Relationship.builder().
+                user(blockUser.getRelatedUser()).relatedUser(blockUser.getUser())
+                .id(RelationshipId.builder().userId(blockUser.getRelatedUser().getId()).relatedUserId(blockUser.getUser().getId()).build())
+                        .status(RelationshipStatus.BLOCKED)
+                .build());
         return relationshipMapper.RelationshipToRelationshipResponse(newRelationship);
     }
 
@@ -218,7 +224,15 @@ public class RelationshipServiceImpl implements IRelationshipService {
                 relationshipRequest.getTargetId(),
                 RelationshipStatus.BLOCK
         ).orElseThrow(()-> new RelationshipNotFoundException("Không tìm thấy yêu cầu"));
+
+        Relationship blockedRelationship = relationshipRepository.findByUserIdAndRelatedUserIdAndStatus(
+                relationshipRequest.getTargetId(),
+                userId,
+                RelationshipStatus.BLOCKED
+        ).orElseThrow(() -> new RelationshipNotFoundException("Không tìm thấy yêu cầu"));
+
         relationshipRepository.delete(relationship);
+        relationshipRepository.delete(blockedRelationship);
     }
 
     @Override
