@@ -7,17 +7,12 @@ import com.webapp.socialmedia.dto.requests.UserRequest;
 import com.webapp.socialmedia.dto.responses.MessageResponse;
 import com.webapp.socialmedia.dto.responses.ChatRoom;
 import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
-import com.webapp.socialmedia.entity.Message;
-import com.webapp.socialmedia.entity.Participant;
-import com.webapp.socialmedia.entity.Room;
-import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.entity.*;
+import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.mapper.MessageMapper;
-import com.webapp.socialmedia.repository.MessageRepositoty;
-import com.webapp.socialmedia.repository.ParticipantRepository;
-import com.webapp.socialmedia.repository.RoomRepository;
-import com.webapp.socialmedia.repository.UserRepository;
+import com.webapp.socialmedia.repository.*;
 import com.webapp.socialmedia.service.MessageService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +33,7 @@ public class MessageServiceImpl implements MessageService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final ParticipantRepository participantRepository;
+    private final RelationshipRepository relationshipRepository;
     private final MessageRepositoty messageRepositoty;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final Cloudinary cloudinary;
@@ -47,6 +43,17 @@ public class MessageServiceImpl implements MessageService {
     public MessageResponse sendMessage(MessageRequest messageRequest, MultipartFile file) throws IOException {
         Room room = roomRepository.findById(messageRequest.getRoomId()).orElseThrow(() -> new BadRequestException("Không tìm thấy cuộc trò chuyện"));
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Participant> participants = participantRepository.findParticipantByRoom_Id(room.getId());
+
+        if(participants.size() == 2) {
+            participants.forEach(participant -> {
+                Optional<Relationship> temp = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), participant.getUser().getId());
+
+                if (temp.isPresent() && (temp.get().getStatus().equals(RelationshipStatus.BLOCK) || temp.get().getStatus().equals(RelationshipStatus.BLOCKED))) {
+                    throw new BadRequestException("Không thể gửi tin nhắn");
+                }
+            });
+        }
 
         Message message;
         if(file != null && !file.isEmpty()){
@@ -70,7 +77,6 @@ public class MessageServiceImpl implements MessageService {
         }
         Message temp = messageRepositoty.saveAndFlush(message);
 
-        List<Participant> participants = participantRepository.findParticipantByRoom_Id(room.getId());
 
         //Thông báo
         participants.forEach(participant -> {
