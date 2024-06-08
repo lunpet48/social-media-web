@@ -60,7 +60,8 @@ public class ReactionServiceImpl implements ReactionService {
                 .idType(newReaction.getPost().getId())
                 .build();
         notificationRepository.saveAndFlush(notification);
-        simpMessagingTemplate.convertAndSendToUser(notification.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(notification));
+        if(!notification.getReceiver().getUsername().equals(post.getUser().getId()))
+            simpMessagingTemplate.convertAndSendToUser(notification.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(notification));
 
         return ReactionResponse.builder()
                 .userId(user.getId())
