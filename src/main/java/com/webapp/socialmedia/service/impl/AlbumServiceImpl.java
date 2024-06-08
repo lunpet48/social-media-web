@@ -63,6 +63,13 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    public List<AlbumResponse> getAlbums(String userId) {
+        List<Album> albums = albumRepository.findByUser_IdAndIsDeleted(userId, Boolean.FALSE);
+
+        return albums.stream().map(albumMapper::toResponse).toList();
+    }
+
+    @Override
     public List<Post> getPostsInAlbum(String albumId) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Album album = albumRepository.findByIdAndIsDeleted(albumId, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album!!!"));

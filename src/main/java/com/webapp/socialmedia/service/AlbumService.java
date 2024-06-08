@@ -11,5 +11,7 @@ public interface AlbumService {
 
     List<AlbumResponse> getAllMyAlbums();
 
+    List<AlbumResponse> getAlbums(String userId);
+
     List<Post> getPostsInAlbum(String albumId);
 }

@@ -29,8 +29,8 @@ public class AlbumController {
 
     @GetMapping("/album")
     //Lấy các album hiện có của người dùng
-    public ResponseEntity<?> getAllMyAlbum() {
-        return ResponseEntity.ok(new ResponseDTO().success(albumService.getAllMyAlbums()));
+    public ResponseEntity<?> getAllMyAlbum(@RequestParam(required = false) String userId) {
+         return userId == null ? ResponseEntity.ok(new ResponseDTO().success(albumService.getAllMyAlbums())) : ResponseEntity.ok(new ResponseDTO().success(albumService.getAlbums(userId))) ;
     }
 
     @GetMapping("/album/{albumId}")
