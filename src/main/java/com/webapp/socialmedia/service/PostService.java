@@ -17,7 +17,7 @@ public interface PostService {
 
     Post createPost(PostRequest postRequest, AlbumShortRequest albumShortRequest);
 
-    Post updatePost(Post post, List<PostMedia> postMediaList, MultipartFile[] files, String userId) throws PostNotFoundException, PostCannotUploadException;
+    Post updatePost(Post post, List<PostMedia> postMediaList, MultipartFile[] files, String userId, AlbumShortRequest albumShortRequest) throws PostNotFoundException, PostCannotUploadException;
 
     void deletePost(String postId, String userId) throws PostNotFoundException, UserNotAuthoritativeException;
 

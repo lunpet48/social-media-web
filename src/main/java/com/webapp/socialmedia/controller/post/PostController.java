@@ -46,7 +46,7 @@ public class PostController {
 
     @PostMapping(value = "/post")
     @WrappingResponse(status = HttpStatus.CREATED)
-    public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files, @RequestPart AlbumShortRequest albumShortRequest) throws PostCannotUploadException {
+    public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files, @RequestPart(required = false) AlbumShortRequest albumShortRequest) throws PostCannotUploadException {
         if (files.length == 0) throw new PostCannotUploadException("Không thể đăng tải bài viết thiếu hình ảnh/video");
         for (MultipartFile file:files) {
 
@@ -64,12 +64,12 @@ public class PostController {
 
     @PutMapping(value = "/post")
     @WrappingResponse(status = HttpStatus.OK)
-    public Object updatePost(@RequestPart PostResponse postResponse, @RequestPart(required = false) MultipartFile[] filesToUpdate) throws PostCannotUploadException, PostNotFoundException {
+    public Object updatePost(@RequestPart PostResponse postResponse, @RequestPart(required = false) MultipartFile[] filesToUpdate, @RequestPart(required = false) AlbumShortRequest albumShortRequest) throws PostCannotUploadException, PostNotFoundException {
         //Lấy current user
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Pair<Post, List<PostMedia>> request = postMapper.toPostAndListPostMedia(postResponse);
         //Kiểm tra và cập nhật
-        Post updatedPost = postService.updatePost(request.a, request.b, filesToUpdate, user.getId());
+        Post updatedPost = postService.updatePost(request.a, request.b, filesToUpdate, user.getId(), albumShortRequest);
         List<Media> mediaList = mediaService.uploadFiles(filesToUpdate, updatedPost);
         Pair<List<String>, List<PostMedia>> files = postMediaService.updateFiles(request.b, mediaList, updatedPost);
         mediaService.deleteFiles(files.a);

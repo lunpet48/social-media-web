@@ -93,16 +93,6 @@ public class PostServiceImpl implements PostService {
         Matcher matcher = patternUser.matcher(postRequest.getCaption());
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Tag> tagResult = new ArrayList<>();
-        Album album;
-
-        if (albumShortRequest.getId() == null || albumShortRequest.getId().isBlank()) {
-            album = albumRepository.saveAndFlush(Album.builder()
-                            .name(albumShortRequest.getName())
-                            .user(user)
-                    .build());
-        } else {
-            album = albumRepository.findByIdAndIsDeleted(albumShortRequest.getId(), Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album!!!"));
-        }
 
         if (postRequest.getTagList() != null)
             postRequest.getTagList().forEach(tag -> {
@@ -124,8 +114,20 @@ public class PostServiceImpl implements PostService {
             postTag.add(postTagRepository.saveAndFlush(PostTag.builder().id(new PostTagId(post.getId(), tag.getId())).tag(tag).post(post).build()));
         });
 
+        if (albumShortRequest != null) {
+            Album album;
+            if (albumShortRequest.getId() == null || albumShortRequest.getId().isBlank()) {
+                album = albumRepository.saveAndFlush(Album.builder()
+                        .name(albumShortRequest.getName())
+                        .user(user)
+                        .build());
+            } else {
+                album = albumRepository.findByIdAndIsDeleted(albumShortRequest.getId(), Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album!!!"));
+            }
+            post.setAlbum(album);
+        }
+
         post.setPostTags(postTag);
-        post.setAlbum(album);
         postRepository.save(post);
         //Thông báo
 
@@ -148,7 +150,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public Post updatePost(Post post, List<PostMedia> postMediaList, MultipartFile[] files, String userId) throws PostNotFoundException, PostCannotUploadException {
+    public Post updatePost(Post post, List<PostMedia> postMediaList, MultipartFile[] files, String userId, AlbumShortRequest albumShortRequest) throws PostNotFoundException, PostCannotUploadException {
         Post oldPost = postRepository.findById(post.getId()).orElseThrow(() -> new PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn"));
         if (!oldPost.getUser().getId().equals(userId))
             throw new RuntimeException("Người dùng không có quyền");
@@ -196,6 +198,20 @@ public class PostServiceImpl implements PostService {
 //            tags.add(tag);
 //        });
 //        oldPost.setTags(tags);
+
+        if (albumShortRequest != null) {
+            Album album;
+            if (albumShortRequest.getId() == null || albumShortRequest.getId().isBlank()) {
+                album = albumRepository.saveAndFlush(Album.builder()
+                        .name(albumShortRequest.getName())
+                        .user(oldPost.getUser())
+                        .build());
+            } else {
+                album = albumRepository.findByIdAndIsDeleted(albumShortRequest.getId(), Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album!!!"));
+            }
+            oldPost.setAlbum(album);
+        }
+
 
         //Thông báo
         Matcher matcher = patternUser.matcher(post.getCaption());
