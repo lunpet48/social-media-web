@@ -21,6 +21,7 @@ public class PostResponse {
     private List<String> reactions;
     private Boolean saved;
     private String sharedPostId;
+    private AlbumResponse album;
     private Date createdAt;
     private Date updatedAt;
 }

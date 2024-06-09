@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.mapper;
 
+import com.webapp.socialmedia.dto.responses.AlbumResponse;
 import com.webapp.socialmedia.dto.responses.PostResponse;
 import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.*;
@@ -42,6 +43,7 @@ public abstract class PostMapper {
                 .updatedAt(post.getUpdatedAt())
                 .sharedPostId(post.getSharedPost() == null ? null : post.getSharedPost().getId())
                 .saved(savedPost.isPresent())
+                .album(AlbumResponse.builder().name(post.getAlbum().getName()).id(post.getAlbum().getId()).userId(post.getAlbum().getUser().getId()).build())
                 .build();
 
         post.getPostTags().forEach(postTag -> {
