@@ -5,11 +5,15 @@ import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.PostMode;
 import com.webapp.socialmedia.enums.PostType;
+import com.webapp.socialmedia.repository.SavedPostRepository;
 import org.antlr.v4.runtime.misc.Pair;
 import org.mapstruct.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Mapper(componentModel = "spring")
 public abstract class PostMapper {
@@ -20,7 +24,11 @@ public abstract class PostMapper {
 //    @Mapping(source = "post.mode", target = "postMode")
 //    @Mapping(source = "post.postTags", target = "tagList", qualifiedByName = "toListTag")
 //    @Mapping(source = "media", target = "files", qualifiedByName = "toListFile")
+    @Autowired
+    private SavedPostRepository savedPostRepository;
     public PostResponse toResponse(Post post, List<PostMedia> media) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<SavedPost> savedPost = savedPostRepository.findById(SavedPostId.builder().postId(post.getId()).userId(user.getId()).build());
         PostResponse response = PostResponse.builder()
                 .postType(post.getType().name())
                 .postMode(post.getMode().name())
@@ -33,6 +41,7 @@ public abstract class PostMapper {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .sharedPostId(post.getSharedPost() == null ? null : post.getSharedPost().getId())
+                .saved(savedPost.isPresent())
                 .build();
 
         post.getPostTags().forEach(postTag -> {
@@ -47,6 +56,8 @@ public abstract class PostMapper {
     }
 
     public PostResponse toResponse(Post post) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<SavedPost> savedPost = savedPostRepository.findById(SavedPostId.builder().postId(post.getId()).userId(user.getId()).build());
         PostResponse response = PostResponse.builder()
                 .postType(post.getType().name())
                 .postMode(post.getMode().name())
@@ -59,6 +70,7 @@ public abstract class PostMapper {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .sharedPostId(post.getSharedPost().getId())
+                .saved(savedPost.isPresent())
                 .build();
 
         post.getPostTags().forEach(postTag -> {
