@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.service.impl;
 
+import com.webapp.socialmedia.dto.requests.AlbumShortRequest;
 import com.webapp.socialmedia.dto.requests.PostRequest;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.*;
@@ -35,6 +36,7 @@ public class PostServiceImpl implements PostService {
     private final TagRepository tagRepository;
     private final RelationshipRepository relationshipRepository;
     private final PostTagRepository postTagRepository;
+    private final AlbumRepository albumRepository;
     private final UserMapper userMapper;
     private final NotificationMapper notificationMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
@@ -66,6 +68,64 @@ public class PostServiceImpl implements PostService {
         });
 
         post.setPostTags(postTag);
+        postRepository.save(post);
+        //Thông báo
+
+        while (matcher.find()) {
+            String username = matcher.group().substring(1);
+            User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+
+            Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                    .receiver(receiver)
+                    .actor(post.getUser())
+                    .idType(post.getId())
+                    .notificationType(NotificationType.MENTION)
+                    .build());
+
+            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+        }
+
+        return post;
+    }
+
+    @Override
+    public Post createPost(PostRequest postRequest, AlbumShortRequest albumShortRequest) {
+        Matcher matcher = patternUser.matcher(postRequest.getCaption());
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Tag> tagResult = new ArrayList<>();
+        Album album;
+
+        if (albumShortRequest.getId() == null || albumShortRequest.getId().isBlank()) {
+            album = albumRepository.saveAndFlush(Album.builder()
+                            .name(albumShortRequest.getName())
+                            .user(user)
+                    .build());
+        } else {
+            album = albumRepository.findByIdAndIsDeleted(albumShortRequest.getId(), Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album!!!"));
+        }
+
+        if (postRequest.getTagList() != null)
+            postRequest.getTagList().forEach(tag -> {
+                Optional<Tag> temp = tagRepository.findById(tag.toLowerCase());
+                if (temp.isEmpty())
+                    tagResult.add(tagRepository.save(Tag.builder().id(tag.toLowerCase()).build()));
+                else
+                    tagResult.add(temp.get());
+            });
+
+        List<PostTag> postTag = new ArrayList<>();
+
+        Post post = postRepository.saveAndFlush(Post.builder().user(user)
+                .mode(PostMode.valueOf(postRequest.getPostMode()))
+                .type(PostType.valueOf(postRequest.getPostType()))
+                .caption(postRequest.getCaption().isEmpty() ? "" : postRequest.getCaption())
+                .build());
+        tagResult.forEach(tag -> {
+            postTag.add(postTagRepository.saveAndFlush(PostTag.builder().id(new PostTagId(post.getId(), tag.getId())).tag(tag).post(post).build()));
+        });
+
+        post.setPostTags(postTag);
+        post.setAlbum(album);
         postRepository.save(post);
         //Thông báo
 

@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.controller.post;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
+import com.webapp.socialmedia.dto.requests.AlbumShortRequest;
 import com.webapp.socialmedia.dto.requests.PostRequest;
 import com.webapp.socialmedia.dto.responses.PostResponse;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
@@ -45,7 +46,7 @@ public class PostController {
 
     @PostMapping(value = "/post")
     @WrappingResponse(status = HttpStatus.CREATED)
-    public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files) throws PostCannotUploadException {
+    public Object createPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] files, @RequestPart AlbumShortRequest albumShortRequest) throws PostCannotUploadException {
         if (files.length == 0) throw new PostCannotUploadException("Không thể đăng tải bài viết thiếu hình ảnh/video");
         for (MultipartFile file:files) {
 
@@ -53,7 +54,9 @@ public class PostController {
                 throw new BadRequestException("file không hợp lệ");
         }
 
-        Post post = postService.createPost(postRequest);
+        //Tạo bài viết thêm album mới
+        //Nếu id album rỗng sẽ mặc định tạo album mới
+        Post post = postService.createPost(postRequest, albumShortRequest);
         List<Media> mediaList = mediaService.uploadFiles(files, post);
         List<PostMedia> postMedia = postMediaService.uploadFiles(mediaList, post);
         return postMapper.toResponse(post, postMedia);

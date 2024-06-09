@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.service;
 
+import com.webapp.socialmedia.dto.requests.AlbumShortRequest;
 import com.webapp.socialmedia.dto.requests.PostRequest;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Post;
@@ -13,6 +14,8 @@ import java.util.List;
 
 public interface PostService {
     Post createPost(PostRequest postRequest);
+
+    Post createPost(PostRequest postRequest, AlbumShortRequest albumShortRequest);
 
     Post updatePost(Post post, List<PostMedia> postMediaList, MultipartFile[] files, String userId) throws PostNotFoundException, PostCannotUploadException;
 

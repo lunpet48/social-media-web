@@ -19,6 +19,7 @@ public class PostResponse {
     private List<String> tagList;
     private List<String> files;
     private List<String> reactions;
+    private Boolean saved;
     private String sharedPostId;
     private Date createdAt;
     private Date updatedAt;
