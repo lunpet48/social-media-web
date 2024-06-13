@@ -43,7 +43,7 @@ public abstract class PostMapper {
                 .updatedAt(post.getUpdatedAt())
                 .sharedPostId(post.getSharedPost() == null ? null : post.getSharedPost().getId())
                 .saved(savedPost.isPresent())
-                .album(AlbumResponse.builder().name(post.getAlbum().getName()).id(post.getAlbum().getId()).userId(post.getAlbum().getUser().getId()).build())
+                .album(post.getAlbum() != null ? AlbumResponse.builder().name(post.getAlbum().getName()).id(post.getAlbum().getId()).userId(post.getAlbum().getUser().getId()).build() : null)
                 .build();
 
         post.getPostTags().forEach(postTag -> {

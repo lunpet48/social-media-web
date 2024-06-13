@@ -32,4 +32,6 @@ public interface PostService {
     Post sharePost(PostRequest sharedPostRequest);
 
     List<Post> getAllSharedPost(String userId);
+
+    List<Post> getReelInSystem(int pageSize, int pageNo);
 }

@@ -151,4 +151,14 @@ public class PostController {
         return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMedia)));
     }
 
+    @GetMapping("/reel")
+    public ResponseEntity<?> getReelInSystem(@RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "0") int pageNo) {
+        List<Post> posts = postService.getReelInSystem(pageSize, pageNo);
+        List<PostResponse> resultResponses = new ArrayList<>();
+        posts.forEach(entity -> {
+            resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
+        });
+        return ResponseEntity.ok(ResponseDTO.builder().data(resultResponses).error(false).message("").build());
+    }
+
 }

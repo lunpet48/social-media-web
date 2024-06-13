@@ -365,4 +365,10 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.findSharedPostWithPublic(userId);
     }
+
+    @Override
+    public List<Post> getReelInSystem(int pageSize, int pageNo) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return postRepository.findByModeAndType(PostMode.PUBLIC, PostType.REELS, pageable);
+    }
 }
