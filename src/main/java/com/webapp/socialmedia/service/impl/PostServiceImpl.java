@@ -270,7 +270,7 @@ public class PostServiceImpl implements PostService {
         if (relationship.isPresent()) {
             if (relationship.get().getStatus().equals(RelationshipStatus.FRIEND))
                 return postRepository.findPostsWithFriends(userId);
-            else if (relationship.get().getStatus().equals(RelationshipStatus.BLOCK))
+            else if (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED))
                 throw new UserNotFoundException();
         }
 
@@ -359,7 +359,7 @@ public class PostServiceImpl implements PostService {
         if (relationship.isPresent()) {
             if (relationship.get().getStatus().equals(RelationshipStatus.FRIEND))
                 return postRepository.findSharedPostsWithFriends(userId);
-            else if (relationship.get().getStatus().equals(RelationshipStatus.BLOCK))
+            else if (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED))
                 throw new UserNotFoundException();
         }
 
@@ -370,5 +370,24 @@ public class PostServiceImpl implements PostService {
     public List<Post> getReelInSystem(int pageSize, int pageNo) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return postRepository.findByModeAndType(PostMode.PUBLIC, PostType.REELS, pageable);
+    }
+
+    @Override
+    public List<Post> getReelsOfUser(String userId, int pageSize, int pageNo) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        if (currentUser.getId().equals(userId))
+            return postRepository.findByUserIdAndTypeAndIsDeletedOrderByCreatedAtDesc(userId, PostType.REELS, Boolean.FALSE, pageable);
+        Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(userId, currentUser.getId());
+
+        if (relationship.isPresent()) {
+            if (relationship.get().getStatus().equals(RelationshipStatus.FRIEND))
+                return postRepository.findByUserIdAndModeIsNotAndTypeAndIsDeletedOrderByCreatedAtDesc(userId, PostMode.PRIVATE, PostType.REELS, Boolean.FALSE, pageable);
+            else if (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED))
+                throw new UserNotFoundException();
+        }
+
+        return postRepository.findByUserIdAndModeAndTypeAndIsDeletedOrderByCreatedAtDesc(userId, PostMode.PUBLIC, PostType.REELS, Boolean.FALSE, pageable);
     }
 }

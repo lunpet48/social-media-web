@@ -34,4 +34,6 @@ public interface PostService {
     List<Post> getAllSharedPost(String userId);
 
     List<Post> getReelInSystem(int pageSize, int pageNo);
+
+    List<Post> getReelsOfUser(String userId, int pageSize, int pageNo);
 }

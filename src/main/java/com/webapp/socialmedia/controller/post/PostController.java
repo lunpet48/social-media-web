@@ -161,4 +161,14 @@ public class PostController {
         return ResponseEntity.ok(ResponseDTO.builder().data(resultResponses).error(false).message("").build());
     }
 
+    @GetMapping("{userId}/reels")
+    public ResponseEntity<?> getReelOfUser(@PathVariable String userId, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "0") int pageNo) {
+        List<Post> posts = postService.getReelsOfUser(userId, pageSize, pageNo);
+        List<PostResponse> resultResponses = new ArrayList<>();
+        posts.forEach(entity -> {
+            resultResponses.add(postMapper.toResponse(entity, postMediaService.getFilesByPostId(entity.getId())));
+        });
+        return ResponseEntity.ok(ResponseDTO.builder().data(resultResponses).error(false).message("").build());
+    }
+
 }

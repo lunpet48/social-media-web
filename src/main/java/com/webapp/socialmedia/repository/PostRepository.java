@@ -37,6 +37,12 @@ public interface PostRepository extends JpaRepository<Post, String> {
     //Trang chủ nhưng không có khoảng thời gian
     List<Post> findByUser_IdAndModeIsNotAndIsDeletedIsFalse(String userId, PostMode postMode, Pageable pageable);
 
+    List<Post> findByUserIdAndModeAndTypeAndIsDeletedOrderByCreatedAtDesc(String userId, PostMode mode, PostType type, Boolean isDeleted, Pageable pageable);
+
+    List<Post> findByUserIdAndTypeAndIsDeletedOrderByCreatedAtDesc(String userId, PostType type, Boolean isDeleted, Pageable pageable);
+
+    List<Post> findByUserIdAndModeIsNotAndTypeAndIsDeletedOrderByCreatedAtDesc(String userId, PostMode mode, PostType type, Boolean isDeleted, Pageable pageable);
+
     @Query(value = "select * from db_post where user_id = ?1 and mode = 'PUBLIC' and is_deleted = false and shared_post_id is not null order by created_at DESC", nativeQuery = true)
     List<Post> findSharedPostWithPublic(String userId);
 
