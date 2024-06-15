@@ -32,6 +32,7 @@ public class ReactionServiceImpl implements ReactionService {
     @Override
     public ReactionResponse likePost(String postId, User user){
         // thiếu kiểm tra user có quyền xem bài viết không
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // Kiểm tra bài viết có tồn tại không
         Post post = postRepository.findByIdAndIsDeleted(postId, false)
@@ -53,15 +54,16 @@ public class ReactionServiceImpl implements ReactionService {
                 .build();
         //Thông báo (id type lưu id bài viết)
         Reaction newReaction = reactionRepository.saveAndFlush(reaction);
-        Notification notification = Notification.builder()
-                .actor(newReaction.getUser())
-                .receiver(newReaction.getPost().getUser())
-                .notificationType(NotificationType.LIKE)
-                .idType(newReaction.getPost().getId())
-                .build();
-        notificationRepository.saveAndFlush(notification);
-        if(!notification.getReceiver().getUsername().equals(post.getUser().getId()))
+        if(!currentUser.getId().equals(post.getUser().getId())) {
+            Notification notification = Notification.builder()
+                    .actor(newReaction.getUser())
+                    .receiver(newReaction.getPost().getUser())
+                    .notificationType(NotificationType.LIKE)
+                    .idType(newReaction.getPost().getId())
+                    .build();
+            notificationRepository.saveAndFlush(notification);
             simpMessagingTemplate.convertAndSendToUser(notification.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(notification));
+        }
 
         return ReactionResponse.builder()
                 .userId(user.getId())

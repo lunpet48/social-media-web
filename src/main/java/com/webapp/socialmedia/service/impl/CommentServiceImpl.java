@@ -64,25 +64,27 @@ public class CommentServiceImpl implements CommentService {
         while (matcher.find()) {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-
-            Notification response = notificationRepository.saveAndFlush(Notification.builder()
-                    .receiver(receiver)
-                    .actor(user)
-                    .idType(post.getId())
-                    .notificationType(NotificationType.MENTION)
-                    .build());
-
-            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+            if(!receiver.equals(user)) {
+                Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                        .receiver(receiver)
+                        .actor(user)
+                        .idType(post.getId())
+                        .notificationType(NotificationType.MENTION)
+                        .build());
+                simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+            }
         }
         //Thông báo có người bình luận
         Comment response = commentRepository.saveAndFlush(comment);
-        var u = notificationRepository.saveAndFlush(Notification.builder()
-                        .actor(user)
-                        .receiver(comment.getPost().getUser())
-                        .idType(response.getId())
-                        .notificationType(NotificationType.COMMENT)
-                        .build());
-        simpMessagingTemplate.convertAndSendToUser(u.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(u));
+        if(!comment.getPost().getUser().equals(user)) {
+            var u = notificationRepository.saveAndFlush(Notification.builder()
+                    .actor(user)
+                    .receiver(comment.getPost().getUser())
+                    .idType(response.getId())
+                    .notificationType(NotificationType.COMMENT)
+                    .build());
+            simpMessagingTemplate.convertAndSendToUser(u.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(u));
+        }
 
         return commentMapper.toResponse(response);
     }
