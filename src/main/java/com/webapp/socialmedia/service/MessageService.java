@@ -4,6 +4,7 @@ import com.webapp.socialmedia.dto.requests.MessageRequest;
 import com.webapp.socialmedia.dto.requests.UserRequest;
 import com.webapp.socialmedia.dto.responses.MessageResponse;
 import com.webapp.socialmedia.dto.responses.ChatRoom;
+import com.webapp.socialmedia.dto.responses.RoomResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,4 +18,6 @@ public interface MessageService {
     List<ChatRoom> loadRoomChatByUser();
 
     ChatRoom addToRoomOrReturnAlreadyRoom(List<UserRequest> requests);
+
+    List<RoomResponse> searchRoom(String keyword);
 }

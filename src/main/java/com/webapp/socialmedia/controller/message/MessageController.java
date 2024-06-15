@@ -42,5 +42,10 @@ public class MessageController {
     public ResponseEntity<?> postChat(@RequestBody List<UserRequest> requests) {
         return ResponseEntity.ok(new ResponseDTO().success(messageService.addToRoomOrReturnAlreadyRoom(requests)));
     }
+
+    @PostMapping("/chat/search")
+    public ResponseEntity<?> searchChat(@RequestParam String keyword) {
+        return ResponseEntity.ok(new ResponseDTO().success(messageService.searchRoom(keyword)));
+    }
 }
 

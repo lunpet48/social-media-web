@@ -6,6 +6,7 @@ import com.webapp.socialmedia.dto.requests.MessageRequest;
 import com.webapp.socialmedia.dto.requests.UserRequest;
 import com.webapp.socialmedia.dto.responses.MessageResponse;
 import com.webapp.socialmedia.dto.responses.ChatRoom;
+import com.webapp.socialmedia.dto.responses.RoomResponse;
 import com.webapp.socialmedia.dto.responses.ShortProfileResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.RelationshipStatus;
@@ -199,5 +200,54 @@ public class MessageServiceImpl implements MessageService {
                     .roomId(room.getId())
                     .build();
         }
+    }
+
+    @Override
+    public List<RoomResponse> searchRoom(String keyword) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Participant> participantList = participantRepository.findParticipantByUser_Id(currentUser.getId());
+        List<RoomResponse> rooms = new ArrayList<>();
+        for(Participant participant : participantList) {
+            List<Participant> temp = participantRepository.findParticipantByRoom_Id(participant.getRoom().getId());
+            List<ShortProfileResponse> shortProfileResponses = new ArrayList<>();
+            if(temp.size() == 2) {
+                for(Participant participant1: temp){
+                    shortProfileResponses.add(ShortProfileResponse.builder()
+                        .username(participant1.getUser().getUsername())
+                        .userId(participant1.getUser().getId())
+                        .avatar(participant1.getUser().getProfile().getAvatar())
+                        .build());
+                }
+                for(Participant participant1: temp) {
+                    if(participant1.getUser().getUsername().toLowerCase().contains(keyword.toLowerCase()) && !currentUser.getUsername().equals(participant1.getUser().getUsername())) {
+                        rooms.add(RoomResponse.builder()
+                                .roomId(participant.getRoom().getId())
+                                .name(participant.getRoom().getName())
+                                .users(shortProfileResponses)
+                                .build());
+                    }
+                }
+
+
+            }
+
+            else {
+                if(participant.getRoom().getName().toLowerCase().contains(keyword.toLowerCase())){
+                    for(Participant participant1: temp) {
+                        shortProfileResponses.add(ShortProfileResponse.builder()
+                                .avatar(participant1.getUser().getProfile().getAvatar())
+                                .userId(participant1.getUser().getId())
+                                .username(participant1.getUser().getUsername())
+                                .build());
+                    }
+                    rooms.add(RoomResponse.builder()
+                            .roomId(participant.getRoom().getId())
+                            .users(shortProfileResponses)
+                            .build());
+                }
+
+            }
+        }
+        return rooms;
     }
 }
