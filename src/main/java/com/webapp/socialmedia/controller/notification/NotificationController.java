@@ -57,7 +57,7 @@ public class NotificationController {
         else if(type.equals("comment")){
             return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(List.of(NotificationType.COMMENT), pageNo, pageSize)));
         } else if (type.equals("tag")) {
-            return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(List.of(NotificationType.MENTION), pageNo, pageSize)));
+            return ResponseEntity.ok(new ResponseDTO().success(notificationService.findByNotificationType(List.of(NotificationType.MENTION_IN_POST, NotificationType.MENTION_IN_COMMENT), pageNo, pageSize)));
         } else {
             return (ResponseEntity<?>) ResponseEntity.notFound();
         }

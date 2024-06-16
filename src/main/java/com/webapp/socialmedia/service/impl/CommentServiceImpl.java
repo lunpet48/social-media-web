@@ -64,12 +64,12 @@ public class CommentServiceImpl implements CommentService {
         while (matcher.find()) {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-            if(!receiver.equals(user)) {
+            if(!receiver.getId().equals(user.getId())) {
                 Notification response = notificationRepository.saveAndFlush(Notification.builder()
                         .receiver(receiver)
                         .actor(user)
                         .idType(post.getId())
-                        .notificationType(NotificationType.MENTION)
+                        .notificationType(NotificationType.MENTION_IN_COMMENT)
                         .build());
                 simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
             }
