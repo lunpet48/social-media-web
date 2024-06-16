@@ -6,6 +6,7 @@ import com.webapp.socialmedia.dto.responses.Violation;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.PostCannotUploadException;
 import com.webapp.socialmedia.exceptions.PostNotFoundException;
+import com.webapp.socialmedia.exceptions.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,12 @@ public class GlobalExceptionHandler {
     @WrappingResponse(status = HttpStatus.BAD_REQUEST, success = false)
     public Object handleBadCredentialsException(BadCredentialsException e) {
         return "Tài khoản hoặc mật khẩu không chính xác";
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @WrappingResponse(status = HttpStatus.NOT_FOUND, success = false)
+    public Object handleBadCredentialsException(ResourceNotFoundException e) {
+        return e.getMessage();
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
