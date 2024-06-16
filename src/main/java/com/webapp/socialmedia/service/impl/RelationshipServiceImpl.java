@@ -256,4 +256,21 @@ public class RelationshipServiceImpl implements IRelationshipService {
 
         return responseV2s;
     }
+
+    @Override
+    public List<ShortProfileResponse> searchFriend(String keyword) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND);
+        List<ShortProfileResponse> responses = new ArrayList<>();
+        for(Relationship relationship : relationships) {
+            if(relationship.getRelatedUser().getUsername().toLowerCase().contains(keyword.toLowerCase().trim())) {
+                responses.add(ShortProfileResponse.builder()
+                                .avatar(relationship.getRelatedUser().getProfile().getAvatar())
+                                .userId(relationship.getRelatedUser().getId())
+                                .username(relationship.getRelatedUser().getUsername())
+                        .build());
+            }
+        }
+        return responses;
+    }
 }
