@@ -227,12 +227,9 @@ public class MessageServiceImpl implements MessageService {
                                 .build());
                     }
                 }
-
-
             }
-
             else {
-                if(participant.getRoom().getName().toLowerCase().contains(keyword.toLowerCase())){
+                if(participant.getRoom().getName() != null && participant.getRoom().getName().toLowerCase().contains(keyword.toLowerCase())){
                     for(Participant participant1: temp) {
                         shortProfileResponses.add(ShortProfileResponse.builder()
                                 .avatar(participant1.getUser().getProfile().getAvatar())
