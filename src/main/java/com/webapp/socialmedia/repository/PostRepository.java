@@ -17,6 +17,8 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     List<Post> findByAlbum_IdAndIsDeletedOrderByCreatedAtDesc(String albumId, Boolean isDeleted);
 
+    List<Post> findByAlbum_IdAndIsDeleted(String albumId, Boolean isDeleted);
+
     @Query(value = "select * from db_post where user_id = ?1 and mode != 'PRIVATE' and is_deleted = false order by created_at DESC", nativeQuery = true)
     List<Post> findPostsWithFriends(String userId);
 

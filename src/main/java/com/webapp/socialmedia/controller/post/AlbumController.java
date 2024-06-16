@@ -8,6 +8,7 @@ import com.webapp.socialmedia.mapper.PostMapper;
 import com.webapp.socialmedia.service.AlbumService;
 import com.webapp.socialmedia.service.PostMediaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,4 +43,26 @@ public class AlbumController {
         });
         return ResponseEntity.ok(new ResponseDTO().success(postResponseList));
     }
+
+    @PutMapping("/album")
+    public ResponseEntity<?> changeAlbumName(@RequestBody ChangeNameAlbumRequest albumRequest) {
+        return ResponseEntity.ok(new ResponseDTO().success(albumService.changeAlbumName(albumRequest.id, albumRequest.name)));
+    }
+
+    //Xóa album
+    @DeleteMapping("/album/{albumId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAlbum(@PathVariable String albumId) {
+        albumService.deleteAlbum(albumId);
+    }
+
+    //Di chuyển một bài viết ra khỏi album
+    @DeleteMapping("/album/post/{postId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePostFromAlbum(@PathVariable String postId) {
+        albumService.deletePostFromAlbum(postId);
+    }
+
+
+    public record ChangeNameAlbumRequest(String id, String name) {}
 }

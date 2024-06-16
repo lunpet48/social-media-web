@@ -14,4 +14,10 @@ public interface AlbumService {
     List<AlbumResponse> getAlbums(String userId);
 
     List<Post> getPostsInAlbum(String albumId);
+
+    AlbumResponse changeAlbumName(String id, String name);
+
+    void deleteAlbum(String albumId);
+
+    void deletePostFromAlbum(String postId);
 }
