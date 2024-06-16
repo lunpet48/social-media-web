@@ -74,15 +74,17 @@ public class PostServiceImpl implements PostService {
         while (matcher.find()) {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+            if(!receiver.getId().equals(user.getId())) {
+                Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                        .receiver(receiver)
+                        .actor(post.getUser())
+                        .idType(post.getId())
+                        .notificationType(NotificationType.MENTION_IN_POST)
+                        .build());
 
-            Notification response = notificationRepository.saveAndFlush(Notification.builder()
-                    .receiver(receiver)
-                    .actor(post.getUser())
-                    .idType(post.getId())
-                    .notificationType(NotificationType.MENTION)
-                    .build());
+                simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+            }
 
-            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
         }
 
         return post;
@@ -135,14 +137,16 @@ public class PostServiceImpl implements PostService {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
-            Notification response = notificationRepository.saveAndFlush(Notification.builder()
-                    .receiver(receiver)
-                    .actor(post.getUser())
-                    .idType(post.getId())
-                    .notificationType(NotificationType.MENTION)
-                    .build());
+            if(!receiver.getId().equals(user.getId())){
+                Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                        .receiver(receiver)
+                        .actor(post.getUser())
+                        .idType(post.getId())
+                        .notificationType(NotificationType.MENTION_IN_POST)
+                        .build());
 
-            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+                simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+            }
         }
 
         return post;
@@ -219,14 +223,16 @@ public class PostServiceImpl implements PostService {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
-            Notification response = notificationRepository.saveAndFlush(Notification.builder()
-                    .receiver(receiver)
-                    .actor(oldPost.getUser())
-                    .idType(oldPost.getId())
-                    .notificationType(NotificationType.MENTION)
-                    .build());
+            if(!receiver.getId().equals(oldPost.getUser().getId())) {
+                Notification response = notificationRepository.saveAndFlush(Notification.builder()
+                        .receiver(receiver)
+                        .actor(oldPost.getUser())
+                        .idType(oldPost.getId())
+                        .notificationType(NotificationType.MENTION_IN_POST)
+                        .build());
 
-            simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+                simpMessagingTemplate.convertAndSendToUser(username, NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(response));
+            }
         }
 
         return postRepository.save(oldPost);

@@ -18,9 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +71,7 @@ public class UserServiceImpl implements IUserService {
         List<Relationship> myRelationship = relationshipRepository.findByUserId(currentUser.getId());
         List<User> myRelationshipUser = new ArrayList<>();
         myRelationship.forEach(relationship -> {myRelationshipUser.add(relationship.getRelatedUser());});
-        List<User> recommendUser = new ArrayList<>();
+        Set<User> recommendUser = new HashSet<>();
 //        Lấy bạn bè của bản thân, với mỗi người bạn thì lấy bạn của người đó
         myRelationship.forEach(relationship -> {
              relationshipRepository.findByUserId(relationship.getRelatedUser().getId()).forEach(relationship1 -> {
@@ -83,7 +81,12 @@ public class UserServiceImpl implements IUserService {
                              relationship1.getRelatedUser().getId()
                      );
 
-                     if (temp.isEmpty()) {
+                     Optional<Relationship> anotherTemp = relationshipRepository.findByUserIdAndRelatedUserId(
+                             relationship1.getRelatedUser().getId(),
+                             currentUser.getId()
+                     );
+
+                     if (temp.isEmpty() && anotherTemp.isEmpty()) {
                          recommendUser.add(relationship1.getRelatedUser());
                      }
                  }

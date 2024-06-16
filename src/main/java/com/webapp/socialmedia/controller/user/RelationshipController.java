@@ -100,4 +100,9 @@ public class RelationshipController {
     public ResponseEntity<?> getOnlineUser() {
         return ResponseEntity.ok(new ResponseDTO().success(relationshipService.getOnlineUser()));
     }
+
+    @PostMapping("/friends/search")
+    public ResponseEntity<?> searchFriend(@RequestParam String keyword) {
+        return ResponseEntity.ok(new ResponseDTO().success(relationshipService.searchFriend(keyword)));
+    }
 }

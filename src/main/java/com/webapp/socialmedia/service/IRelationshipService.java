@@ -30,4 +30,6 @@ public interface IRelationshipService {
     void unblockUser(RelationshipRequest relationshipRequest, String userId);
 
     List<ShortProfileResponse> getOnlineUser();
+
+    List<ShortProfileResponse> searchFriend(String keyword);
 }

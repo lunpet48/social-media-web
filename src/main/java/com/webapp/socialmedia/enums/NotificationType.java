@@ -7,5 +7,6 @@ public enum NotificationType {
     COMMENT,
     MESSAGE,
     ADDTOROOM,
-    MENTION
+    MENTION_IN_COMMENT,
+    MENTION_IN_POST,
 }
