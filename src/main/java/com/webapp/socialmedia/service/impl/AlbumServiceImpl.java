@@ -11,7 +11,6 @@ import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.mapper.AlbumMapper;
-import com.webapp.socialmedia.mapper.PostMapper;
 import com.webapp.socialmedia.repository.AlbumRepository;
 import com.webapp.socialmedia.repository.PostRepository;
 import com.webapp.socialmedia.repository.RelationshipRepository;
@@ -87,5 +86,45 @@ public class AlbumServiceImpl implements AlbumService {
 
         return postRepository.findPostWithPublicInAlbum(album.getUser().getId(), albumId);
 
+    }
+
+    @Override
+    public AlbumResponse changeAlbumName(String id, String name) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Album album = albumRepository.findByIdAndIsDeleted(id, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album"));
+        if(album.getUser().getId().equals(currentUser.getId())){
+            album.setName(name.trim());
+            Album newAlbum = albumRepository.saveAndFlush(album);
+            return AlbumResponse.builder().userId(newAlbum.getUser().getId())
+                    .name(newAlbum.getName())
+                    .id(newAlbum.getId())
+                    .build();
+        }
+        throw new BadRequestException("Album của bạn không tồn tại!!");
+    }
+
+    @Override
+    public void deleteAlbum(String albumId) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Album album = albumRepository.findByIdAndIsDeleted(albumId, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album"));
+        if(album.getUser().getId().equals(currentUser.getId())){
+            album.setIsDeleted(true);
+            albumRepository.saveAndFlush(album);
+            List<Post> posts = postRepository.findByAlbum_IdAndIsDeleted(albumId, Boolean.FALSE);
+            posts.forEach(post -> {
+                post.setAlbum(null);
+                postRepository.saveAndFlush(post);
+            });
+        }
+    }
+
+    @Override
+    public void deletePostFromAlbum(String postId) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Post post = postRepository.findByIdAndIsDeleted(postId, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy bài viết"));
+        if(currentUser.getId().equals(post.getUser().getId())) {
+            post.setAlbum(null);
+            postRepository.saveAndFlush(post);
+        }
     }
 }
