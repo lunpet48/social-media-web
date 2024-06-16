@@ -80,7 +80,7 @@ public class CommentServiceImpl implements CommentService {
             var u = notificationRepository.saveAndFlush(Notification.builder()
                     .actor(user)
                     .receiver(comment.getPost().getUser())
-                    .idType(response.getId())
+                    .idType(post.getId())
                     .notificationType(NotificationType.COMMENT)
                     .build());
             simpMessagingTemplate.convertAndSendToUser(u.getReceiver().getUsername(), NotificationUtils.NOTIFICATION_LINK, notificationMapper.toResponse(u));
