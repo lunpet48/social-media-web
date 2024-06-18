@@ -91,18 +91,16 @@ public class MessageServiceImpl implements MessageService {
     public ChatRoom loadMessageInRoom(String roomId, int pageNo, int pageSize) {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<Message> result = messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(roomId, paging);
-        if(result.hasContent()) {
-            return ChatRoom.builder()
-                    .roomId(roomId)
-                    .message(result.getContent().stream().map(mapper::toResponse).toList())
-                    .users(participantRepository.findParticipantByRoom_Id(roomId).stream().map(participant -> ShortProfileResponse.builder()
-                                .userId(participant.getUser().getId())
-                                .avatar(participant.getUser().getProfile().getAvatar())
-                                .username(participant.getUser().getUsername())
-                                .build()).toList())
-                    .build();
-        }
-        return new ChatRoom();
+
+        return ChatRoom.builder()
+                .roomId(roomId)
+                .message(result.hasContent() ? result.getContent().stream().map(mapper::toResponse).toList() : new ArrayList<>())
+                .users(participantRepository.findParticipantByRoom_Id(roomId).stream().map(participant -> ShortProfileResponse.builder()
+                        .userId(participant.getUser().getId())
+                        .avatar(participant.getUser().getProfile().getAvatar())
+                        .username(participant.getUser().getUsername())
+                        .build()).toList())
+                .build();
     }
 
     @Override

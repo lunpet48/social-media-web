@@ -6,5 +6,6 @@ public enum RelationshipProfile {
     PENDING,
     INCOMMINGREQUEST,
     FRIEND,
-    BLOCK
+    BLOCK,
+    BLOCKED,
 }
