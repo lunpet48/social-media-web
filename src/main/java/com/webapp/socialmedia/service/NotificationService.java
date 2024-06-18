@@ -15,7 +15,7 @@ public interface NotificationService {
 
     public List<NotificationResponse> findByStatus(String id, NotificationStatus status, Integer pageNo, Integer pageSize);
 
-    public Object getAnNotification(NotificationRequest notificationRequest);
+    public Object getAnNotification(String notificationId);
 
     public Integer returnAmountOfNewNotification();
 

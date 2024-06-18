@@ -71,23 +71,23 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Object getAnNotification(NotificationRequest notificationRequest) {
-        Notification temp = repository.findById(notificationRequest.getId()).orElseThrow(() -> new BadRequestException("Thông báo không tồn tại"));
+    public Object getAnNotification(String id) {
+        Notification temp = repository.findById(id).orElseThrow(() -> new BadRequestException("Thông báo không tồn tại"));
         temp.setStatus(NotificationStatus.READ);
         repository.save(temp);
-        if(notificationRequest.getNotificationType().equals(NotificationType.FRIEND_REQUEST) || notificationRequest.getNotificationType().equals(NotificationType.FRIEND_ACCEPT)) {
+        if(temp.getNotificationType().equals(NotificationType.FRIEND_REQUEST) || temp.getNotificationType().equals(NotificationType.FRIEND_ACCEPT)) {
             //Trả về trang cá nhân của người gửi
-            return profileService.get(notificationRequest.getActorId());
+            return profileService.get(temp.getActor().getId());
         }
-        else if(notificationRequest.getNotificationType().equals(NotificationType.LIKE)) {
+        else if(temp.getNotificationType().equals(NotificationType.LIKE)) {
             //Trả về bài viết
-            Post post = postService.getPost(notificationRequest.getIdType(), notificationRequest.getReceiverId());
-            List<PostMedia> postMediaList = postMediaService.getFilesByPostId(notificationRequest.getIdType());
+            Post post = postService.getPost(temp.getIdType(), temp.getReceiver().getId());
+            List<PostMedia> postMediaList = postMediaService.getFilesByPostId(temp.getIdType());
             return postMapper.toResponse(post, postMediaList);
         }
-        else if(notificationRequest.getNotificationType().equals(NotificationType.COMMENT)) {
+        else if(temp.getNotificationType().equals(NotificationType.COMMENT)) {
             //Trả về comment
-            return commentService.getCommentById(notificationRequest.getIdType());
+            return commentService.getCommentById(temp.getIdType());
         } else {
             throw new BadRequestException("Thông báo không tồn tại");
         }
