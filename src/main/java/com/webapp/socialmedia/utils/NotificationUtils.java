@@ -4,6 +4,7 @@ public class NotificationUtils {
 
     public static final String NOTIFICATION_LINK = "/notification";
     public static final String CHAT_LINK = "/chat";
+    public static final String REPORTED_LINK = "/report";
     public static String addFriendNoti(String from) {
         return from + " đã gửi gửi lời mời kết bạn đến bạn";
     }

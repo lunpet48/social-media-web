@@ -9,4 +9,5 @@ public enum NotificationType {
     ADDTOROOM,
     MENTION_IN_COMMENT,
     MENTION_IN_POST,
+    REPORTED_POST
 }
