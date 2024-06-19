@@ -24,4 +24,8 @@ public interface ReportService {
     Report setReportStatusOpen(String reportId);
 
     Report setReportStatusClose(String reportId);
+
+    Report createFeedback(ReportRequest reportRequest);
+
+    Report getReport(String reportId);
 }

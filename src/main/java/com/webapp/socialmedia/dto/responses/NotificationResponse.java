@@ -1,5 +1,6 @@
 package com.webapp.socialmedia.dto.responses;
 
+import com.webapp.socialmedia.enums.NotificationStatus;
 import com.webapp.socialmedia.enums.NotificationType;
 import lombok.*;
 
@@ -17,4 +18,5 @@ public class NotificationResponse {
     private NotificationType notificationType;
     private String idType;
     private Date createdAt;
+    private NotificationStatus status;
 }

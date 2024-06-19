@@ -35,7 +35,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report createReport(ReportRequest reportRequest) {
         return reportRepository.saveAndFlush(Report.builder()
-                .reportType(ReportType.POST)
+                .reportType(reportRequest.getReportType())
                 .reportedId(reportRequest.getReportedId())
                 .describeReport(reportRequest.getDescribe())
                 .reportStatus(ReportStatus.OPEN)
@@ -107,5 +107,20 @@ public class ReportServiceImpl implements ReportService {
     public Report setReportStatusClose(String reportId) {
         Report report = reportRepository.findById(reportId).orElseThrow(() -> new BadRequestException("Không tìm thấy report"));
         return this.setReportStatusClose(report);
+    }
+
+    @Override
+    public Report createFeedback(ReportRequest reportRequest) {
+        return reportRepository.saveAndFlush(Report.builder()
+                        .reportedId(reportRequest.getReportedId())
+                        .describeReport(reportRequest.getDescribe())
+                        .reportType(ReportType.FEEDBACK)
+                        .reportStatus(ReportStatus.OPEN)
+                .build());
+    }
+
+    @Override
+    public Report getReport(String reportId) {
+        return reportRepository.findById(reportId).orElseThrow(() -> new BadRequestException("Không tìm thấy report này"));
     }
 }

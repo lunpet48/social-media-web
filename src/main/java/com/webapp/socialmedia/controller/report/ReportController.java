@@ -2,6 +2,9 @@ package com.webapp.socialmedia.controller.report;
 
 import com.webapp.socialmedia.dto.requests.ReportRequest;
 import com.webapp.socialmedia.dto.responses.ResponseDTO;
+import com.webapp.socialmedia.entity.Post;
+import com.webapp.socialmedia.mapper.PostMapper;
+import com.webapp.socialmedia.service.PostMediaService;
 import com.webapp.socialmedia.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,9 +17,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/report")
 public class ReportController {
     private final ReportService reportService;
+    private final PostMediaService postMediaService;
+    private final PostMapper postMapper;
     @PostMapping
     public ResponseEntity<?> reportPost(@RequestBody ReportRequest reportRequest) {
         return ResponseEntity.ok(new ResponseDTO().success(reportService.createReport(reportRequest)));
+    }
+
+    @GetMapping("/{reportId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> getReport(@PathVariable String reportId) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.getReport(reportId)));
     }
 
     @GetMapping("/open")
@@ -52,8 +63,13 @@ public class ReportController {
 
     @PostMapping("/recovery-post/{postId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void recoveryPost(@PathVariable String postId) {
-        reportService.recoveryPost(postId);
+    public ResponseEntity<?> recoveryPost(@PathVariable String postId) {
+        Post post = reportService.recoveryPost(postId);
+        return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMediaService.getFilesByPostId(post.getId()))));
     }
 
+    @PostMapping("/feedback")
+    public ResponseEntity<?> feedback(@RequestBody ReportRequest reportRequest) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.createFeedback(reportRequest)));
+    }
 }

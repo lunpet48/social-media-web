@@ -25,6 +25,7 @@ public abstract class NotificationMapper {
                 .idType(notification.getIdType())
                 .notificationType(notification.getNotificationType())
                 .receiver(notification.getReceiver().getId())
+                .status(notification.getStatus())
                 .build();
 
         return response;
