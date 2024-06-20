@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SavedPostRepository extends JpaRepository<SavedPost, SavedPostId> {
-    List<SavedPost> findByUser_IdAndPost_IsDeletedOrderByCreatedAt(String userId, Boolean isDeleted);
+    List<SavedPost> findByUser_IdAndPost_IsDeletedOrderByCreatedAtDesc(String userId, Boolean isDeleted);
 }

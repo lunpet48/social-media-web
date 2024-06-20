@@ -67,7 +67,7 @@ public class SavedPostServiceImpl implements SavedPostService {
     public List<Post> getAllSavedPost() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         //Lấy các bài đã lưu của bản thân và bài đăng chưa bị xóa sắp xếp theo thời gian
-        List<SavedPost> savedPosts = savedPostRepository.findByUser_IdAndPost_IsDeletedOrderByCreatedAt(user.getId(), false);
+        List<SavedPost> savedPosts = savedPostRepository.findByUser_IdAndPost_IsDeletedOrderByCreatedAtDesc(user.getId(), false);
         List<Post> response = new ArrayList<>();
         for (SavedPost savedPost : savedPosts) {
             Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), savedPost.getPost().getUser().getId()).orElse(new Relationship());

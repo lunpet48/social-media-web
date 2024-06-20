@@ -12,4 +12,6 @@ public interface ReactionRepository extends JpaRepository<Reaction, ReactionId> 
     Optional<Reaction> findByPostIdAndUserId(String postId, String userId);
 
     List<Reaction> findByUser_Id(String userId, Pageable pageable);
+
+    List<Reaction> findByUser_IdOrderByCreatedAtDesc(String userId, Pageable pageable);
 }

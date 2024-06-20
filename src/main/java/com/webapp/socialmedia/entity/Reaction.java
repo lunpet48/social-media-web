@@ -3,6 +3,8 @@ package com.webapp.socialmedia.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Builder
@@ -23,5 +25,12 @@ public class Reaction {
     @MapsId("postId")
     @JoinColumn(name = "post_id")
     private Post post;
+
+    private Date createdAt;
+
+    @PrePersist
+    private void createdAt() {
+        this.createdAt = new Date();
+    }
 }
 

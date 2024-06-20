@@ -109,7 +109,7 @@ public class ReactionServiceImpl implements ReactionService {
     public List<Post> getLikedPosts(int pageSize, int pageNo) {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Reaction> reactions = reactionRepository.findByUser_Id(user.getId(), paging);
+        List<Reaction> reactions = reactionRepository.findByUser_IdOrderByCreatedAtDesc(user.getId(), paging);
         List<Post> posts = new ArrayList<>();
 
         reactions.forEach(reaction -> {
