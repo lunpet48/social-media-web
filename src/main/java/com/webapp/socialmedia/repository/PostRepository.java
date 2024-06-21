@@ -53,12 +53,16 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     List<Post> findByUser_IdAndSharedPostIsNotNullAndIsDeletedOrderByCreatedAtDesc(String user_id, Boolean isDeleted);
 
-@Query("SELECT p FROM Post p " +
-        "WHERE p.caption LIKE %:keyword% " +
-        "AND (p.mode = 'PUBLIC' OR " +
-        "(p.mode = 'FRIEND' AND " +
-        ":userId IN " +
-        "(SELECT r.user.id FROM Relationship r " +
-        "WHERE r.relatedUser.id = p.user.id AND r.status = 'FRIEND')))")
+//@Query("SELECT p FROM Post p " +
+//        "WHERE p.caption LIKE %:keyword% " +
+//        "AND (p.mode = 'PUBLIC' OR " +
+//        "(p.mode = 'FRIEND' AND " +
+//        ":userId IN " +
+//        "(SELECT r.user.id FROM Relationship r " +
+//        "WHERE r.relatedUser.id = p.user.id AND r.status = 'FRIEND')))")
+    @Query(value = "select * from db_post where caption like %?1% " +
+            "and (mode = 'PUBLIC' and ?2 not in (select user_id from db_relationship where related_user_id = db_post.user_id " +
+            "and (db_relationship.status = 'BLOCK' or db_relationship.status = 'BLOCKED' ))" +
+            "or mode = 'FRIEND' and ?2 in (select user_id from db_relationship where related_user_id = db_post.user_id and status = 'FRIEND'))", nativeQuery = true)
     List<Post> searchPost(String keyword, String userId);
 }
