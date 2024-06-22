@@ -68,7 +68,23 @@ public class ReportController {
         return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMediaService.getFilesByPostId(post.getId()))));
     }
 
+    @PostMapping("/lock-user/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> lockUser(@PathVariable String userId) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.lockUser(userId)));
+    }
+
+    @PostMapping("/unlock-user/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> unlockUser(@PathVariable String userId) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.unlockUser(userId)));
+    }
+
+
+    //ở phần feedback reportedId sẽ là logId (hành động của admin)
+    //LƯU Ý: Khi người dùng bị khóa thì nên để cái này authHeader null
     @PostMapping("/feedback")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> feedback(@RequestBody ReportRequest reportRequest) {
         return ResponseEntity.ok(new ResponseDTO().success(reportService.createFeedback(reportRequest)));
     }

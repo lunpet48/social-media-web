@@ -1,18 +1,11 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.ReportRequest;
-import com.webapp.socialmedia.entity.Notification;
-import com.webapp.socialmedia.entity.Post;
-import com.webapp.socialmedia.entity.Report;
-import com.webapp.socialmedia.entity.User;
-import com.webapp.socialmedia.enums.NotificationType;
-import com.webapp.socialmedia.enums.ReportStatus;
-import com.webapp.socialmedia.enums.ReportType;
+import com.webapp.socialmedia.entity.*;
+import com.webapp.socialmedia.enums.*;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.mapper.NotificationMapper;
-import com.webapp.socialmedia.repository.NotificationRepository;
-import com.webapp.socialmedia.repository.PostRepository;
-import com.webapp.socialmedia.repository.ReportRepository;
+import com.webapp.socialmedia.repository.*;
 import com.webapp.socialmedia.service.ReportService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +22,8 @@ import java.util.List;
 public class ReportServiceImpl implements ReportService {
     private final ReportRepository reportRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final LogRepository logRepository;
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final NotificationMapper notificationMapper;
@@ -57,7 +52,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public void deletePost(String postId) {
+    public Log deletePost(String postId) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Report> reports = reportRepository.findByReportedIdAndReportType(postId, ReportType.POST);
         Post post = postRepository.findByIdAndIsDeleted(postId, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy bài viết!!"));
@@ -71,11 +66,16 @@ public class ReportServiceImpl implements ReportService {
         Notification notification = notificationRepository.saveAndFlush(Notification.builder()
                         .receiver(post.getUser())
                         .actor(currentUser)
-                        .notificationType(NotificationType.REPORTED_POST)
+                        .notificationType(NotificationType.DELETE_POST)
                         .idType(postId)
                 .build());
 
         simpMessagingTemplate.convertAndSendToUser(post.getUser().getUsername(), NotificationUtils.REPORTED_LINK, notificationMapper.toResponse(notification));
+
+        return logRepository.saveAndFlush(Log.builder()
+                        .eventType(EventType.DELETE_POST)
+                        .objectId(postId)
+                .build());
     }
 
     @Override
@@ -92,8 +92,25 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Post recoveryPost(String postId) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postRepository.findById(postId).orElseThrow(() -> new BadRequestException("Không tìm thấy bài viết"));
         post.setIsDeleted(Boolean.FALSE);
+
+        //Notification
+        Notification notification = notificationRepository.saveAndFlush(Notification.builder()
+                .receiver(post.getUser())
+                .actor(currentUser)
+                .notificationType(NotificationType.RECOVERY_POST)
+                .idType(postId)
+                .build());
+
+        simpMessagingTemplate.convertAndSendToUser(post.getUser().getUsername(), NotificationUtils.REPORTED_LINK, notificationMapper.toResponse(notification));
+
+        logRepository.save(Log.builder()
+                        .objectId(postId)
+                    .eventType(EventType.RECOVERY_POST)
+                .build());
+
         return postRepository.saveAndFlush(post);
     }
 
@@ -122,5 +139,38 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report getReport(String reportId) {
         return reportRepository.findById(reportId).orElseThrow(() -> new BadRequestException("Không tìm thấy report này"));
+    }
+
+    @Override
+    public Log lockUser(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("Không tìm thấy người dùng"));
+        user.setIsLocked(true);
+        user.setLockReason(LockReason.BAD_USER);
+
+        Log log = logRepository.saveAndFlush(Log.builder()
+                .eventType(EventType.LOCK_USER)
+                .objectId(userId)
+                .build());
+
+        user.setLogId(log.getId());
+        userRepository.saveAndFlush(user);
+
+        List<Report> reports = reportRepository.findByReportedIdAndReportType(userId, ReportType.USER);
+        reports.forEach(this::setReportStatusClose);
+
+        return log;
+    }
+
+    @Override
+    public Log unlockUser(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("Không tìm thấy người dùng"));
+        user.setIsLocked(false);
+        user.setLogId(null);
+        userRepository.saveAndFlush(user);
+
+        return logRepository.saveAndFlush(Log.builder()
+                .eventType(EventType.UNLOCK_USER)
+                .objectId(userId)
+                .build());
     }
 }

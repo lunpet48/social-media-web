@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service;
 
 import com.webapp.socialmedia.dto.requests.ReportRequest;
+import com.webapp.socialmedia.entity.Log;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.Report;
 
@@ -13,7 +14,7 @@ public interface ReportService {
 
     List<Report> getAllCloseReport(int pageNo, int pageSize);
 
-    void deletePost(String postId);
+    Log deletePost(String postId);
 
     Report setReportStatusOpen(Report report);
 
@@ -28,4 +29,8 @@ public interface ReportService {
     Report createFeedback(ReportRequest reportRequest);
 
     Report getReport(String reportId);
+
+    Log lockUser(String userId);
+
+    Log unlockUser(String userId);
 }

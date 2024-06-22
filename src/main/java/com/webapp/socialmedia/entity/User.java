@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.webapp.socialmedia.enums.LockReason;
 import com.webapp.socialmedia.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -47,6 +48,11 @@ public class User implements UserDetails {
     private Date createdAt;
 
     private Date updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    private LockReason lockReason;
+
+    private String logId;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user")

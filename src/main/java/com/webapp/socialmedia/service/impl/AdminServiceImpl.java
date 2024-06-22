@@ -4,6 +4,7 @@ import com.webapp.socialmedia.dto.responses.CommentResponse;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.dto.responses.UserResponse;
 import com.webapp.socialmedia.entity.Comment;
+import com.webapp.socialmedia.entity.Log;
 import com.webapp.socialmedia.entity.Post;
 import com.webapp.socialmedia.entity.User;
 import com.webapp.socialmedia.exceptions.BadRequestException;
@@ -11,6 +12,7 @@ import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.mapper.CommentMapper;
 import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.CommentRepository;
+import com.webapp.socialmedia.repository.LogRepository;
 import com.webapp.socialmedia.repository.PostRepository;
 import com.webapp.socialmedia.repository.UserRepository;
 import com.webapp.socialmedia.service.AdminService;
@@ -24,6 +26,7 @@ public class AdminServiceImpl implements AdminService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final UserRepository userRepository;
+    private final LogRepository logRepository;
     private final UserMapper userMapper;
 
     @Override
@@ -41,5 +44,10 @@ public class AdminServiceImpl implements AdminService {
     public UserProfileResponse findUserById(String userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         return userMapper.userToUserProfileResponse(user);
+    }
+
+    @Override
+    public Log findLogById(String logId) {
+        return logRepository.findById(logId).orElseThrow(() -> new BadRequestException("Không tìm thấy hành động này"));
     }
 }

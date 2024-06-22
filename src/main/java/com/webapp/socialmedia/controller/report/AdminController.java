@@ -38,4 +38,9 @@ public class AdminController {
     public ResponseEntity<?> getComment(@PathVariable String commentId) {
         return ResponseEntity.ok(new ResponseDTO().success(adminService.findCommentById(commentId)));
     }
+
+    @GetMapping("/log/{logId}")
+    public ResponseEntity<?> getLog(@PathVariable String logId) {
+        return ResponseEntity.ok(new ResponseDTO().success(adminService.findLogById(logId)));
+    }
 }
