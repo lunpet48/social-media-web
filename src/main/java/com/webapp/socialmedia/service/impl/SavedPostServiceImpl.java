@@ -70,15 +70,14 @@ public class SavedPostServiceImpl implements SavedPostService {
         List<SavedPost> savedPosts = savedPostRepository.findByUser_IdAndPost_IsDeletedOrderByCreatedAtDesc(user.getId(), false);
         List<Post> response = new ArrayList<>();
         for (SavedPost savedPost : savedPosts) {
-            Relationship relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), savedPost.getPost().getUser().getId()).orElse(new Relationship());
+            Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), savedPost.getPost().getUser().getId());
             //Lấy relationship và check xem có block/bị block hay chưa
-            if (relationship.getStatus().equals(RelationshipStatus.BLOCK) ||
-                    relationshipRepository.findByUserIdAndRelatedUserId(savedPost.getPost().getUser().getId(), user.getId()).get().getStatus().equals(RelationshipStatus.BLOCK))
+            if (relationship.isPresent() && (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED)))
                 continue;
             //Nếu bài viết công khai hoặc bạn bè và có qh bạn bè hoặc bài viết của bản thân thì mới coi được
             if(savedPost.getPost().getMode().equals(PostMode.PUBLIC)) {
                 response.add(savedPost.getPost());
-            } else if (savedPost.getPost().getMode().equals(PostMode.FRIEND) && relationship.getStatus().equals(RelationshipStatus.FRIEND)) {
+            } else if (relationship.isPresent() && savedPost.getPost().getMode().equals(PostMode.FRIEND) && relationship.get().getStatus().equals(RelationshipStatus.FRIEND)) {
                 response.add(savedPost.getPost());
             } else if (savedPost.getPost().getUser().equals(user)) {
                 response.add(savedPost.getPost());
