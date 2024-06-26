@@ -4,15 +4,13 @@ import com.webapp.socialmedia.dto.requests.CommentRequest;
 import com.webapp.socialmedia.dto.responses.CommentResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.NotificationType;
+import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.UserNotFoundException;
 import com.webapp.socialmedia.exceptions.UserNotMatchTokenException;
 import com.webapp.socialmedia.mapper.CommentMapper;
 import com.webapp.socialmedia.mapper.NotificationMapper;
-import com.webapp.socialmedia.repository.CommentRepository;
-import com.webapp.socialmedia.repository.NotificationRepository;
-import com.webapp.socialmedia.repository.PostRepository;
-import com.webapp.socialmedia.repository.UserRepository;
+import com.webapp.socialmedia.repository.*;
 import com.webapp.socialmedia.service.CommentService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import com.webapp.socialmedia.validattion.serviceValidation.UserValidationService;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +36,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserValidationService userValidationService;
     private final PostRepository postRepository;
+    private final RelationshipRepository relationshipRepository;
     private final CommentMapper commentMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
     Pattern patternUser = Pattern.compile("@[A-z0-9_]+");
@@ -94,9 +94,14 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new BadRequestException("Comment not found"));
 
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         // kiểm tra người xóa (current user) có phải là chủ nhân của comment
         if(!userValidationService.isUserMatchToken(comment.getUser().getId()))
             throw new UserNotMatchTokenException();
+
+        if(!currentUser.getId().equals(comment.getPost().getUser().getId()))
+            throw new BadRequestException("Không thể xóa bình luận");
+
 
         commentRepository.delete(comment);
     }
@@ -104,18 +109,26 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponse> getComment(String postId, Integer pageNo, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Comment> comments = commentRepository.findAllByPostIdOrderByCreatedAt(postId, pageable);
         List<CommentResponse> commentResponses = new ArrayList<>();
-        comments.forEach(comment -> {
+        for (Comment comment : comments) {
+            Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(currentUser.getId(), comment.getUser().getId());
+            if (relationship.isPresent() && (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED)))
+                continue;
             CommentResponse commentResponse = commentMapper.toResponse(comment);
             commentResponses.add(commentResponse);
-        });
+        }
         return commentResponses;
     }
 
     @Override
     public CommentResponse getCommentById(String commentId) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BadRequestException("Comment not found"));
+        Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(currentUser.getId(), comment.getUser().getId());
+        if (relationship.isPresent() && (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED)))
+            throw new BadRequestException("Comment not found");
         return commentMapper.toResponse(comment);
     }
 

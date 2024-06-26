@@ -42,8 +42,8 @@ public class NotificationController {
         return ResponseEntity.ok(new ResponseDTO().success(notificationService.returnAmountOfNewNotification()));
     }
 
-    @GetMapping("/notification/{notificationId}")
-    public ResponseEntity<?> getNotification(@PathVariable String notificationId) {
+    @GetMapping("/notification")
+    public ResponseEntity<?> getNotification(@RequestParam String notificationId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(new ResponseDTO().success(notificationService.getAnNotification(notificationId)));
     }
