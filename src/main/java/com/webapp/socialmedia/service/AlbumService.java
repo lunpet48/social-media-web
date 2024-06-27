@@ -20,4 +20,6 @@ public interface AlbumService {
     void deleteAlbum(String albumId);
 
     void deletePostFromAlbum(String postId);
+
+    AlbumResponse getAlbum(String albumId);
 }

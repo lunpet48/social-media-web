@@ -127,4 +127,10 @@ public class AlbumServiceImpl implements AlbumService {
             postRepository.saveAndFlush(post);
         }
     }
+
+    @Override
+    public AlbumResponse getAlbum(String albumId) {
+        Album album = albumRepository.findByIdAndIsDeleted(albumId, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy album"));
+        return albumMapper.toResponse(album);
+    }
 }

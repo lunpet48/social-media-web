@@ -64,5 +64,11 @@ public class AlbumController {
     }
 
 
+    @GetMapping("/album/name/{albumId}")
+    public ResponseEntity<?> getName(@PathVariable String albumId) {
+         return ResponseEntity.ok(new ResponseDTO().success(albumService.getAlbum(albumId)));
+    }
+
+
     public record ChangeNameAlbumRequest(String id, String name) {}
 }
