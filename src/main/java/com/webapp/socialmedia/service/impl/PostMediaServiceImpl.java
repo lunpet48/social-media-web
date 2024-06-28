@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -19,16 +20,17 @@ public class PostMediaServiceImpl implements PostMediaService {
 
     @Override
     public List<PostMedia> uploadFiles(List<Media> mediaList, Post post) {
+        AtomicInteger num = new AtomicInteger();
         List<PostMedia> postMedia = new ArrayList<>();
         mediaList.forEach(media -> {
-            postMedia.add(postMediaRepository.saveAndFlush(PostMedia.builder().mediaId(media.getId()).media(media).post(post).build()));
+            postMedia.add(postMediaRepository.saveAndFlush(PostMedia.builder().mediaId(media.getId()).media(media).post(post).serial(num.getAndIncrement()).build()));
         });
         return postMedia;
     }
 
     @Override
     public Pair<List<String>, List<PostMedia>> updateFiles(List<PostMedia> files, List<Media> mediaList, Post post) {
-        List<PostMedia> oldPostMedia = postMediaRepository.findByPostId(post.getId());
+        List<PostMedia> oldPostMedia = postMediaRepository.findByPostIdOrderBySerial(post.getId());
         List<String> deleteFile = new ArrayList<>();
         boolean flag;
         for (PostMedia postMedia : oldPostMedia) {
@@ -49,6 +51,6 @@ public class PostMediaServiceImpl implements PostMediaService {
 
     @Override
     public List<PostMedia> getFilesByPostId(String postId) {
-        return postMediaRepository.findByPostId(postId);
+        return postMediaRepository.findByPostIdOrderBySerial(postId);
     }
 }

@@ -23,4 +23,6 @@ public class PostMedia {
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    private Integer serial;
 }

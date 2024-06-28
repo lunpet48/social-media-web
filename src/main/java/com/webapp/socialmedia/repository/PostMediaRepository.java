@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface PostMediaRepository extends JpaRepository<PostMedia, String> {
-    @Query(value = "Select * from db_post_media where post_id = ?", nativeQuery = true)
-    List<PostMedia> findByPostId(String postId);
+    @Query(value = "Select * from db_post_media where post_id = ? order by serial", nativeQuery = true)
+    List<PostMedia> findByPostIdOrderBySerial(String postId);
 
     @Transactional
     @Modifying
