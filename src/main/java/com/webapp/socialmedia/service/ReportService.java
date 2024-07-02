@@ -14,13 +14,13 @@ public interface ReportService {
 
     List<Report> getAllCloseReport(int pageNo, int pageSize);
 
-    Log deletePost(String postId);
+    Log deletePost(String postId, String message);
 
     Report setReportStatusOpen(Report report);
 
     Report setReportStatusClose(Report report);
 
-    Post recoveryPost(String postId);
+    Post recoveryPost(String postId, String message);
 
     Report setReportStatusOpen(String reportId);
 
@@ -30,7 +30,9 @@ public interface ReportService {
 
     Report getReport(String reportId);
 
-    Log lockUser(String userId);
+    Log lockUser(String userId, String message);
 
-    Log unlockUser(String userId);
+    Log unlockUser(String userId, String message);
+
+    Log getLog(String logId);
 }

@@ -21,6 +21,7 @@ public class Log {
     @Enumerated(EnumType.STRING)
     private EventType eventType;
     private String objectId;
+    private String message;
     private Date createdAt;
 
     @PrePersist

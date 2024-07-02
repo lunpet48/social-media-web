@@ -54,30 +54,30 @@ public class ReportController {
         return ResponseEntity.ok(new ResponseDTO().success(reportService.setReportStatusClose(reportId)));
     }
 
-    @DeleteMapping("/delete-post/{postId}")
+    @DeleteMapping("/delete-post")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void deletePost(@PathVariable String postId) {
-        reportService.deletePost(postId);
+    public void deletePost(@RequestBody AdminRequest request) {
+        reportService.deletePost(request.id, request.message);
     }
 
-    @PostMapping("/recovery-post/{postId}")
+    @PostMapping("/recovery-post")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> recoveryPost(@PathVariable String postId) {
-        Post post = reportService.recoveryPost(postId);
+    public ResponseEntity<?> recoveryPost(@RequestBody AdminRequest request) {
+        Post post = reportService.recoveryPost(request.id, request.message);
         return ResponseEntity.ok(new ResponseDTO().success(postMapper.toResponse(post, postMediaService.getFilesByPostId(post.getId()))));
     }
 
-    @PostMapping("/lock-user/{userId}")
+    @PostMapping("/lock-user")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> lockUser(@PathVariable String userId) {
-        return ResponseEntity.ok(new ResponseDTO().success(reportService.lockUser(userId)));
+    public ResponseEntity<?> lockUser(@RequestBody AdminRequest request) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.lockUser(request.id, request.message)));
     }
 
-    @PostMapping("/unlock-user/{userId}")
+    @PostMapping("/unlock-user")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> unlockUser(@PathVariable String userId) {
-        return ResponseEntity.ok(new ResponseDTO().success(reportService.unlockUser(userId)));
+    public ResponseEntity<?> unlockUser(@RequestBody AdminRequest request) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.unlockUser(request.id, request.message)));
     }
 
 
@@ -88,4 +88,11 @@ public class ReportController {
     public ResponseEntity<?> feedback(@RequestBody ReportRequest reportRequest) {
         return ResponseEntity.ok(new ResponseDTO().success(reportService.createFeedback(reportRequest)));
     }
+
+    @GetMapping("/log/{logId}")
+    public ResponseEntity<?> getLog(@PathVariable String logId) {
+        return ResponseEntity.ok(new ResponseDTO().success(reportService.getLog(logId)));
+    }
+
+    public record AdminRequest(String id, String message) {}
 }

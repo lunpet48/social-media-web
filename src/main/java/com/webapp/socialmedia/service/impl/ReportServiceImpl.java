@@ -52,7 +52,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Log deletePost(String postId) {
+    public Log deletePost(String postId, String message) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Report> reports = reportRepository.findByReportedIdAndReportType(postId, ReportType.POST);
         Post post = postRepository.findByIdAndIsDeleted(postId, Boolean.FALSE).orElseThrow(() -> new BadRequestException("Không tìm thấy bài viết!!"));
@@ -62,20 +62,23 @@ public class ReportServiceImpl implements ReportService {
         //Thay đổi trạng thái report -> CLOSE
         reports.forEach(this::setReportStatusClose);
 
+        Log log = logRepository.saveAndFlush(Log.builder()
+                .eventType(EventType.DELETE_POST)
+                .objectId(postId)
+                .message(message)
+                .build());
+
         //Notification
         Notification notification = notificationRepository.saveAndFlush(Notification.builder()
                         .receiver(post.getUser())
                         .actor(currentUser)
                         .notificationType(NotificationType.DELETE_POST)
-                        .idType(postId)
+                        .idType(log.getId())
                 .build());
 
         simpMessagingTemplate.convertAndSendToUser(post.getUser().getUsername(), NotificationUtils.REPORTED_LINK, notificationMapper.toResponse(notification));
 
-        return logRepository.saveAndFlush(Log.builder()
-                        .eventType(EventType.DELETE_POST)
-                        .objectId(postId)
-                .build());
+        return log;
     }
 
     @Override
@@ -91,25 +94,27 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Post recoveryPost(String postId) {
+    public Post recoveryPost(String postId, String message) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Post post = postRepository.findById(postId).orElseThrow(() -> new BadRequestException("Không tìm thấy bài viết"));
         post.setIsDeleted(Boolean.FALSE);
+
+        Log log = logRepository.save(Log.builder()
+                .objectId(postId)
+                .eventType(EventType.RECOVERY_POST)
+                .message(message)
+                .build());
 
         //Notification
         Notification notification = notificationRepository.saveAndFlush(Notification.builder()
                 .receiver(post.getUser())
                 .actor(currentUser)
                 .notificationType(NotificationType.RECOVERY_POST)
-                .idType(postId)
+                .idType(log.getId())
                 .build());
 
         simpMessagingTemplate.convertAndSendToUser(post.getUser().getUsername(), NotificationUtils.REPORTED_LINK, notificationMapper.toResponse(notification));
 
-        logRepository.save(Log.builder()
-                        .objectId(postId)
-                    .eventType(EventType.RECOVERY_POST)
-                .build());
 
         return postRepository.saveAndFlush(post);
     }
@@ -142,7 +147,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Log lockUser(String userId) {
+    public Log lockUser(String userId, String message) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("Không tìm thấy người dùng"));
         user.setIsLocked(true);
         user.setLockReason(LockReason.BAD_USER);
@@ -150,6 +155,7 @@ public class ReportServiceImpl implements ReportService {
         Log log = logRepository.saveAndFlush(Log.builder()
                 .eventType(EventType.LOCK_USER)
                 .objectId(userId)
+                .message(message)
                 .build());
 
         user.setLogId(log.getId());
@@ -162,7 +168,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Log unlockUser(String userId) {
+    public Log unlockUser(String userId, String message) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BadRequestException("Không tìm thấy người dùng"));
         user.setIsLocked(false);
         user.setLogId(null);
@@ -172,5 +178,10 @@ public class ReportServiceImpl implements ReportService {
                 .eventType(EventType.UNLOCK_USER)
                 .objectId(userId)
                 .build());
+    }
+
+    @Override
+    public Log getLog(String logId) {
+        return logRepository.findById(logId).orElseThrow(() -> new BadRequestException("Không tìm thấy log"));
     }
 }

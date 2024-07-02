@@ -10,6 +10,7 @@ import com.webapp.socialmedia.enums.Role;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
 import com.webapp.socialmedia.exceptions.UserExistException;
+import com.webapp.socialmedia.exceptions.UserLockedException;
 import com.webapp.socialmedia.mapper.UserMapper;
 import com.webapp.socialmedia.repository.ProfileRepository;
 import com.webapp.socialmedia.repository.RefreshTokenRepository;
@@ -101,6 +102,10 @@ public class AuthenticationService {
 
         User user = userOptional.orElseGet(() -> userRepository.findByEmail(request.getUsername())
                 .orElseThrow(() -> new BadRequestException("Tài khoản hoặc mật khẩu không chính xác")));
+
+        if(user.getIsLocked()) {
+            throw new UserLockedException(user.getLogId());
+        }
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
