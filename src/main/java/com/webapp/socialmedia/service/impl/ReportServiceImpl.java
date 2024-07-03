@@ -1,6 +1,7 @@
 package com.webapp.socialmedia.service.impl;
 
 import com.webapp.socialmedia.dto.requests.ReportRequest;
+import com.webapp.socialmedia.dto.responses.ReportResponse;
 import com.webapp.socialmedia.entity.*;
 import com.webapp.socialmedia.enums.*;
 import com.webapp.socialmedia.exceptions.BadRequestException;
@@ -9,6 +10,7 @@ import com.webapp.socialmedia.repository.*;
 import com.webapp.socialmedia.service.ReportService;
 import com.webapp.socialmedia.utils.NotificationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -38,17 +40,17 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Report> getAllOpenReport(int pageNo, int pageSize) {
+    public ReportResponse getAllOpenReport(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-
-        return reportRepository.findByReportStatusOrderByCreatedAt(ReportStatus.OPEN, pageable);
+        Page<Report> reports = reportRepository.findByReportStatusOrderByCreatedAt(ReportStatus.OPEN, pageable);
+        return ReportResponse.builder().reports(reports.stream().toList()).totalPages(reports.getTotalPages()).build();
     }
 
     @Override
-    public List<Report> getAllCloseReport(int pageNo, int pageSize) {
+    public ReportResponse getAllCloseReport(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-
-        return reportRepository.findByReportStatusOrderByCreatedAt(ReportStatus.CLOSE, pageable);
+        Page<Report> reports = reportRepository.findByReportStatusOrderByCreatedAt(ReportStatus.CLOSE, pageable);
+        return ReportResponse.builder().reports(reports.stream().toList()).totalPages(reports.getTotalPages()).build();
     }
 
     @Override
