@@ -31,5 +31,5 @@ public interface IRelationshipService {
 
     List<ShortProfileResponse> getOnlineUser();
 
-    List<ShortProfileResponse> searchFriend(String keyword);
+    List<UserProfileResponse> searchFriend(String keyword);
 }

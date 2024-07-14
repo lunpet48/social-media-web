@@ -83,6 +83,7 @@ public class AuthenticationService {
         userRepository.save(user);
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = generateRefreshToken(user);
+        user.setPosts(new ArrayList<>());
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)

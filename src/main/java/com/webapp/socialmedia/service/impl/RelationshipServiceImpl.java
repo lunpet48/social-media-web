@@ -258,17 +258,14 @@ public class RelationshipServiceImpl implements IRelationshipService {
     }
 
     @Override
-    public List<ShortProfileResponse> searchFriend(String keyword) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(user.getId(), RelationshipStatus.FRIEND);
-        List<ShortProfileResponse> responses = new ArrayList<>();
+    public List<UserProfileResponse> searchFriend(String keyword) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Relationship> relationships = relationshipRepository.findByUserIdAndStatus(currentUser.getId(), RelationshipStatus.FRIEND);
+        List<UserProfileResponse> responses = new ArrayList<>();
         for(Relationship relationship : relationships) {
             if(relationship.getRelatedUser().getUsername().toLowerCase().contains(keyword.toLowerCase().trim())) {
-                responses.add(ShortProfileResponse.builder()
-                                .avatar(relationship.getRelatedUser().getProfile().getAvatar())
-                                .userId(relationship.getRelatedUser().getId())
-                                .username(relationship.getRelatedUser().getUsername())
-                        .build());
+                responses.add(userMapper.userToUserProfileResponse(relationship.getRelatedUser(), currentUser.getId()));
             }
         }
         return responses;
