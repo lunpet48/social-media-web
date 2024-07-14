@@ -76,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
         }
         //Thông báo có người bình luận
         Comment response = commentRepository.saveAndFlush(comment);
-        if(!comment.getPost().getUser().equals(user)) {
+        if(!comment.getPost().getUser().getId().equals(user.getId())) {
             var u = notificationRepository.saveAndFlush(Notification.builder()
                     .actor(user)
                     .receiver(comment.getPost().getUser())

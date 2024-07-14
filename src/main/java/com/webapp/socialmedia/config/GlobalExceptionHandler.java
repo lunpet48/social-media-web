@@ -1,21 +1,23 @@
 package com.webapp.socialmedia.config;
 
 import com.webapp.socialmedia.dto.WrappingResponse;
+import com.webapp.socialmedia.dto.responses.ResponseDTO;
 import com.webapp.socialmedia.dto.responses.ValidationErrorResponse;
 import com.webapp.socialmedia.dto.responses.Violation;
-import com.webapp.socialmedia.exceptions.BadRequestException;
-import com.webapp.socialmedia.exceptions.PostCannotUploadException;
-import com.webapp.socialmedia.exceptions.PostNotFoundException;
-import com.webapp.socialmedia.exceptions.ResourceNotFoundException;
+import com.webapp.socialmedia.exceptions.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -69,5 +71,17 @@ public class GlobalExceptionHandler {
                     new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
         }
         return error;
+    }
+
+    @ExceptionHandler(UserLockedException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleUserLockedException(UserLockedException e) {
+        Map<String, String> map = new HashMap<>();
+        map.put("logId", e.getMessage());
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setError(true);
+        responseDTO.setMessage("Tài khoản bị khóa");
+        responseDTO.setData(map);
+        return ResponseEntity.status(HttpStatus.LOCKED).body(responseDTO);
     }
 }
