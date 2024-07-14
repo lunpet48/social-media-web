@@ -8,6 +8,7 @@ import com.webapp.socialmedia.enums.NotificationStatus;
 import com.webapp.socialmedia.enums.NotificationType;
 import com.webapp.socialmedia.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +62,18 @@ public class NotificationController {
         } else {
             return (ResponseEntity<?>) ResponseEntity.notFound();
         }
+    }
+
+    @PostMapping("/notification/{notificationId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void markRead(@PathVariable String notificationId) {
+        notificationService.markRead(notificationId);
+    }
+
+    @PostMapping("/notification/mark-all-read")
+    @ResponseStatus(HttpStatus.OK)
+    public void markRead() {
+        notificationService.markAllRead();
     }
 
 //    @GetMapping("/notification")

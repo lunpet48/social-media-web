@@ -20,4 +20,8 @@ public interface NotificationService {
     public Integer returnAmountOfNewNotification();
 
     public List<NotificationResponse> findByNotificationType(List<NotificationType> type, int pageNo, int pageSize);
+
+    void markRead(String notificationId);
+
+    void markAllRead();
 }

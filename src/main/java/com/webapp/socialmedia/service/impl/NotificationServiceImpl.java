@@ -106,4 +106,19 @@ public class NotificationServiceImpl implements NotificationService {
         List<Notification> result = repository.findAllByReceiver_IdAndNotificationTypeInOrderByCreatedAtDesc(user.getId(), type, paging);
         return result.stream().map(mapper::toResponse).toList();
     }
+
+    @Override
+    public void markRead(String notificationId) {
+        Notification noti = repository.findById(notificationId).orElseThrow(() -> new BadRequestException("Không tìm thấy thông báo"));
+        noti.setStatus(NotificationStatus.READ);
+        repository.save(noti);
+    }
+
+    @Override
+    public void markAllRead() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Notification> notifications = repository.findAllByReceiver_Id(user.getId());
+        notifications.forEach(notification -> notification.setStatus(NotificationStatus.READ));
+        repository.saveAll(notifications);
+    }
 }

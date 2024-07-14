@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, String> {
+    List<Notification> findAllByReceiver_Id(String receiverId);
+
     Page<Notification> findAllByReceiver_IdOrderByCreatedAtDesc(String id, Pageable pageable);
 
     Page<Notification> findAllByReceiver_IdAndStatusOrderByCreatedAtDesc(String id, NotificationStatus status, Pageable pageable);
