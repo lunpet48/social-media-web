@@ -305,6 +305,9 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findByIdAndIsDeleted(postId, false).orElseThrow(PostNotFoundException::new);
         List<UserProfileResponse> responses = new ArrayList<>();
         for (Reaction reaction:post.getReactionList()) {
+            Optional<Relationship> temp = relationshipRepository.findByUserIdAndRelatedUserId(currentUser.getId(), reaction.getUser().getId());
+            if(temp.isPresent() && (temp.get().getStatus().equals(RelationshipStatus.BLOCK) || temp.get().getStatus().equals(RelationshipStatus.BLOCKED)))
+                continue;
             UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(reaction.getUser(), currentUser.getId());
             responses.add(userProfileResponse);
         }

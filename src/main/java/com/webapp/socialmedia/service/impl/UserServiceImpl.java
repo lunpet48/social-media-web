@@ -5,6 +5,7 @@ import com.webapp.socialmedia.dto.requests.ResetPasswordRequest;
 import com.webapp.socialmedia.dto.responses.UserProfileResponse;
 import com.webapp.socialmedia.entity.Relationship;
 import com.webapp.socialmedia.entity.User;
+import com.webapp.socialmedia.enums.RelationshipStatus;
 import com.webapp.socialmedia.exceptions.BadRequestException;
 import com.webapp.socialmedia.exceptions.InvalidOTPException;
 import com.webapp.socialmedia.mapper.UserMapper;
@@ -119,10 +120,13 @@ public class UserServiceImpl implements IUserService {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<User> users = userRepository.searchUser(keyword);
         List<UserProfileResponse> userProfileResponses = new ArrayList<>();
-        users.forEach(user -> {
+        for (User user : users) {
+            Optional<Relationship> temp = relationshipRepository.findByUserIdAndRelatedUserId(currentUser.getId(), user.getId());
+            if (temp.isPresent() && (temp.get().getStatus().equals(RelationshipStatus.BLOCK) || temp.get().getStatus().equals(RelationshipStatus.BLOCKED)))
+                continue;
             UserProfileResponse userProfileResponse = userMapper.userToUserProfileResponse(user, currentUser.getId());
             userProfileResponses.add(userProfileResponse);
-        });
+        }
         return userProfileResponses;
     }
 }
