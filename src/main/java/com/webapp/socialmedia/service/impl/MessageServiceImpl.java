@@ -89,8 +89,14 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public ChatRoom loadMessageInRoom(String roomId, int pageNo, int pageSize) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<Message> result = messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(roomId, paging);
+
+        Optional<Message> message = messageRepositoty.findTopByRoomIdOrderByCreatedAtDesc(roomId);
+        Participant user = participantRepository.findParticipantByRoom_IdAndUserId(roomId, currentUser.getId());
+        message.ifPresent(value -> user.setLatestReadMessageId(value.getId()));
+        participantRepository.save(user);
 
         return ChatRoom.builder()
                 .roomId(roomId)
@@ -121,6 +127,13 @@ public class MessageServiceImpl implements MessageService {
         for(MessageResponse messageResponse : response) {
             List<ShortProfileResponse> profileResponseV2s = new ArrayList<>();
             List<Participant> participants = participantRepository.findParticipantByRoom_Id(messageResponse.getRoomId());
+            Participant x = participantRepository.findParticipantByRoom_IdAndUserId(messageResponse.getRoomId() , user.getId());
+            boolean isRead = true;
+            if(messageResponse.getMessageId() != null) {
+                if (x.getLatestReadMessageId() == null || !x.getLatestReadMessageId().equals(messageResponse.getMessageId())) {
+                    isRead = false;
+                }
+            }
             for(Participant participant : participants) {
                 ShortProfileResponse profile = ShortProfileResponse.builder().avatar(participant.getUser().getProfile().getAvatar())
                         .username(participant.getUser().getUsername())
@@ -129,7 +142,7 @@ public class MessageServiceImpl implements MessageService {
 
                 profileResponseV2s.add(profile);
             }
-            responseV2s.add(ChatRoom.builder().users(profileResponseV2s).message(List.of(messageResponse)).roomId(messageResponse.getRoomId()).build());
+            responseV2s.add(ChatRoom.builder().users(profileResponseV2s).message(List.of(messageResponse)).roomId(messageResponse.getRoomId()).isRead(isRead).build());
         }
 
         return responseV2s;

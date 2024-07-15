@@ -13,4 +13,5 @@ public class ChatRoom {
     private String roomId;
     private List<ShortProfileResponse> users;
     private List<MessageResponse> message;
+    private boolean isRead;
 }

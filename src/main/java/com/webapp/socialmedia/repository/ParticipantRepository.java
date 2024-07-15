@@ -10,4 +10,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Partic
     List<Participant> findParticipantByRoom_Id(String roomId);
 
     List<Participant> findParticipantByUser_Id(String userId);
+
+    Participant findParticipantByRoom_IdAndUserId(String roomId, String userId);
 }

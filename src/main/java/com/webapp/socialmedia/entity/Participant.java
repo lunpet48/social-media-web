@@ -22,4 +22,5 @@ public class Participant {
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
+    private String latestReadMessageId;
 }
