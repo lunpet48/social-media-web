@@ -77,8 +77,9 @@ public class MessageServiceImpl implements MessageService {
                     .build();
         }
         Message temp = messageRepositoty.saveAndFlush(message);
-
-
+        Participant x = participantRepository.findParticipantByRoom_IdAndUserId(room.getId(), user.getId());
+        x.setLatestReadMessageId(temp.getId());
+        participantRepository.save(x);
         //Thông báo
         participants.forEach(participant -> {
             simpMessagingTemplate.convertAndSendToUser(participant.getUser().getUsername(), NotificationUtils.CHAT_LINK, mapper.toResponse(temp));
