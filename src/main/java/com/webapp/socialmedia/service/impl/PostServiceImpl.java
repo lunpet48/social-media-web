@@ -137,6 +137,12 @@ public class PostServiceImpl implements PostService {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
+            Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(user.getId(), receiver.getId());
+            if(relationship.isPresent()) {
+                if (relationship.get().getStatus().equals(RelationshipStatus.BLOCKED) || relationship.get().getStatus().equals(RelationshipStatus.BLOCK))
+                    continue;
+            }
+
             if(!receiver.getId().equals(user.getId())){
                 Notification response = notificationRepository.saveAndFlush(Notification.builder()
                         .receiver(receiver)
@@ -223,6 +229,12 @@ public class PostServiceImpl implements PostService {
             String username = matcher.group().substring(1);
             User receiver = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
+            Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(oldPost.getUser().getId(), receiver.getId());
+            if(relationship.isPresent()) {
+                if (relationship.get().getStatus().equals(RelationshipStatus.BLOCKED) || relationship.get().getStatus().equals(RelationshipStatus.BLOCK))
+                    continue;
+            }
+
             if(!receiver.getId().equals(oldPost.getUser().getId())) {
                 Notification response = notificationRepository.saveAndFlush(Notification.builder()
                         .receiver(receiver)
@@ -252,14 +264,17 @@ public class PostServiceImpl implements PostService {
     public Post getPost(String postId, String userId) throws PostNotFoundException {
         Post post = postRepository.findByIdAndIsDeleted(postId, false).orElseThrow(() -> new PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn"));
 
+        Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserId(post.getUser().getId(), userId);
+        if (relationship.isPresent() && (relationship.get().getStatus().equals(RelationshipStatus.BLOCK) || relationship.get().getStatus().equals(RelationshipStatus.BLOCKED)))
+            throw new PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn");
+
         PostMode mode = post.getMode();
         if (post.getUser().getId().equals(userId)) return post;
         if (mode.equals(PostMode.PUBLIC)) {
             return post;
         }
         if (mode.equals(PostMode.FRIEND)) {
-            Optional<Relationship> relationship = relationshipRepository.findByUserIdAndRelatedUserIdAndStatus(post.getUser().getId(), userId, RelationshipStatus.FRIEND);
-            if (relationship.isPresent())
+            if (relationship.isPresent() && relationship.get().getStatus().equals(RelationshipStatus.FRIEND))
                 return post;
         }
         throw new PostNotFoundException("Bài đăng không tồn tại hoặc đã bị ẩn");

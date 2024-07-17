@@ -19,7 +19,7 @@ public class CloudServiceImpl implements CloudService {
     final Cloudinary cloudinary;
     @Override
     public Media uploadFile(MultipartFile multipartFile, String userId, PostType postType) throws IOException {
-        var u =  cloudinary.uploader().upload(multipartFile.getBytes(),
+        var u =  cloudinary.uploader().uploadLarge(multipartFile.getBytes(),
                 ObjectUtils.asMap("public_id", UUID.randomUUID().toString(),
                         "resource_type", "auto",
                         "folder", userId + "/" +postType.name()));
@@ -29,7 +29,7 @@ public class CloudServiceImpl implements CloudService {
 
     @Override
     public Media uploadFile(MultipartFile multipartFile, String userId, String path) throws IOException {
-        var u =  cloudinary.uploader().upload(multipartFile.getBytes(),
+        var u =  cloudinary.uploader().uploadLarge(multipartFile.getBytes(),
                 ObjectUtils.asMap("public_id", UUID.randomUUID().toString(),
                         "resource_type", "auto",
                         "folder", userId + "/" + path));
