@@ -94,10 +94,10 @@ public class MessageServiceImpl implements MessageService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<Message> result = messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(roomId, paging);
 
-        Optional<Message> message = messageRepositoty.findTopByRoomIdOrderByCreatedAtDesc(roomId);
-        Participant user = participantRepository.findParticipantByRoom_IdAndUserId(roomId, currentUser.getId());
-        message.ifPresent(value -> user.setLatestReadMessageId(value.getId()));
-        participantRepository.save(user);
+//        Optional<Message> message = messageRepositoty.findTopByRoomIdOrderByCreatedAtDesc(roomId);
+//        Participant user = participantRepository.findParticipantByRoom_IdAndUserId(roomId, currentUser.getId());
+//        message.ifPresent(value -> user.setLatestReadMessageId(value.getId()));
+//        participantRepository.save(user);
 
         return ChatRoom.builder()
                 .roomId(roomId)
@@ -107,7 +107,7 @@ public class MessageServiceImpl implements MessageService {
                         .avatar(participant.getUser().getProfile().getAvatar())
                         .username(participant.getUser().getUsername())
                         .build()).toList())
-                        .isRead(true)
+//                        .isRead(true)
                 .build();
     }
 
@@ -259,5 +259,14 @@ public class MessageServiceImpl implements MessageService {
             }
         }
         return rooms;
+    }
+
+    @Override
+    public void markMessageAsRead(String roomId) {
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Message> message = messageRepositoty.findTopByRoomIdOrderByCreatedAtDesc(roomId);
+        Participant user = participantRepository.findParticipantByRoom_IdAndUserId(roomId, currentUser.getId());
+        message.ifPresent(value -> user.setLatestReadMessageId(value.getId()));
+        participantRepository.save(user);
     }
 }

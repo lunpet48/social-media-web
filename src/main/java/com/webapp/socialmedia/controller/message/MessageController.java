@@ -33,6 +33,11 @@ public class MessageController {
         return ResponseEntity.ok(new ResponseDTO().success(messageService.loadMessageInRoom(roomId, pageNo, pageSize)));
     }
 
+    @PostMapping("/chat/{roomId}")
+    public void markMessageAsRead(@PathVariable String roomId) {
+        messageService.markMessageAsRead(roomId);
+    }
+
     @GetMapping("/chat")
     public ResponseEntity<?> getChat() {
         return ResponseEntity.ok(new ResponseDTO().success(messageService.loadRoomChatByUser()));

@@ -20,4 +20,6 @@ public interface MessageService {
     ChatRoom addToRoomOrReturnAlreadyRoom(List<UserRequest> requests);
 
     List<RoomResponse> searchRoom(String keyword);
+
+    void markMessageAsRead(String roomId);
 }
