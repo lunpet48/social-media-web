@@ -94,8 +94,14 @@ public class MessageServiceImpl implements MessageService {
         Pageable paging = PageRequest.of(pageNo, pageSize);
         Page<Message> result = messageRepositoty.findByRoom_IdOrderByCreatedAtDesc(roomId, paging);
 
-//        Optional<Message> message = messageRepositoty.findTopByRoomIdOrderByCreatedAtDesc(roomId);
-//        Participant user = participantRepository.findParticipantByRoom_IdAndUserId(roomId, currentUser.getId());
+        Optional<Message> message = messageRepositoty.findTopByRoomIdOrderByCreatedAtDesc(roomId);
+        Participant user = participantRepository.findParticipantByRoom_IdAndUserId(roomId, currentUser.getId());
+        boolean isRead = true;
+        if(message.isPresent() && message.get().getId() != null) {
+            if (user.getLatestReadMessageId() == null || !user.getLatestReadMessageId().equals(message.get().getId())) {
+                isRead = false;
+            }
+        }
 //        message.ifPresent(value -> user.setLatestReadMessageId(value.getId()));
 //        participantRepository.save(user);
 
@@ -107,7 +113,7 @@ public class MessageServiceImpl implements MessageService {
                         .avatar(participant.getUser().getProfile().getAvatar())
                         .username(participant.getUser().getUsername())
                         .build()).toList())
-                        .isRead(null)
+                        .isRead(isRead)
                 .build();
     }
 
