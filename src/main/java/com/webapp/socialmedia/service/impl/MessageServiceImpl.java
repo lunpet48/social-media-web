@@ -107,6 +107,7 @@ public class MessageServiceImpl implements MessageService {
                         .avatar(participant.getUser().getProfile().getAvatar())
                         .username(participant.getUser().getUsername())
                         .build()).toList())
+                        .isRead(true)
                 .build();
     }
 
